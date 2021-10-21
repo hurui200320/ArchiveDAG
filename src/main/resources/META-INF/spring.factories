@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  info.skyblond.archivedag.config.ProtoConfiguration

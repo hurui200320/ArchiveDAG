@@ -1,0 +1,44 @@
+server:
+  port: 8888
+logging:
+  level:
+    root: info
+    info.skyblond: debug
+spring:
+  jpa:
+    show-sql: false
+    hibernate.ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  #  autoconfigure:
+  #    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration, \
+  #      org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration, \
+  #      org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    password: password
+    url: jdbc:postgresql://localhost:5432/archive_dag
+    username: postgres
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 256GB
+      max-request-size: 257GB
+archive-dag.proto:
+  storage:
+    type: file_system
+    primary-hash-type: sha3_512
+    secondary-hash-type: blake2b_256
+    filesystem:
+      path: "D:\\test_dir"
+      threadSize: 16
+      queue-size: 1024
+  meta:
+    lock-expire-time-in-ms: 60000
