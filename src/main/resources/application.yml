@@ -41,4 +41,4 @@ archive-dag.proto:
       threadSize: 16
       queue-size: 1024
   meta:
-    lock-expire-time-in-ms: 60000
+    lock-expire-time-in-ms: 900000
