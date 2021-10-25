@@ -18,11 +18,11 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class MetaEntity {
     @Id
-    @Column(name = "primary_hash")
+    @Column(name = "primary_hash", updatable = false)
     String primaryMultihashBase58;
-    @Column(name = "secondary_hash", nullable = false)
+    @Column(name = "secondary_hash", updatable = false, nullable = false)
     String secondaryMultihashBase58;
-    @Column(name = "obj_type", nullable = false)
+    @Column(name = "obj_type", updatable = false, nullable = false)
     String objType;
     @Column(name = "media_type")
     String mediaType;

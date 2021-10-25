@@ -47,7 +47,7 @@ import java.util.concurrent.ExecutionException;
  * | + Post: Restore and return all involved blob object links from a list of links
  * |
  * + /status
- * --+ Get:  Query the info of given links
+ * | + Get:  Query the info of given links
  */
 
 @RestController

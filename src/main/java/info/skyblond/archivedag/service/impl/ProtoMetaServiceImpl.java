@@ -3,7 +3,7 @@ package info.skyblond.archivedag.service.impl;
 import info.skyblond.archivedag.model.bo.FindTypeReceipt;
 import info.skyblond.archivedag.model.entity.MetaEntity;
 import info.skyblond.archivedag.repo.MetaRepository;
-import info.skyblond.archivedag.service.RedisLockService;
+import info.skyblond.archivedag.service.intf.DistributedLockService;
 import info.skyblond.archivedag.service.intf.ProtoMetaService;
 import info.skyblond.ariteg.ObjectType;
 import io.ipfs.multihash.Multihash;
@@ -19,11 +19,11 @@ import java.util.concurrent.TimeUnit;
 public class ProtoMetaServiceImpl implements ProtoMetaService {
     private final Logger logger = LoggerFactory.getLogger(ProtoMetaServiceImpl.class);
     private final MetaRepository metaRepository;
-    private final RedisLockService redisLockService;
+    private final DistributedLockService lockService;
 
-    public ProtoMetaServiceImpl(MetaRepository metaRepository, RedisLockService redisLockService) {
+    public ProtoMetaServiceImpl(MetaRepository metaRepository, DistributedLockService lockService) {
         this.metaRepository = metaRepository;
-        this.redisLockService = redisLockService;
+        this.lockService = lockService;
     }
 
     @Override
@@ -63,22 +63,22 @@ public class ProtoMetaServiceImpl implements ProtoMetaService {
 
     @Override
     public void lock(Multihash primary) {
-        this.redisLockService.lock(primary.toBase58());
+        this.lockService.lock(primary.toBase58());
     }
 
     @Override
     public boolean tryLock(Multihash primary) {
-        return this.redisLockService.tryLock(primary.toBase58());
+        return this.lockService.tryLock(primary.toBase58());
     }
 
     @Override
     public boolean tryLock(Multihash primary, long duration, TimeUnit unit) {
-        return this.redisLockService.tryLock(primary.toBase58(), duration, unit);
+        return this.lockService.tryLock(primary.toBase58(), duration, unit);
     }
 
     @Override
     public void unlock(Multihash primary) {
-        this.redisLockService.unlock(primary.toBase58());
+        this.lockService.unlock(primary.toBase58());
     }
 
     @Override

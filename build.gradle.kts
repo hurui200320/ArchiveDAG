@@ -51,7 +51,6 @@ dependencies {
     // Jackson
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
-
     // protobuf
     implementation("com.google.protobuf:protobuf-java:3.18.1")
     implementation("com.google.protobuf:protobuf-java-util:3.18.1")

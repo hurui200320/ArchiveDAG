@@ -140,7 +140,9 @@ public class ProtoServiceImpl implements ProtoService {
         ).thenAccept(v -> {
             // update media type
             Multihash multihash = MultihashUtils.getFromAritegLink(linkList.get(0));
-            this.metaService.updateMediaType(multihash, mediaType);
+            if (!this.metaService.updateMediaType(multihash, mediaType)) {
+                logger.warn("Cannot update media type: {} {}", multihash.toBase58(), mediaType);
+            }
         });
         return new WriteReceipt(
                 linkList.get(0).toBuilder().setName(name).build(),
