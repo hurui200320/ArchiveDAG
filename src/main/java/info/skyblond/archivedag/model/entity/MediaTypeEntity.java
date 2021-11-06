@@ -20,7 +20,7 @@ public class MediaTypeEntity {
     @Id
     @Column(name = "primary_hash", updatable = false)
     String primaryMultihashBase58;
-    @Column(name = "media_type", updatable = false, nullable = false)
+    @Column(name = "media_type", nullable = false)
     String mediaType;
 
     public MediaTypeEntity(

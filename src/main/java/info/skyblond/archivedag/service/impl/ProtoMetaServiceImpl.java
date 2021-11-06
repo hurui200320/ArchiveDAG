@@ -57,15 +57,16 @@ public class ProtoMetaServiceImpl implements ProtoMetaService {
 
     @Override
     public boolean updateMediaType(Multihash primary, String mediaType) {
-        if (this.mediaTypeRepository.findById(primary.toBase58()).isPresent()) {
-            return false;
-        } else {
-            this.mediaTypeRepository.save(MediaTypeEntity.builder()
+        MediaTypeEntity entity = this.mediaTypeRepository.findById(primary.toBase58()).orElse(null);
+        if (entity == null) {
+            entity = MediaTypeEntity.builder()
                     .primaryMultihashBase58(primary.toBase58())
                     .mediaType(mediaType)
-                    .build());
-            return true;
+                    .build();
         }
+        entity.setMediaType(mediaType);
+        this.mediaTypeRepository.save(entity);
+        return true;
     }
 
     @Override

@@ -80,7 +80,7 @@ data class CreateCommitRequest(
     @JsonIgnore
     fun getParentAritegLink(): AritegLink {
         return parent?.toAritegLink("parent") ?: AritegLink.newBuilder()
-            .setName("commit_data")
+            .setName("parent")
             .setMultihash(ByteString.EMPTY)
             .build()
     }
