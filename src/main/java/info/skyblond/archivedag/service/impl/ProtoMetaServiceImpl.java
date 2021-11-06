@@ -1,7 +1,9 @@
 package info.skyblond.archivedag.service.impl;
 
 import info.skyblond.archivedag.model.bo.FindTypeReceipt;
+import info.skyblond.archivedag.model.entity.MediaTypeEntity;
 import info.skyblond.archivedag.model.entity.MetaEntity;
+import info.skyblond.archivedag.repo.MediaTypeRepository;
 import info.skyblond.archivedag.repo.MetaRepository;
 import info.skyblond.archivedag.service.intf.DistributedLockService;
 import info.skyblond.archivedag.service.intf.ProtoMetaService;
@@ -19,10 +21,12 @@ import java.util.concurrent.TimeUnit;
 public class ProtoMetaServiceImpl implements ProtoMetaService {
     private final Logger logger = LoggerFactory.getLogger(ProtoMetaServiceImpl.class);
     private final MetaRepository metaRepository;
+    private final MediaTypeRepository mediaTypeRepository;
     private final DistributedLockService lockService;
 
-    public ProtoMetaServiceImpl(MetaRepository metaRepository, DistributedLockService lockService) {
+    public ProtoMetaServiceImpl(MetaRepository metaRepository, MediaTypeRepository mediaTypeRepository, DistributedLockService lockService) {
         this.metaRepository = metaRepository;
+        this.mediaTypeRepository = mediaTypeRepository;
         this.lockService = lockService;
     }
 
@@ -38,25 +42,28 @@ public class ProtoMetaServiceImpl implements ProtoMetaService {
 
     @Override
     public FindTypeReceipt findType(Multihash primary) {
-        MetaEntity result = this.metaRepository.findById(primary.toBase58()).orElse(null);
-        if (result == null) {
+        MetaEntity metaResult = this.metaRepository.findById(primary.toBase58()).orElse(null);
+        MediaTypeEntity mediaTypeResult = this.mediaTypeRepository.findById(primary.toBase58()).orElse(null);
+        if (metaResult == null) {
             return null;
         } else {
-            return new FindTypeReceipt(
-                    ObjectType.valueOf(result.getObjType()),
-                    result.getMediaType()
-            );
+            String mediaType = null;
+            if (mediaTypeResult != null) {
+                mediaType = mediaTypeResult.getMediaType();
+            }
+            return new FindTypeReceipt(ObjectType.valueOf(metaResult.getObjType()), mediaType);
         }
     }
 
     @Override
     public boolean updateMediaType(Multihash primary, String mediaType) {
-        MetaEntity result = this.metaRepository.findById(primary.toBase58()).orElse(null);
-        if (result == null) {
+        if (this.mediaTypeRepository.findById(primary.toBase58()).isPresent()) {
             return false;
         } else {
-            result.setMediaType(mediaType);
-            this.metaRepository.save(result);
+            this.mediaTypeRepository.save(MediaTypeEntity.builder()
+                    .primaryMultihashBase58(primary.toBase58())
+                    .mediaType(mediaType)
+                    .build());
             return true;
         }
     }

@@ -132,7 +132,7 @@ data class StatusModel(
     @JsonProperty("type")
     val type: String,
     @JsonProperty("media_type")
-    val mediaType: String,
+    val mediaType: String?,
     @JsonProperty("status")
     val status: String,
     @JsonProperty("raw_size")

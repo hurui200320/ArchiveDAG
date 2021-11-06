@@ -1,5 +1,6 @@
 server:
   port: 8888
+  max-http-header-size: 16MB
 logging:
   level:
     root: info
@@ -12,10 +13,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-  #  autoconfigure:
-  #    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration, \
-  #      org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration, \
-  #      org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
   datasource:
     driver-class-name: org.postgresql.Driver
     password: password

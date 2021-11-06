@@ -3,7 +3,9 @@ package info.skyblond.archivedag.service.intf;
 import info.skyblond.archivedag.model.bo.*;
 import info.skyblond.archivedag.model.exception.*;
 import info.skyblond.ariteg.AritegLink;
+import info.skyblond.ariteg.objects.BlobObject;
 import info.skyblond.ariteg.objects.CommitObject;
+import info.skyblond.ariteg.objects.ListObject;
 import info.skyblond.ariteg.objects.TreeObject;
 import io.ipfs.multihash.Multihash;
 
@@ -28,6 +30,9 @@ public interface ProtoService {
      * Return the mediaType and the input stream representing the data.
      */
     ReadReceipt readChunk(AritegLink link) throws ReadChunkException;
+
+    BlobObject readBlob(AritegLink link) throws ReadBlobException;
+    ListObject readList(AritegLink link) throws ReadListException;
 
     /**
      * Pack a list of link into a tree object.

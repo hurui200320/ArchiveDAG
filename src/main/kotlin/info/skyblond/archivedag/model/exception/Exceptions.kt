@@ -42,6 +42,8 @@ class LoadProtoException(t: Throwable) : Exception("Error when loading proto", t
 
 class WriteChunkException(t: Throwable) : Exception("Error when writing chunk", t)
 class ReadChunkException(t: Throwable) : Exception("Error when reading chunk", t)
+class ReadBlobException(t: Throwable) : Exception("Error when reading blob", t)
+class ReadListException(t: Throwable) : Exception("Error when reading list", t)
 
 class WriteTreeException(t: Throwable) : Exception("Error when writing tree", t)
 class ReadTreeException(t: Throwable) : Exception("Error when reading tree", t)

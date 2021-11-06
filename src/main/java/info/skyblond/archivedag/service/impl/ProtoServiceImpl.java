@@ -12,7 +12,9 @@ import info.skyblond.ariteg.AritegLink;
 import info.skyblond.ariteg.AritegObject;
 import info.skyblond.ariteg.CommitData;
 import info.skyblond.ariteg.ObjectType;
+import info.skyblond.ariteg.objects.BlobObject;
 import info.skyblond.ariteg.objects.CommitObject;
+import info.skyblond.ariteg.objects.ListObject;
 import info.skyblond.ariteg.objects.TreeObject;
 import io.ipfs.multihash.Multihash;
 import org.slf4j.Logger;
@@ -48,7 +50,6 @@ public class ProtoServiceImpl implements ProtoService {
                     .primaryMultihashBase58(primary.toBase58())
                     .secondaryMultihashBase58(secondaryHashBase58)
                     .objType(proto.getType().name())
-                    .mediaType(null) // TODO default null?
                     .build());
             if (oldEntry != null) {
                 this.logger.debug("Skip writing {}", primary.toBase58());
@@ -241,6 +242,26 @@ public class ProtoServiceImpl implements ProtoService {
     }
 
     @Override
+    public BlobObject readBlob(AritegLink link) throws ReadBlobException {
+        try {
+            AritegObject obj = this.protoStorage.loadProto(link);
+            return BlobObject.Companion.fromProto(obj);
+        } catch (Throwable t) {
+            throw new ReadBlobException(t);
+        }
+    }
+
+    @Override
+    public ListObject readList(AritegLink link) throws ReadListException {
+        try {
+            AritegObject obj = this.protoStorage.loadProto(link);
+            return ListObject.Companion.fromProto(obj);
+        } catch (Throwable t) {
+            throw new ReadListException(t);
+        }
+    }
+
+    @Override
     public WriteReceipt writeTree(String name, List<AritegLink> links) throws WriteTreeException {
         try {
             return this.writeProto(name, new TreeObject(links).toProto());
@@ -350,9 +371,6 @@ public class ProtoServiceImpl implements ProtoService {
                 .build();
         ProtoStatus status = this.protoStorage.headLink(link);
         String mediaType = type.getMediaType();
-        if (mediaType == null) {
-            mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
-        }
         return new ProbeReceipt(link, mediaType, status);
     }
 }

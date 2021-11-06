@@ -11,28 +11,24 @@ import java.util.Objects;
 
 @Builder
 @Entity
-@Table(name = "proto_meta")
+@Table(name = "proto_media_type")
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class MetaEntity {
+public class MediaTypeEntity {
     @Id
     @Column(name = "primary_hash", updatable = false)
     String primaryMultihashBase58;
-    @Column(name = "secondary_hash", updatable = false, nullable = false)
-    String secondaryMultihashBase58;
-    @Column(name = "obj_type", updatable = false, nullable = false)
-    String objType;
+    @Column(name = "media_type", updatable = false, nullable = false)
+    String mediaType;
 
-    public MetaEntity(
+    public MediaTypeEntity(
             String primaryMultihashBase58,
-            String secondaryMultihashBase58,
-            String objType
+            String mediaType
     ) {
         this.primaryMultihashBase58 = primaryMultihashBase58;
-        this.secondaryMultihashBase58 = secondaryMultihashBase58;
-        this.objType = objType;
+        this.mediaType = mediaType;
     }
 
     @Override
@@ -43,7 +39,7 @@ public class MetaEntity {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
             return false;
         }
-        MetaEntity metaEntity = (MetaEntity) o;
+        MediaTypeEntity metaEntity = (MediaTypeEntity) o;
         return this.primaryMultihashBase58 != null && Objects.equals(this.primaryMultihashBase58, metaEntity.primaryMultihashBase58);
     }
 

@@ -11,6 +11,7 @@ import info.skyblond.archivedag.service.intf.ProtoService;
 import info.skyblond.ariteg.AritegLink;
 import info.skyblond.ariteg.ObjectType;
 import info.skyblond.ariteg.objects.CommitObject;
+import info.skyblond.ariteg.objects.ListObject;
 import info.skyblond.ariteg.objects.TreeObject;
 import io.ipfs.multihash.Multihash;
 import org.springframework.core.io.InputStreamResource;
@@ -37,7 +38,9 @@ import java.util.concurrent.ExecutionException;
  * |
  * + /tree
  * | + Post: Create a tree obj from list of links
- * | + Get:  Get the list of links from a link to a tree obj
+ * |
+ * + /sub_link
+ * | + Get:  Get the list of links from a tree or list obj
  * |
  * + /commit
  * | + Post: Create a commit obj from the given info
@@ -110,24 +113,34 @@ public class ProtoController {
         return AritegLinkModel.fromAritegLink(writeReceipt.getLink());
     }
 
-    @GetMapping(path = "/tree")
+    // List and Tree has sub links
+    @GetMapping(path = "/sub_link")
     public List<AritegLinkModel> getTree(
             @RequestParam("link") String hashBase58
-    ) throws ObjectProbingException, ReadTreeException {
+    ) throws ObjectProbingException, ReadTreeException, ReadListException {
         Multihash multihash = Multihash.fromBase58(hashBase58);
         ProbeReceipt probeReceipt = this.protoService.probe(multihash);
         if (probeReceipt == null) {
             return List.of();
         }
         AritegLink link = probeReceipt.getLink();
-        if (link.getType() != ObjectType.TREE) {
-            return List.of();
-        }
-        TreeObject obj = this.protoService.readTree(link);
+
         List<AritegLinkModel> result = new LinkedList<>();
-        for (AritegLink l : obj.getLinks()) {
-            result.add(AritegLinkModel.fromAritegLink(l));
+
+        if (link.getType() == ObjectType.TREE) {
+            TreeObject obj = this.protoService.readTree(link);
+            for (AritegLink l : obj.getLinks()) {
+                result.add(AritegLinkModel.fromAritegLink(l));
+            }
         }
+
+        if (link.getType() == ObjectType.LIST) {
+            ListObject obj = this.protoService.readList(link);
+            for (AritegLink l : obj.getList()) {
+                result.add(AritegLinkModel.fromAritegLink(l));
+            }
+        }
+
         return result;
     }
 
@@ -188,9 +201,9 @@ public class ProtoController {
     }
 
     @GetMapping(path = "/status")
-    public Map<String, StatusModel> restore(
+    public Map<String, StatusModel> status(
             @RequestParam("links") List<String> multihashBase58List
-    ) throws ObjectProbingException, ObjectRestorationException, ExecutionException, InterruptedException {
+    ) throws ObjectProbingException {
         Map<String, StatusModel> result = new HashMap<>();
 
         for (String rawHashBase58 : multihashBase58List) {

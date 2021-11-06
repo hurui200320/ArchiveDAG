@@ -78,7 +78,7 @@ data class RestoreReceipt(
 
 data class ProbeReceipt(
     val link: AritegLink,
-    val mediaType: String,
+    val mediaType: String?,
     val status: ProtoStatus,
     // TODO more data needed?
 )
