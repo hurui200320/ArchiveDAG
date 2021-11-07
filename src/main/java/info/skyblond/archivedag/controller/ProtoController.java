@@ -16,6 +16,7 @@ import info.skyblond.ariteg.objects.TreeObject;
 import io.ipfs.multihash.Multihash;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -64,9 +68,12 @@ public class ProtoController {
         this.protoProperties = protoProperties;
     }
 
-    @GetMapping(path = "/chunk")
+    @GetMapping(path = "/chunk/{name}")
     public ResponseEntity<Resource> downloadChunk(
-            @RequestParam("link") String hashBase58
+            @PathVariable("name") String name,
+            @RequestParam("link") String hashBase58,
+            // inline or attachment, attachment by default.
+            @RequestParam(value = "type", defaultValue = "attachment") String returnType
     ) throws ObjectProbingException, ReadChunkException {
         Multihash multihash = Multihash.fromBase58(hashBase58);
         ProbeReceipt probeReceipt = this.protoService.probe(multihash);
@@ -77,6 +84,7 @@ public class ProtoController {
         ReadReceipt readReceipt = this.protoService.readChunk(link);
 
         return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, returnType + "; filename=" + URLEncoder.encode(name, StandardCharsets.UTF_8))
                 .contentType(MediaType.parseMediaType(readReceipt.getMediaType()))
                 .body(new InputStreamResource(readReceipt.getInputStream())
                 );

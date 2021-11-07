@@ -15,8 +15,8 @@ spring:
         format_sql: true
   datasource:
     driver-class-name: org.postgresql.Driver
-    password: password
     url: jdbc:postgresql://localhost:5432/archive_dag
+    password: password
     username: postgres
   redis:
     database: 0
@@ -34,7 +34,7 @@ archive-dag.proto:
     primary-hash-type: sha3_512
     secondary-hash-type: blake2b_256
     filesystem:
-      path: "D:\\test_dir"
+      path: "./data/protos"
       threadSize: 16
       queue-size: 1024
   meta:
