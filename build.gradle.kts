@@ -65,7 +65,7 @@ dependencies {
     // redis lock
     implementation("org.springframework.boot:spring-boot-starter-integration:2.5.6")
     implementation("org.springframework.boot:spring-boot-starter-data-redis:2.5.6")
-    implementation("org.springframework.integration:spring-integration-redis:5.5.4")
+    implementation("org.springframework.integration:spring-integration-redis:5.5.5")
     // spring boot configuration
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:2.5.6")
     // spring boot test
