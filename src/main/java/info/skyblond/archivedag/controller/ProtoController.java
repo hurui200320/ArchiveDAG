@@ -24,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -97,9 +96,13 @@ public class ProtoController {
         List<AritegLinkModel> result = new LinkedList<>();
         List<CompletableFuture<Void>> futures = new LinkedList<>();
         for (MultipartFile file : files) {
+            String contentType = file.getContentType();
+            if (contentType == null) {
+                contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+            }
             try (InputStream in = file.getInputStream()) {
                 WriteReceipt receipt = this.protoService.writeChunk(
-                        file.getOriginalFilename(), file.getContentType(), in,
+                        file.getOriginalFilename(), contentType, in,
                         this.protoProperties.getBlobSize(), this.protoProperties.getListLength()
                 );
                 result.add(AritegLinkModel.fromAritegLink(receipt.getLink()));
@@ -194,7 +197,7 @@ public class ProtoController {
             Multihash multihash = Multihash.fromBase58(hashBase58);
             ProbeReceipt probeReceipt = this.protoService.probe(multihash);
             if (probeReceipt == null) {
-                return null;
+                continue;
             }
             RestoreReceipt receipt = this.protoService.restore(
                     probeReceipt.getLink(), request.toRestoreOption()

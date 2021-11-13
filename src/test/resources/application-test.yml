@@ -1,23 +1,26 @@
 server:
-  port: 8888
   max-http-header-size: 16MB
+logging:
+  level:
+    root: info
+    info.skyblond: debug
 spring:
   jpa:
-    show-sql: false
-    hibernate.ddl-auto: update
+    show-sql: true
+    hibernate.ddl-auto: create-drop
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/archive_dag
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:archive_dag_test
+    username: sa
     password: password
-    username: postgres
   redis:
     database: 0
     host: localhost
-    port: 6379
+    port: 6380
   servlet:
     multipart:
       enabled: true
@@ -25,13 +28,13 @@ spring:
       max-file-size: 256GB
       max-request-size: 257GB
 archive-dag.proto:
+  blobSize: 1048576 # 1MB
+  listLength: 16 # 16MB per list
   storage:
     type: file_system
     primary-hash-type: sha3_512
     secondary-hash-type: blake2b_256
     filesystem:
-      path: "./data/protos"
+      path: "./data/test/protos"
       threadSize: 16
       queue-size: 1024
-  meta:
-    lock-expire-time-in-ms: 900000

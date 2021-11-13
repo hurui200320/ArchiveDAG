@@ -32,6 +32,7 @@ public interface ProtoService {
     ReadReceipt readChunk(AritegLink link) throws ReadChunkException;
 
     BlobObject readBlob(AritegLink link) throws ReadBlobException;
+
     ListObject readList(AritegLink link) throws ReadListException;
 
     /**

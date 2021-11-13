@@ -64,11 +64,9 @@ object MultihashProviders {
         Type.md5 -> generateJavaProvider(Type.md5, "MD5")
         Type.sha1 -> generateJavaProvider(Type.sha1, "SHA-1")
         Type.sha2_256 -> generateJavaProvider(Type.sha2_256, "SHA-256")
-        Type.sha3_224 -> generateJavaProvider(Type.sha3_224, "SHA3-224")
         Type.sha3_256 -> generateJavaProvider(Type.sha3_256, "SHA3-256")
         Type.sha3_512 -> generateJavaProvider(Type.sha3_512, "SHA3-512")
         Type.sha2_512 -> MultihashBouncyCastleProvider(Type.sha2_512) { SHA512Digest() }
-        Type.keccak_224 -> generateKeccakProvider(Type.keccak_224, 224)
         Type.keccak_256 -> generateKeccakProvider(Type.keccak_256, 256)
         Type.keccak_384 -> generateKeccakProvider(Type.keccak_384, 384)
         Type.keccak_512 -> generateKeccakProvider(Type.keccak_512, 512)

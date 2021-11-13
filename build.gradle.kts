@@ -68,12 +68,20 @@ dependencies {
     implementation("org.springframework.integration:spring-integration-redis:5.5.5")
     // spring boot configuration
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:2.5.6")
-    // spring boot test
-    testImplementation("org.springframework.boot:spring-boot-starter-test:2.5.6")
     // springfox swagger
     implementation("io.springfox:springfox-boot-starter:3.0.0")
     implementation("io.springfox:springfox-swagger-ui:3.0.0")
 
+    // -------------------- TEST --------------------
+
+    // spring boot test
+    testImplementation("org.springframework.boot:spring-boot-starter-test:2.5.6")
+    // H2 for test database
+    testImplementation("com.h2database:h2:1.4.200")
+    // embedded redis
+    testImplementation("it.ozimov:embedded-redis:0.7.3") {
+        exclude("org.slf4j", "slf4j-simple")
+    }
 }
 
 tasks.withType<KotlinCompile> {
