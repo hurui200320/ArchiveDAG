@@ -1,6 +1,19 @@
 server:
   port: 8888
   max-http-header-size: 16MB
+grpc:
+  server:
+    port: 9090
+    reflection-service-enabled: true
+    security:
+      enabled: true
+      certificate-chain: file:ssl/localhost.crt
+      private-key: file:ssl/localhost.key
+      trust-cert-collection: file:ssl/rootCA.crt
+      client-auth: require
+cert-signing:
+  ca-cert: file:ssl/rootCA.crt
+  ca-private-key: file:ssl/rootCA.key
 spring:
   jpa:
     show-sql: false
