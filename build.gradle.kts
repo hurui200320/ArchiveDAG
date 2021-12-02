@@ -48,6 +48,7 @@ val grpcStarterVersion = "2.12.0.RELEASE"
 val postgresqlVersion = "42.3.1"
 val multihashVersion = "v1.3.0"
 val bouncyCastleVersion = "1.69"
+val jjwtVersion = "0.11.2"
 
 val embeddedRedisVersion = "0.7.3"
 val h2Version = "1.4.200"
@@ -96,6 +97,11 @@ dependencies {
     implementation("com.github.multiformats:java-multihash:$multihashVersion")
     implementation("org.bouncycastle:bcprov-jdk15on:$bouncyCastleVersion")
     implementation("org.bouncycastle:bcpkix-jdk15on:$bouncyCastleVersion")
+
+    // JJWT
+    implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
 
     // -------------------- TEST --------------------
 

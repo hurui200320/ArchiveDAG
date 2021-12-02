@@ -48,3 +48,7 @@ archive-dag.proto:
       queue-size: 1024
   meta:
     lock-expire-time-in-ms: 900000
+jwt:
+  secret: r5FHVELtfN5CdTLGJ6ZwEEBCNFn4nTr5ig6SwpXbj2nQuWYsOn/EJyqEWvEm4J0NOYdmC51+kdX2efPZRhTYzA==
+  expire-in-duration: 30
+  expire-in-unit: minutes

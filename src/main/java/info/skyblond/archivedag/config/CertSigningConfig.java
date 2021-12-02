@@ -1,6 +1,6 @@
 package info.skyblond.archivedag.config;
 
-import info.skyblond.archivedag.model.bo.CertSigningInfo;
+import info.skyblond.archivedag.model.CertSigningInfo;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMDecryptorProvider;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
