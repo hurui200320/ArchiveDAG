@@ -27,16 +27,15 @@ public class AuthController {
         this.userDetailsService = userDetailsService;
     }
 
-
     @PostMapping
     public JWTAuthResponse signJwtToken(
             @RequestBody JwtAuthRequest request
     ) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+        this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 request.getUsername(), request.getPassword()
         ));
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-        String token = jwtTokenManager.generateToken(userDetails);
+        UserDetails userDetails = this.userDetailsService.loadUserByUsername(request.getUsername());
+        String token = this.jwtTokenManager.generateToken(userDetails);
         return new JWTAuthResponse(token);
     }
 }

@@ -2,6 +2,7 @@ package info.skyblond.archivedag.config;
 
 import info.skyblond.archivedag.model.CertSigningInfo;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMDecryptorProvider;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
 import org.bouncycastle.openssl.PEMKeyPair;
@@ -19,6 +20,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
+import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -70,6 +72,9 @@ public class CertSigningConfig {
 
     @Bean
     public CertSigningInfo certSigningInfo() throws IOException, CertificateException, NoSuchProviderException {
+        if (Security.getProvider("BC") == null) {
+            Security.addProvider(new BouncyCastleProvider());
+        }
         PrivateKey caPrivateKey = this.readPrivateKey(
                 this.properties.getCaPrivateKey().readableChannel(),
                 this.properties.getCaPrivateKeyPassword());

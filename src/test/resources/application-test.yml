@@ -4,6 +4,19 @@ logging:
   level:
     root: info
     info.skyblond: debug
+grpc:
+  server:
+    port: 9099
+    reflection-service-enabled: true
+    security:
+      enabled: true
+      certificate-chain: file:ssl/localhost.crt
+      private-key: file:ssl/localhost.key
+      trust-cert-collection: file:ssl/rootCA.crt
+      client-auth: require
+cert-signing:
+  ca-cert: file:ssl/rootCA.crt
+  ca-private-key: file:ssl/rootCA.key
 spring:
   jpa:
     show-sql: true

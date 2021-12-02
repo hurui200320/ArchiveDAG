@@ -28,6 +28,12 @@ public class UserEntity {
         this.status = UserStatus.LOCKED;
     }
 
+    public UserEntity(String username, String password, UserStatus status) {
+        this.username = username;
+        this.password = password;
+        this.status = status;
+    }
+
     public enum UserStatus {
         ENABLED, DISABLED, LOCKED
     }

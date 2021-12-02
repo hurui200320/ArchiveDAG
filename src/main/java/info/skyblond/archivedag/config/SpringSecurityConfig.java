@@ -49,17 +49,19 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 // don't forget the gRPC auth provider
                 .authenticationProvider(
-                        new X509CertificateAuthenticationProvider(x509UsernameExtractor(), this.userDetailsService)
+                        new X509CertificateAuthenticationProvider(this.x509UsernameExtractor(), this.userDetailsService)
                 );
     }
 
     @Bean
-    public Function<X509CertificateAuthentication, String> x509UsernameExtractor(){
+    public Function<X509CertificateAuthentication, String> x509UsernameExtractor() {
         return authentication -> {
             // take the serial number of the cert and may check the revoke info of it.
             log.info("X509 serial no.: {}", authentication.getCredentials().getSerialNumber());
             // TODO you can return null for non-validate serial number
-            if (false) return null;
+            if (false) {
+                return null;
+            }
             // then extract the username from subject CN
             return X509CertificateAuthenticationProvider.CN_USERNAME_EXTRACTOR.apply(authentication);
         };
