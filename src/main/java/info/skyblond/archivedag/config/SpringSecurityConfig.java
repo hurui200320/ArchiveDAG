@@ -92,7 +92,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         http.exceptionHandling().authenticationEntryPoint(this.entryPoint);
         // set endpoints
         http.authorizeRequests()
+                // public controller
                 .antMatchers("/public/**").permitAll()
+                // rest of them
                 .anyRequest().authenticated();
         // add our JWT filter
         http.addFilterBefore(this.jwtRequestFilter,

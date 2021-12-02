@@ -2,6 +2,7 @@ package info.skyblond.archivedag.security;
 
 import info.skyblond.archivedag.config.JwtProperties;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
-import java.util.Objects;
 
 @Slf4j
 @Component
@@ -44,20 +44,14 @@ public class JwtTokenManager {
     }
 
     public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(this.signingKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        log.info("Get claims: {}", claims);
-        Date now = new Date();
-        if (claims.getNotBefore() != null && now.before(claims.getNotBefore())) {
-            // now ... ntb
-            return null;
-        }
-        // Here we reject token with no expiration
-        if (Objects.requireNonNull(claims.getExpiration()).before(now)) {
-            // exp ... now
+        Claims claims;
+        try {
+            claims = Jwts.parserBuilder()
+                    .setSigningKey(this.signingKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (JwtException e) {
             return null;
         }
         return claims.getSubject();

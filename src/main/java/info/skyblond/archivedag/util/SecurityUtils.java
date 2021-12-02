@@ -1,7 +1,12 @@
 package info.skyblond.archivedag.util;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 public class SecurityUtils {
     public static Authentication getCurrentAuthentication() {
@@ -18,5 +23,11 @@ public class SecurityUtils {
             return false;
         }
         return auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(role));
+    }
+
+    public static void requireSortPropertiesInRange(Pageable pageable, List<String> range) {
+        if (!pageable.getSort().stream().allMatch(o -> range.contains(o.getProperty()))) {
+            throw new IllegalArgumentException("Sort properties not in range.");
+        }
     }
 }

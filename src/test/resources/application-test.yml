@@ -6,7 +6,7 @@ logging:
     info.skyblond: debug
 grpc:
   server:
-    port: 9099
+    port: -1
     reflection-service-enabled: true
     security:
       enabled: true

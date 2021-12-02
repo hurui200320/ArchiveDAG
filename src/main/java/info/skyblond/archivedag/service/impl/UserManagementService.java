@@ -1,15 +1,16 @@
 package info.skyblond.archivedag.service.impl;
 
+import info.skyblond.archivedag.model.DuplicatedEntityException;
+import info.skyblond.archivedag.model.EntityNotFoundException;
+import info.skyblond.archivedag.model.PermissionDeniedException;
 import info.skyblond.archivedag.model.UserDetailModel;
 import info.skyblond.archivedag.model.entity.UserEntity;
 import info.skyblond.archivedag.model.entity.UserRoleEntity;
-import info.skyblond.archivedag.model.exceptions.DuplicatedEntityException;
-import info.skyblond.archivedag.model.exceptions.EntityNotFoundException;
-import info.skyblond.archivedag.model.exceptions.PermissionDeniedException;
 import info.skyblond.archivedag.repo.UserRepository;
 import info.skyblond.archivedag.repo.UserRoleRepository;
 import info.skyblond.archivedag.util.SecurityUtils;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,17 +24,19 @@ public class UserManagementService {
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PatternService patternService;
 
-    public UserManagementService(UserRepository userRepository, UserRoleRepository userRoleRepository, PasswordEncoder passwordEncoder) {
+    public UserManagementService(UserRepository userRepository, UserRoleRepository userRoleRepository, PasswordEncoder passwordEncoder, PatternService patternService) {
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.patternService = patternService;
     }
 
     @PreAuthorize("hasRole('USER')")
-    public List<String> listUsername(String keyword) {
+    public List<String> listUsername(String keyword, Pageable pageable) {
         List<String> result = new LinkedList<>();
-        this.userRepository.findAllByUsernameContaining(keyword)
+        this.userRepository.findAllByUsernameContaining(keyword, pageable)
                 .forEach(u -> result.add(u.getUsername()));
         return result;
     }
@@ -94,6 +97,9 @@ public class UserManagementService {
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void createUser(String username, String password) {
+        if (!this.patternService.isValidUsername(password)) {
+            throw new IllegalArgumentException("In valid username. The username must meet the regex: " + this.patternService.getUsernameRegex());
+        }
         UserEntity entity = new UserEntity(username, this.passwordEncoder.encode(password));
         // Here we should use lock to ensure the user still doesn't exist
         // after this execution, but seems like a lock can only be applied

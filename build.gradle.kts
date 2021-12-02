@@ -84,7 +84,6 @@ dependencies {
     implementation("io.grpc:grpc-stub:$grpcVersion")
     // ssl for grpc
     implementation("io.grpc:grpc-netty-shaded:$grpcVersion")
-    compileOnly("org.apache.tomcat:annotations-api:6.0.53")
 
     // Postgresql jdbc driver
     runtimeOnly("org.postgresql:postgresql:$postgresqlVersion")

@@ -11,27 +11,24 @@ import info.skyblond.archivedag.security.JwtTokenManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.util.NestedServletException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 
 @SpringBootTest
 @ActiveProfiles("test")
+@AutoConfigureMockMvc
 class AuthControllerTest {
 
     @Autowired
-    AuthController authController;
     MockMvc mockMvc;
 
     @Autowired
@@ -47,7 +44,6 @@ class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
-        this.mockMvc = MockMvcBuilders.standaloneSetup(this.authController).build();
         this.userRepository.save(new UserEntity("test_user_jwt",
                 this.passwordEncoder.encode("password"),
                 UserEntity.UserStatus.ENABLED));
@@ -69,17 +65,12 @@ class AuthControllerTest {
     }
 
     @Test
-    void testWrongPassword() {
-        assertThrows(BadCredentialsException.class, () -> {
-            try {
-                this.mockMvc.perform(post("/public/auth")
+    void testWrongPassword() throws Exception {
+        this.mockMvc.perform(post("/public/auth")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.gson.toJson(new JwtAuthRequest(
                                 "test_user_jwt",
-                                "not_password"))));
-            } catch (NestedServletException e) {
-                throw e.getCause();
-            }
-        });
+                                "not_password"))))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 }
