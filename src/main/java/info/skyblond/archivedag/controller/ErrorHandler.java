@@ -4,11 +4,14 @@ import info.skyblond.archivedag.model.DuplicatedEntityException;
 import info.skyblond.archivedag.model.EntityNotFoundException;
 import info.skyblond.archivedag.model.ExceptionResponse;
 import info.skyblond.archivedag.model.PermissionDeniedException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
 
+@Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
     // TODO What about gRPC exception?
@@ -47,6 +51,8 @@ public class ErrorHandler {
     @ExceptionHandler({
             AccessDeniedException.class,
             PermissionDeniedException.class,
+            LockedException.class,
+            DisabledException.class,
     })
     @ResponseBody()
     public ResponseEntity<ExceptionResponse> handleForbidden(HttpServletRequest request, Throwable t) {
@@ -129,6 +135,7 @@ public class ErrorHandler {
     @ExceptionHandler(Throwable.class)
     @ResponseBody()
     public ResponseEntity<ExceptionResponse> handleInternalServerError(HttpServletRequest request, Throwable t) {
+        log.error("Unexpected error", t);
         return ExceptionResponse.generateResp(HttpStatus.INTERNAL_SERVER_ERROR, request, t);
     }
 

@@ -33,7 +33,6 @@ public class UserManagementService {
         this.patternService = patternService;
     }
 
-    @PreAuthorize("hasRole('USER')")
     public List<String> listUsername(String keyword, Pageable pageable) {
         List<String> result = new LinkedList<>();
         this.userRepository.findAllByUsernameContaining(keyword, pageable)
@@ -41,7 +40,6 @@ public class UserManagementService {
         return result;
     }
 
-    @PreAuthorize("hasRole('USER')")
     public UserDetailModel queryUser(String username) {
         UserEntity entity = this.userRepository.findByUsername(username);
         if (entity == null) {
@@ -59,21 +57,15 @@ public class UserManagementService {
         );
     }
 
-    @PreAuthorize("hasRole('USER')")
-    public List<String> listUserRoles(String username) {
+    public List<String> listUserRoles(String username, Pageable pageable) {
         List<String> roles = new LinkedList<>();
-        this.userRoleRepository.findAllByUsername(username)
+        this.userRoleRepository.findAllByUsername(username, pageable)
                 .forEach(r -> roles.add(r.getRole()));
         return roles;
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @Transactional
     public void changePassword(String username, String password) {
-        if (SecurityUtils.checkCurrentUserHasRole("ROLE_USER")
-                && !SecurityUtils.getCurrentUsername().equals(username)) {
-            // if is user, and username not match
-            throw new PermissionDeniedException("You can only change your own password");
-        }
         if (this.userRepository.findByUsername(username) == null) {
             throw new EntityNotFoundException("User " + username);
         }
@@ -81,13 +73,8 @@ public class UserManagementService {
         this.userRepository.updateUserPassword(username, encodedPassword);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @Transactional
     public void changeStatus(String username, UserEntity.UserStatus status) {
-        if (SecurityUtils.checkCurrentUserHasRole("ROLE_USER")
-                && !SecurityUtils.getCurrentUsername().equals(username)) {
-            // if is user, and username not match
-            throw new PermissionDeniedException("You can only change your own status");
-        }
         if (this.userRepository.findByUsername(username) == null) {
             throw new EntityNotFoundException("User " + username);
         }
@@ -95,9 +82,8 @@ public class UserManagementService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
     public void createUser(String username, String password) {
-        if (!this.patternService.isValidUsername(password)) {
+        if (!this.patternService.isValidUsername(username)) {
             throw new IllegalArgumentException("In valid username. The username must meet the regex: " + this.patternService.getUsernameRegex());
         }
         UserEntity entity = new UserEntity(username, this.passwordEncoder.encode(password));
@@ -113,16 +99,21 @@ public class UserManagementService {
         this.userRepository.save(entity);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public void deleteUser(String username) {
         if (this.userRepository.findByUsername(username) == null) {
             throw new EntityNotFoundException("User " + username);
         }
+        // TODO check other resources, like cert
+        this.userRoleRepository.deleteAllByUsername(username);
         this.userRepository.deleteByUsername(username);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public void addRoleToUser(String username, String role) {
+        if (this.userRepository.findByUsername(username) == null) {
+            throw new EntityNotFoundException("User " + username);
+        }
         UserRoleEntity entity = new UserRoleEntity(username, role);
         if (this.userRoleRepository.exists(Example.of(entity))) {
             throw new DuplicatedEntityException("role for user");
@@ -130,8 +121,11 @@ public class UserManagementService {
         this.userRoleRepository.save(entity);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public void removeRoleFromUser(String username, String role) {
+        if (this.userRepository.findByUsername(username) == null) {
+            throw new EntityNotFoundException("User " + username);
+        }
         if (!this.userRoleRepository.existsByUsernameAndRole(username, role)) {
             throw new EntityNotFoundException("Role " + role + " for user " + username);
         }

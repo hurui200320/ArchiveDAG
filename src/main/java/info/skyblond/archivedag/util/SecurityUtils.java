@@ -9,6 +9,10 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 public class SecurityUtils {
+    public static final List<String> VALIDATE_ROLES = List.of(
+            "ROLE_USER", "ROLE_VIEWER", "ROLE_UPLOADER", "ROLE_ADMIN"
+    );
+
     public static Authentication getCurrentAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
     }
@@ -23,6 +27,12 @@ public class SecurityUtils {
             return false;
         }
         return auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(role));
+    }
+
+    public static void requireValidateRole(String role) {
+        if (!VALIDATE_ROLES.contains(role)) {
+            throw new IllegalArgumentException("Sort properties not in range.");
+        }
     }
 
     public static void requireSortPropertiesInRange(Pageable pageable, List<String> range) {
