@@ -38,9 +38,9 @@ public class UserDetailService implements UserDetailsService {
                 .forEach(grantedAuthorities::add);
 
         return new User(user.getUsername(), user.getPassword(),
-                user.getStatus() == UserEntity.UserStatus.ENABLED,
+                user.getStatus() == UserEntity.Status.ENABLED,
                 true, true,
-                user.getStatus() != UserEntity.UserStatus.LOCKED,
+                user.getStatus() != UserEntity.Status.LOCKED,
                 grantedAuthorities);
     }
 }

@@ -1,8 +1,8 @@
 package info.skyblond.archivedag.controller;
 
 import com.google.gson.Gson;
-import info.skyblond.archivedag.model.JWTAuthResponse;
-import info.skyblond.archivedag.model.JwtAuthRequest;
+import info.skyblond.archivedag.model.bo.JWTAuthResponse;
+import info.skyblond.archivedag.model.bo.JwtAuthRequest;
 import info.skyblond.archivedag.model.entity.UserEntity;
 import info.skyblond.archivedag.model.entity.UserRoleEntity;
 import info.skyblond.archivedag.repo.UserRepository;
@@ -46,7 +46,7 @@ class AuthControllerTest {
     void setUp() {
         this.userRepository.save(new UserEntity("test_user_jwt",
                 this.passwordEncoder.encode("password"),
-                UserEntity.UserStatus.ENABLED));
+                UserEntity.Status.ENABLED));
         this.userRoleRepository.save(new UserRoleEntity("test_user_jwt", "ROLE_USER"));
     }
 

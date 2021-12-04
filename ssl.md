@@ -56,7 +56,7 @@ it in pkcs8 format, otherwise the gRPC server cannot parse the private key corre
 
 Then generate a CSR:
 ```shell
-openssl req -new -nodes -sha3-512 -key localhost.key -out localhost.csr -subj "/CN=localhost"
+openssl req -new -nodes -key localhost.key -out localhost.csr -subj "/CN=localhost"
 ```
 Here we use `SHA3-512` again, of course you can change to `-sha3-256` or just `sha256`.
 The CN here is `localhost`, which is your domain.
@@ -83,7 +83,7 @@ authentication handshake failed: x509: certificate relies on legacy Common Name 
 
 Finally, sign the server CSR with the key of CA:
 ```shell
-openssl x509 -req -CA rootCA.crt -CAkey rootCA.key -in localhost.csr -out localhost.crt -days 365 -CAcreateserial -extfile localhost.ext
+openssl x509 -req -sha3-512 -CA rootCA.crt -CAkey rootCA.key -in localhost.csr -out localhost.crt -days 365 -CAcreateserial -extfile localhost.ext
 ```
 
 This will generate the `localhost.crt`, which is the cert for our gRPC server.

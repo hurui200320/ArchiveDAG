@@ -2,16 +2,13 @@ package info.skyblond.archivedag.service.impl;
 
 import info.skyblond.archivedag.model.DuplicatedEntityException;
 import info.skyblond.archivedag.model.EntityNotFoundException;
-import info.skyblond.archivedag.model.PermissionDeniedException;
-import info.skyblond.archivedag.model.UserDetailModel;
+import info.skyblond.archivedag.model.bo.UserDetailModel;
 import info.skyblond.archivedag.model.entity.UserEntity;
 import info.skyblond.archivedag.model.entity.UserRoleEntity;
 import info.skyblond.archivedag.repo.UserRepository;
 import info.skyblond.archivedag.repo.UserRoleRepository;
-import info.skyblond.archivedag.util.SecurityUtils;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -66,7 +63,7 @@ public class UserManagementService {
 
     @Transactional
     public void changePassword(String username, String password) {
-        if (this.userRepository.findByUsername(username) == null) {
+        if (!this.userRepository.existsByUsername(username)) {
             throw new EntityNotFoundException("User " + username);
         }
         String encodedPassword = this.passwordEncoder.encode(password);
@@ -74,8 +71,8 @@ public class UserManagementService {
     }
 
     @Transactional
-    public void changeStatus(String username, UserEntity.UserStatus status) {
-        if (this.userRepository.findByUsername(username) == null) {
+    public void changeStatus(String username, UserEntity.Status status) {
+        if (!this.userRepository.existsByUsername(username)) {
             throw new EntityNotFoundException("User " + username);
         }
         this.userRepository.updateUserStatus(username, status);
@@ -101,7 +98,7 @@ public class UserManagementService {
 
     @Transactional
     public void deleteUser(String username) {
-        if (this.userRepository.findByUsername(username) == null) {
+        if (!this.userRepository.existsByUsername(username)) {
             throw new EntityNotFoundException("User " + username);
         }
         // TODO check other resources, like cert
@@ -111,7 +108,7 @@ public class UserManagementService {
 
     @Transactional
     public void addRoleToUser(String username, String role) {
-        if (this.userRepository.findByUsername(username) == null) {
+        if (!this.userRepository.existsByUsername(username)) {
             throw new EntityNotFoundException("User " + username);
         }
         UserRoleEntity entity = new UserRoleEntity(username, role);
@@ -123,7 +120,7 @@ public class UserManagementService {
 
     @Transactional
     public void removeRoleFromUser(String username, String role) {
-        if (this.userRepository.findByUsername(username) == null) {
+        if (!this.userRepository.existsByUsername(username)) {
             throw new EntityNotFoundException("User " + username);
         }
         if (!this.userRoleRepository.existsByUsernameAndRole(username, role)) {

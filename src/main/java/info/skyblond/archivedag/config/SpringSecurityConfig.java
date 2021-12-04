@@ -1,11 +1,11 @@
 package info.skyblond.archivedag.config;
 
 import info.skyblond.archivedag.security.JwtRequestFilter;
+import info.skyblond.archivedag.service.impl.CertService;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.security.authentication.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -36,11 +37,13 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     private final AuthenticationEntryPoint entryPoint;
     private final JwtRequestFilter jwtRequestFilter;
     private final UserDetailsService userDetailsService;
+    private final CertService certService;
 
-    public SpringSecurityConfig(AuthenticationEntryPoint entryPoint, JwtRequestFilter jwtRequestFilter, UserDetailsService userDetailsService) {
+    public SpringSecurityConfig(AuthenticationEntryPoint entryPoint, JwtRequestFilter jwtRequestFilter, UserDetailsService userDetailsService, CertService certService) {
         this.entryPoint = entryPoint;
         this.jwtRequestFilter = jwtRequestFilter;
         this.userDetailsService = userDetailsService;
+        this.certService = certService;
     }
 
     @Override
@@ -57,14 +60,15 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public Function<X509CertificateAuthentication, String> x509UsernameExtractor() {
         return authentication -> {
-            // take the serial number of the cert and may check the revoke info of it.
-            log.info("X509 serial no.: {}", authentication.getCredentials().getSerialNumber());
-            // TODO you can return null for non-validate serial number
-            if (false) {
+            String serialNumber = authentication.getCredentials().getSerialNumber().toString(16);
+            String username = X509CertificateAuthenticationProvider.CN_USERNAME_EXTRACTOR.apply(authentication);
+            try {
+                this.certService.verifyCertStatus(serialNumber, username);
+            } catch (AuthenticationException e) {
                 return null;
             }
             // then extract the username from subject CN
-            return X509CertificateAuthenticationProvider.CN_USERNAME_EXTRACTOR.apply(authentication);
+            return username;
         };
     }
 

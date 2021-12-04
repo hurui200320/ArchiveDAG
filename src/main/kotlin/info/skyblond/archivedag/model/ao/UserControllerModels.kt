@@ -1,4 +1,4 @@
-package info.skyblond.archivedag.model
+package info.skyblond.archivedag.model.ao
 
 import com.fasterxml.jackson.annotation.JsonAlias
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -22,7 +22,7 @@ data class UserChangeStatusRequest(
     val password: String,
     @JsonProperty("new_status")
     @JsonAlias("newStatus")
-    val newStatus: UserEntity.UserStatus
+    val newStatus: UserEntity.Status
 )
 
 data class CreateUserRequest(

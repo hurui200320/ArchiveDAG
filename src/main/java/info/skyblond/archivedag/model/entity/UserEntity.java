@@ -20,21 +20,19 @@ public class UserEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    UserStatus status;
+    Status status;
 
     public UserEntity(String username, String password) {
-        this.username = username;
-        this.password = password;
-        this.status = UserStatus.LOCKED;
+        this(username, password, Status.LOCKED);
     }
 
-    public UserEntity(String username, String password, UserStatus status) {
+    public UserEntity(String username, String password, Status status) {
         this.username = username;
         this.password = password;
         this.status = status;
     }
 
-    public enum UserStatus {
+    public enum Status {
         ENABLED, DISABLED, LOCKED
     }
 }

@@ -4,6 +4,7 @@ import info.skyblond.archivedag.model.DuplicatedEntityException;
 import info.skyblond.archivedag.model.EntityNotFoundException;
 import info.skyblond.archivedag.model.ExceptionResponse;
 import info.skyblond.archivedag.model.PermissionDeniedException;
+import kotlin.NotImplementedError;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -140,6 +141,15 @@ public class ErrorHandler {
     }
 
     // 501 - Not Implemented
+    @ExceptionHandler({
+            NotImplementedError.class,
+    })
+    @ResponseBody()
+    public ResponseEntity<ExceptionResponse> handleNotImplemented(HttpServletRequest request, Throwable t) {
+        return ExceptionResponse.generateResp(HttpStatus.NOT_IMPLEMENTED, request, t);
+    }
+
+
     // 502 - Bad Gateway
     // 503 - Service Unavailable
     // 504 - Gateway Timeout

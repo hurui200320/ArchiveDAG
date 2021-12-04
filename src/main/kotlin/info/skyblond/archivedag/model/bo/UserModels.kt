@@ -1,9 +1,9 @@
-package info.skyblond.archivedag.model
+package info.skyblond.archivedag.model.bo
 
 import info.skyblond.archivedag.model.entity.UserEntity
 
 data class UserDetailModel(
     val username: String,
-    val status: UserEntity.UserStatus,
+    val status: UserEntity.Status,
     val roles: List<String>
 )

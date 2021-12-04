@@ -1,7 +1,7 @@
 package info.skyblond.archivedag.controller;
 
-import info.skyblond.archivedag.model.JWTAuthResponse;
-import info.skyblond.archivedag.model.JwtAuthRequest;
+import info.skyblond.archivedag.model.bo.JWTAuthResponse;
+import info.skyblond.archivedag.model.bo.JwtAuthRequest;
 import info.skyblond.archivedag.security.JwtTokenManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;

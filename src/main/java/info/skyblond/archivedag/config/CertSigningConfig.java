@@ -1,6 +1,6 @@
 package info.skyblond.archivedag.config;
 
-import info.skyblond.archivedag.model.CertSigningInfo;
+import info.skyblond.archivedag.model.bo.CertSigningInfo;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMDecryptorProvider;
@@ -80,7 +80,10 @@ public class CertSigningConfig {
                 this.properties.getCaPrivateKeyPassword());
         X509Certificate caCert = this.readX509Cert(this.properties.getCaCert().readableChannel());
 
-        return new CertSigningInfo(caPrivateKey, caCert, this.properties.getGenerateKeySize());
+        return new CertSigningInfo(
+                caPrivateKey, caCert, this.properties.getGenerateKeySize(),
+                this.properties.getCustomSubjectDN(), this.properties.getSignAlgName(),
+                this.properties.getExpireInDuration(), this.properties.getExpireInUnit());
     }
 }
 

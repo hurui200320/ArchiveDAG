@@ -20,7 +20,7 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
 
     @Modifying
     @Query("update UserEntity u set u.status = ?2 where u.username = ?1")
-    void updateUserStatus(String username, UserEntity.UserStatus status);
+    void updateUserStatus(String username, UserEntity.Status status);
 
     @Modifying
     void deleteByUsername(String username);

@@ -1,4 +1,4 @@
-package info.skyblond.archivedag.model
+package info.skyblond.archivedag.model.bo
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

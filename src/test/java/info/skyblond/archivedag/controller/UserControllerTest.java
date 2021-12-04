@@ -3,7 +3,11 @@ package info.skyblond.archivedag.controller;
 import com.google.gson.Gson;
 import info.skyblond.archivedag.config.EmbeddedRedisConfiguration;
 import info.skyblond.archivedag.config.WebMvcConfig;
-import info.skyblond.archivedag.model.*;
+import info.skyblond.archivedag.model.ao.CreateUserRequest;
+import info.skyblond.archivedag.model.ao.UserChangePasswordRequest;
+import info.skyblond.archivedag.model.ao.UserChangeStatusRequest;
+import info.skyblond.archivedag.model.ao.UserRoleRequest;
+import info.skyblond.archivedag.model.bo.UserDetailModel;
 import info.skyblond.archivedag.model.entity.UserEntity;
 import info.skyblond.archivedag.model.entity.UserRoleEntity;
 import info.skyblond.archivedag.repo.UserRepository;
@@ -53,7 +57,7 @@ public class UserControllerTest {
     void setUp() {
         this.userRepository.save(new UserEntity("test_user_controller_user",
                 this.passwordEncoder.encode("password"),
-                UserEntity.UserStatus.ENABLED));
+                UserEntity.Status.ENABLED));
         this.userRoleRepository.save(new UserRoleEntity("test_user_controller_user", "ROLE_USER"));
     }
 
@@ -162,7 +166,7 @@ public class UserControllerTest {
                                 "test_user_new", "123456"
                         ))))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
-        assertEquals(UserEntity.UserStatus.LOCKED, this.userRepository.findByUsername("test_user_new").getStatus());
+        assertEquals(UserEntity.Status.LOCKED, this.userRepository.findByUsername("test_user_new").getStatus());
         assertEquals(List.of(), this.userRoleRepository.findAllByUsername("test_user_new"));
         this.mockMvc.perform(post("/user/createUser")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -191,14 +195,14 @@ public class UserControllerTest {
     void testChangeStatusSelf() throws Exception {
         this.userRepository.save(new UserEntity("test_user_change_status",
                 this.passwordEncoder.encode("123456"),
-                UserEntity.UserStatus.ENABLED));
+                UserEntity.Status.ENABLED));
         this.mockMvc.perform(post("/user/changeStatus")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.gson.toJson(new UserChangeStatusRequest(
-                                "test_user_change_status", "123456", UserEntity.UserStatus.DISABLED
+                                "test_user_change_status", "123456", UserEntity.Status.DISABLED
                         ))))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
-        assertEquals(UserEntity.UserStatus.DISABLED, this.userRepository.findByUsername("test_user_change_status").getStatus());
+        assertEquals(UserEntity.Status.DISABLED, this.userRepository.findByUsername("test_user_change_status").getStatus());
     }
 
     @WithMockUser(username = "test_user_admin", roles = "ADMIN")
@@ -206,14 +210,14 @@ public class UserControllerTest {
     void testChangeStatusAdmin() throws Exception {
         this.userRepository.save(new UserEntity("test_user_change_status",
                 this.passwordEncoder.encode("123456"),
-                UserEntity.UserStatus.ENABLED));
+                UserEntity.Status.ENABLED));
         this.mockMvc.perform(post("/user/changeStatus")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.gson.toJson(new UserChangeStatusRequest(
-                                "test_user_change_status", "123456", UserEntity.UserStatus.DISABLED
+                                "test_user_change_status", "123456", UserEntity.Status.DISABLED
                         ))))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
-        assertEquals(UserEntity.UserStatus.DISABLED, this.userRepository.findByUsername("test_user_change_status").getStatus());
+        assertEquals(UserEntity.Status.DISABLED, this.userRepository.findByUsername("test_user_change_status").getStatus());
     }
 
     @WithMockUser(username = "test_user_admin", roles = "ADMIN")
@@ -221,11 +225,11 @@ public class UserControllerTest {
     void testChangeStatusWrongPassword() throws Exception {
         this.userRepository.save(new UserEntity("test_user_change_status",
                 this.passwordEncoder.encode("123456"),
-                UserEntity.UserStatus.ENABLED));
+                UserEntity.Status.ENABLED));
         this.mockMvc.perform(post("/user/changeStatus")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.gson.toJson(new UserChangeStatusRequest(
-                                "test_user_change_status", "1123456", UserEntity.UserStatus.DISABLED
+                                "test_user_change_status", "1123456", UserEntity.Status.DISABLED
                         ))))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
@@ -236,7 +240,7 @@ public class UserControllerTest {
         this.mockMvc.perform(post("/user/changeStatus")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.gson.toJson(new UserChangeStatusRequest(
-                                "test_user_404", "123456", UserEntity.UserStatus.DISABLED
+                                "test_user_404", "123456", UserEntity.Status.DISABLED
                         ))))
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
@@ -247,7 +251,7 @@ public class UserControllerTest {
     void testChangePasswordSelf() throws Exception {
         this.userRepository.save(new UserEntity("test_user_change_password",
                 this.passwordEncoder.encode("123456"),
-                UserEntity.UserStatus.ENABLED));
+                UserEntity.Status.ENABLED));
         this.mockMvc.perform(post("/user/changePassword")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.gson.toJson(new UserChangePasswordRequest(
@@ -262,7 +266,7 @@ public class UserControllerTest {
     void testChangePasswordAdmin() throws Exception {
         this.userRepository.save(new UserEntity("test_user_change_password",
                 this.passwordEncoder.encode("123456"),
-                UserEntity.UserStatus.ENABLED));
+                UserEntity.Status.ENABLED));
         this.mockMvc.perform(post("/user/changePassword")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.gson.toJson(new UserChangePasswordRequest(
@@ -277,7 +281,7 @@ public class UserControllerTest {
     void testChangePasswordWrongPassword() throws Exception {
         this.userRepository.save(new UserEntity("test_user_change_password",
                 this.passwordEncoder.encode("123456"),
-                UserEntity.UserStatus.ENABLED));
+                UserEntity.Status.ENABLED));
         this.mockMvc.perform(post("/user/changePassword")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.gson.toJson(new UserChangePasswordRequest(
@@ -340,7 +344,7 @@ public class UserControllerTest {
                 .andReturn().getResponse().getContentAsString();
         UserDetailModel user = this.gson.fromJson(resp, UserDetailModel.class);
         assertEquals("test_user_controller_user", user.getUsername());
-        assertEquals(UserEntity.UserStatus.ENABLED, user.getStatus());
+        assertEquals(UserEntity.Status.ENABLED, user.getStatus());
         assertEquals(List.of("ROLE_USER"), user.getRoles());
     }
 
@@ -351,8 +355,7 @@ public class UserControllerTest {
                         .param("username", "test_user_404"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn().getResponse().getContentAsString();
-        UserDetailModel user = this.gson.fromJson(resp, UserDetailModel.class);
-        assertNull(user);
+        assertNull(this.gson.fromJson(resp, UserDetailModel.class));
     }
 
 
