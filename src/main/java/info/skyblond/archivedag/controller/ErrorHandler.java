@@ -16,6 +16,7 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -31,6 +32,7 @@ public class ErrorHandler {
     @ExceptionHandler({
             IllegalArgumentException.class,
             HttpMessageNotReadableException.class,
+            MissingServletRequestParameterException.class,
     })
     @ResponseBody()
     public ResponseEntity<ExceptionResponse> handleBadRequest(HttpServletRequest request, Throwable t) {

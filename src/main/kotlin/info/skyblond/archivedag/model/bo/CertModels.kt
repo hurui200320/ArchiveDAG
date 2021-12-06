@@ -1,7 +1,6 @@
 package info.skyblond.archivedag.model.bo
 
 import info.skyblond.archivedag.model.entity.CertEntity
-import info.skyblond.archivedag.util.getUnixTimestamp
 import java.security.PrivateKey
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit

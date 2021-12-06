@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 
@@ -71,6 +72,12 @@ class AuthControllerTest {
                         .content(this.gson.toJson(new JwtAuthRequest(
                                 "test_user_jwt",
                                 "not_password"))))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    @Test
+    void testSpringSecurity() throws Exception {
+        this.mockMvc.perform(get("/something_404"))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 }

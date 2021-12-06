@@ -5,6 +5,7 @@ import info.skyblond.archivedag.model.EntityNotFoundException;
 import info.skyblond.archivedag.model.bo.UserDetailModel;
 import info.skyblond.archivedag.model.entity.UserEntity;
 import info.skyblond.archivedag.model.entity.UserRoleEntity;
+import info.skyblond.archivedag.repo.CertRepository;
 import info.skyblond.archivedag.repo.UserRepository;
 import info.skyblond.archivedag.repo.UserRoleRepository;
 import org.springframework.data.domain.Example;
@@ -20,12 +21,14 @@ import java.util.List;
 public class UserManagementService {
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
+    private final CertRepository certRepository;
     private final PasswordEncoder passwordEncoder;
     private final PatternService patternService;
 
-    public UserManagementService(UserRepository userRepository, UserRoleRepository userRoleRepository, PasswordEncoder passwordEncoder, PatternService patternService) {
+    public UserManagementService(UserRepository userRepository, UserRoleRepository userRoleRepository, CertRepository certRepository, PasswordEncoder passwordEncoder, PatternService patternService) {
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
+        this.certRepository = certRepository;
         this.passwordEncoder = passwordEncoder;
         this.patternService = patternService;
     }
@@ -101,9 +104,9 @@ public class UserManagementService {
         if (!this.userRepository.existsByUsername(username)) {
             throw new EntityNotFoundException("User " + username);
         }
-        // TODO check other resources, like cert
-        this.userRoleRepository.deleteAllByUsername(username);
         this.userRepository.deleteByUsername(username);
+        this.userRoleRepository.deleteAllByUsername(username);
+        this.certRepository.deleteAllByUsername(username);
     }
 
     @Transactional

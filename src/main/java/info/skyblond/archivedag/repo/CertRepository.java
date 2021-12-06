@@ -32,6 +32,9 @@ public interface CertRepository extends JpaRepository<CertEntity, String> {
     @Modifying
     void deleteBySerialNumber(String serialNumber);
 
+    @Modifying
+    void deleteAllByUsername(String username);
+
     List<CertEntity> findAllByUsername(String username);
 
     Page<CertEntity> findAllByUsername(String username, Pageable pageable);
