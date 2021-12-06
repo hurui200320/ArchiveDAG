@@ -66,6 +66,7 @@ public class CertService {
             serial = serial.or(BigInteger.valueOf(System.currentTimeMillis()));
             serial = serial.shiftLeft(Long.BYTES * 8);
             serial = serial.or(BigInteger.valueOf(System.nanoTime()));
+            serial = serial.abs();
         } while (this.certRepository.existsBySerialNumber(serial.toString(16)));
 
         long currentTimeStamp = System.currentTimeMillis();
@@ -170,6 +171,7 @@ public class CertService {
         this.certRepository.deleteBySerialNumber(serialNumber);
     }
 
+    // TODO test this when testing gRPC cert auth
     public void verifyCertStatus(String serialNumber, String username) {
         // check username matches the cert
         if (!this.userOwnCert(username, serialNumber)) {

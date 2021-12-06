@@ -1,8 +1,11 @@
 package info.skyblond.archivedag.controller;
 
 import info.skyblond.archivedag.model.PermissionDeniedException;
+import info.skyblond.archivedag.model.ao.CreateUserRequest;
+import info.skyblond.archivedag.model.ao.UserChangePasswordRequest;
+import info.skyblond.archivedag.model.ao.UserChangeStatusRequest;
+import info.skyblond.archivedag.model.ao.UserRoleRequest;
 import info.skyblond.archivedag.model.bo.UserDetailModel;
-import info.skyblond.archivedag.model.ao.*;
 import info.skyblond.archivedag.service.impl.UserManagementService;
 import info.skyblond.archivedag.util.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +17,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 import java.util.List;
 
 @Slf4j
@@ -30,10 +32,15 @@ public class UserController {
         this.authenticationManager = authenticationManager;
     }
 
+    @GetMapping("/whoami")
+    public String listUsername() {
+        return SecurityUtils.getCurrentUsername();
+    }
+
     @GetMapping("/listUsername")
     @PreAuthorize("hasRole('USER')")
     public List<String> listUsername(
-            @PathParam("keyword") String keyword,
+            @RequestParam(name = "keyword", defaultValue = "") String keyword,
             Pageable pageable
     ) {
         SecurityUtils.requireSortPropertiesInRange(pageable, List.of("username"));
@@ -43,17 +50,23 @@ public class UserController {
     @GetMapping("/queryUser")
     @PreAuthorize("hasRole('USER')")
     public UserDetailModel queryUser(
-            @PathParam("username") String username) {
+            @RequestParam(value = "username", required = false) String username) {
+        if (username == null) {
+            username = SecurityUtils.getCurrentUsername();
+        }
         return this.userService.queryUser(username);
     }
 
     @GetMapping("/listUserRoles")
     @PreAuthorize("hasRole('USER')")
     public List<String> listUserRoles(
-            @PathParam("username") String username,
+            @RequestParam(value = "username", required = false) String username,
             Pageable pageable
     ) {
         SecurityUtils.requireSortPropertiesInRange(pageable, List.of("role"));
+        if (username == null) {
+            username = SecurityUtils.getCurrentUsername();
+        }
         return this.userService.listUserRoles(username, pageable);
     }
 
@@ -103,7 +116,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createUser(
             @RequestBody CreateUserRequest request
-    ){
+    ) {
         this.userService.createUser(request.getUsername(), request.getPassword());
         // return 204
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
@@ -112,8 +125,8 @@ public class UserController {
     @DeleteMapping("/deleteUser")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteUser(
-            @PathParam("username") String username
-    ){
+            @RequestParam("username") String username
+    ) {
         this.userService.deleteUser(username);
         // return 204
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
@@ -123,7 +136,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addUserRole(
             @RequestBody UserRoleRequest request
-    ){
+    ) {
         // Only accept validate roles
         SecurityUtils.requireValidateRole(request.getRole());
         this.userService.addRoleToUser(request.getUsername(), request.getRole());
@@ -135,7 +148,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> removeUserRole(
             @RequestBody UserRoleRequest request
-    ){
+    ) {
         this.userService.removeRoleFromUser(request.getUsername(), request.getRole());
         // return 204
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
