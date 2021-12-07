@@ -171,7 +171,6 @@ public class CertService {
         this.certRepository.deleteBySerialNumber(serialNumber);
     }
 
-    // TODO test this in unit test
     public void verifyCertStatus(String serialNumber, String username) {
         // check username matches the cert
         if (!this.userOwnCert(username, serialNumber)) {
