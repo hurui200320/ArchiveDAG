@@ -42,7 +42,7 @@ archive-dag.proto:
   storage:
     type: file_system
     primary-hash-type: sha3_512
-    secondary-hash-type: blake2b_256
+    secondary-hash-type: blake2b_512
     filesystem:
       path: "./data/protos"
       threadSize: 16

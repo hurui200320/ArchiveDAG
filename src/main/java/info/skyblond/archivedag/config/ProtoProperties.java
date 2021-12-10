@@ -32,7 +32,9 @@ public class ProtoProperties {
         private Multihash.Type secondaryHashType;
 
         enum ProtoRepoType {
-            FILE_SYSTEM, AWS_S3, IPFS
+            FILE_SYSTEM,
+            AWS_S3, // TODO ?
+            HYBRID // TODO S3 for storage, Local FS as cache
         }
 
         // file system settings
