@@ -64,17 +64,17 @@ internal class AritegFileStorageServiceTest {
 
         assertEquals(
             blobData,
-            (this.storageService.loadProto(storeBlob.link).second as BlobObject).data
+            (this.storageService.loadProto(storeBlob.link) as BlobObject).data
         )
         assertEquals(
             listOf(storeBlob.link),
-            (this.storageService.loadProto(storeList.link).second as ListObject).list
+            (this.storageService.loadProto(storeList.link) as ListObject).list
         )
         assertEquals(
             listOf(storeBlob.link, storeList.link),
-            (this.storageService.loadProto(storeTree.link).second as TreeObject).links
+            (this.storageService.loadProto(storeTree.link) as TreeObject).links
         )
-        val commitObj = this.storageService.loadProto(storeCommit.link).second as CommitObject
+        val commitObj = this.storageService.loadProto(storeCommit.link) as CommitObject
         assertEquals(1234, commitObj.unixTimestamp)
         assertEquals("message", commitObj.message)
         assertEquals(storeBlob.link, commitObj.parentLink)
@@ -102,7 +102,7 @@ internal class AritegFileStorageServiceTest {
         assertNotNull(storeBlob.completionFuture.get())
         assertEquals(
             blobData,
-            (this.storageService.loadProto(storeBlob.link).second as BlobObject).data
+            (this.storageService.loadProto(storeBlob.link) as BlobObject).data
         )
         assertTrue(this.storageService.deleteProto(storeBlob.link))
         assertThrows(IllegalObjectStatusException::class.java) {

@@ -1,6 +1,5 @@
 package info.skyblond.ariteg.multihash
 
-import info.skyblond.archivedag.model.MultihashNotMatchError
 import io.ipfs.multihash.Multihash
 import io.ipfs.multihash.Multihash.Type
 import org.bouncycastle.crypto.digests.Blake2bDigest
@@ -16,14 +15,14 @@ object MultihashProviders {
         val provider = fromMultihashType(this.type)
         val target = provider.digest(byteArray)
         if (this != target)
-            throw MultihashNotMatchError(this, target)
+            throw IllegalStateException("Multihash not match. Except " + this.toBase58() + ", but get: " + target.toBase58())
     }
 
     infix fun Multihash.mustMatch(inputStream: InputStream) {
         val provider = fromMultihashType(this.type)
         val target = provider.digest(inputStream)
         if (this != target)
-            throw MultihashNotMatchError(this, target)
+            throw IllegalStateException("Multihash not match. Except " + this.toBase58() + ", but get: " + target.toBase58())
     }
 
     private fun generateJavaProvider(type: Type, algorithm: String): MultihashJavaProvider {

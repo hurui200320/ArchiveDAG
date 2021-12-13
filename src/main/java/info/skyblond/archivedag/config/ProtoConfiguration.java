@@ -1,6 +1,8 @@
 package info.skyblond.archivedag.config;
 
 
+import info.skyblond.ariteg.chunking.ChunkProviderFactory;
+import info.skyblond.ariteg.chunking.FixedLengthChunkProvider;
 import info.skyblond.ariteg.multihash.MultihashProvider;
 import info.skyblond.ariteg.multihash.MultihashProviders;
 import info.skyblond.ariteg.service.impl.AritegFileStorageService;
@@ -26,6 +28,21 @@ public class ProtoConfiguration {
     }
 
     @Bean
+    public ChunkProviderFactory resolveChunkProvider() {
+        var type = this.properties.getChunkProvider();
+        switch (type) {
+            case FIXED_LENGTH:
+                return inputStream -> new FixedLengthChunkProvider(inputStream, properties.getFixedBlobSize());
+            case RABIN_FINGERPRINT:
+                throw new NotImplementedError("TODO RABIN_FINGERPRINT");
+            case FAST_CDC:
+                throw new NotImplementedError("TODO FAST_CDC");
+        }
+        throw new IllegalArgumentException("Unknown type: " + type);
+    }
+
+
+    @Bean
     public AritegStorageService resolveStorage() {
         var storageProperties = this.properties.getStorage();
         MultihashProvider primary = MultihashProviders.fromMultihashType(
@@ -38,21 +55,11 @@ public class ProtoConfiguration {
             case FILE_SYSTEM:
                 return this.resolveFileSystem(primary, secondary);
             case AWS_S3:
-                return this.resolveAwsS3(primary, secondary);
+                throw new NotImplementedError("TODO AWS_S3");
             case HYBRID:
-                return this.resolveHybrid(primary, secondary);
+                throw new NotImplementedError("TODO HYBRID");
         }
         throw new IllegalArgumentException("Unknown type: " + storageProperties.getType().name());
-    }
-
-    private AritegStorageService resolveHybrid(MultihashProvider primary, MultihashProvider secondary) {
-        // TODO
-        throw new NotImplementedError("TODO");
-    }
-
-    private AritegStorageService resolveAwsS3(MultihashProvider primary, MultihashProvider secondary) {
-        // TODO
-        throw new NotImplementedError("TODO");
     }
 
     private AritegStorageService resolveFileSystem(MultihashProvider primary, MultihashProvider secondary) {

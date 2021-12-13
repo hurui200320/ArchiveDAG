@@ -5,7 +5,6 @@ import info.skyblond.archivedag.model.ObjectRestorationException
 import info.skyblond.archivedag.model.StoreProtoException
 import info.skyblond.ariteg.model.*
 import info.skyblond.ariteg.protos.AritegLink
-import info.skyblond.ariteg.protos.AritegObjectType
 import io.ipfs.multihash.Multihash
 import java.util.concurrent.CompletableFuture
 import java.util.function.BiFunction
@@ -26,25 +25,7 @@ interface AritegStorageService {
      * */
     @Throws(StoreProtoException::class)
     fun store(
-        name: String, blob: BlobObject,
-        checkBeforeWrite: BiFunction<Multihash, Multihash, Boolean>
-    ): StoreReceipt
-
-    @Throws(StoreProtoException::class)
-    fun store(
-        name: String, list: ListObject,
-        checkBeforeWrite: BiFunction<Multihash, Multihash, Boolean>
-    ): StoreReceipt
-
-    @Throws(StoreProtoException::class)
-    fun store(
-        name: String, tree: TreeObject,
-        checkBeforeWrite: BiFunction<Multihash, Multihash, Boolean>
-    ): StoreReceipt
-
-    @Throws(StoreProtoException::class)
-    fun store(
-        name: String, commitObject: CommitObject,
+        name: String, proto: AritegObject,
         checkBeforeWrite: BiFunction<Multihash, Multihash, Boolean>
     ): StoreReceipt
 
@@ -80,7 +61,7 @@ interface AritegStorageService {
      *   COMMIT = [CommitObject]
      */
     @Throws(LoadProtoException::class)
-    fun loadProto(link: AritegLink): Pair<AritegObjectType, Any?>
+    fun loadProto(link: AritegLink): AritegObject
 
     /**
      * Delete proto. Return true means deleted.

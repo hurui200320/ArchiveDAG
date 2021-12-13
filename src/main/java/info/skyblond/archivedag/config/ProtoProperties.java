@@ -12,8 +12,16 @@ public class ProtoProperties {
     private ProtoMetaProperties meta = new ProtoMetaProperties();
     private ProtoStorageProperties storage = new ProtoStorageProperties();
 
+    private ChunkProviderType chunkProvider = ChunkProviderType.FIXED_LENGTH;
+
+    enum ChunkProviderType {
+        FIXED_LENGTH,
+        RABIN_FINGERPRINT, // TODO Dynamic chunk size
+        FAST_CDC // TODO Dynamic chunk size
+    }
+
     // Default blob size 16MB
-    private int blobSize = 16 * 1024 * 1024;
+    private int fixedBlobSize = 16 * 1024 * 1024;
     // single list can represent 64 GB file
     private int listLength = 4096;
 

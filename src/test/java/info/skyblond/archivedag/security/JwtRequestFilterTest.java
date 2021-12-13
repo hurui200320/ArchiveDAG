@@ -1,6 +1,8 @@
 package info.skyblond.archivedag.security;
 
 import com.google.gson.Gson;
+import info.skyblond.archivedag.config.EmbeddedRedisConfiguration;
+import info.skyblond.archivedag.config.WebMvcConfig;
 import info.skyblond.archivedag.util.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +27,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(
+        classes = {EmbeddedRedisConfiguration.class, WebMvcConfig.class}
+)
 @ActiveProfiles("test")
 class JwtRequestFilterTest {
 

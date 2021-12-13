@@ -22,7 +22,11 @@ public class EmbeddedRedisConfiguration {
     public void postConstruct() {
         this.logger.info("Start embedded redis server on port {}",
                 this.redisServer.ports());
-        this.redisServer.start();
+        try {
+            this.redisServer.start();
+        } catch (RuntimeException e) {
+            this.logger.warn("Cannot create embedded redis, might already started", e);
+        }
     }
 
     @PreDestroy

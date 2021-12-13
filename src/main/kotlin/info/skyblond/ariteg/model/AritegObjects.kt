@@ -1,9 +1,15 @@
 package info.skyblond.ariteg.model
 
 import com.google.protobuf.ByteString
+import com.google.protobuf.GeneratedMessageV3
 import info.skyblond.ariteg.protos.*
 import io.ipfs.multihash.Multihash
 import javax.annotation.concurrent.Immutable
+
+interface AritegObject {
+    fun toProto(): GeneratedMessageV3
+    fun getObjectType(): AritegObjectType
+}
 
 /**
  * Blob Object, store data only.
@@ -11,7 +17,7 @@ import javax.annotation.concurrent.Immutable
 @Immutable
 data class BlobObject(
     val data: ByteString
-) {
+) : AritegObject {
     companion object {
         @JvmStatic
         fun fromProto(proto: AritegBlobObject): BlobObject {
@@ -19,10 +25,14 @@ data class BlobObject(
         }
     }
 
-    fun toProto(): AritegBlobObject {
+    override fun toProto(): AritegBlobObject {
         return AritegBlobObject.newBuilder()
             .setData(data)
             .build()
+    }
+
+    override fun getObjectType(): AritegObjectType {
+        return AritegObjectType.BLOB
     }
 }
 
@@ -32,7 +42,7 @@ data class BlobObject(
 @Immutable
 data class ListObject(
     val list: List<AritegLink>
-) {
+) : AritegObject {
     companion object {
         @JvmStatic
         fun fromProto(proto: AritegListObject): ListObject {
@@ -40,10 +50,14 @@ data class ListObject(
         }
     }
 
-    fun toProto(): AritegListObject {
+    override fun toProto(): AritegListObject {
         return AritegListObject.newBuilder()
             .addAllLinks(list)
             .build()
+    }
+
+    override fun getObjectType(): AritegObjectType {
+        return AritegObjectType.LIST
     }
 }
 
@@ -53,7 +67,7 @@ data class ListObject(
 @Immutable
 data class TreeObject(
     val links: List<AritegLink>
-) {
+) : AritegObject {
     companion object {
         @JvmStatic
         fun fromProto(proto: AritegTreeObject): TreeObject {
@@ -61,10 +75,14 @@ data class TreeObject(
         }
     }
 
-    fun toProto(): AritegTreeObject {
+    override fun toProto(): AritegTreeObject {
         return AritegTreeObject.newBuilder()
             .addAllLinks(links)
             .build()
+    }
+
+    override fun getObjectType(): AritegObjectType {
+        return AritegObjectType.TREE
     }
 }
 
@@ -78,7 +96,7 @@ data class CommitObject(
     val parentLink: AritegLink,
     val committedObjectLink: AritegLink,
     val authorLink: AritegLink,
-) {
+) : AritegObject {
     companion object {
         @JvmStatic
         fun fromProto(proto: AritegCommitObject): CommitObject {
@@ -92,7 +110,7 @@ data class CommitObject(
         }
     }
 
-    fun toProto(): AritegCommitObject {
+    override fun toProto(): AritegCommitObject {
         return AritegCommitObject.newBuilder()
             .setUnixTimestamp(unixTimestamp)
             .setMessage(message)
@@ -100,6 +118,10 @@ data class CommitObject(
             .setCommittedObject(committedObjectLink)
             .setAuthor(authorLink)
             .build()
+    }
+
+    override fun getObjectType(): AritegObjectType {
+        return AritegObjectType.COMMIT
     }
 }
 

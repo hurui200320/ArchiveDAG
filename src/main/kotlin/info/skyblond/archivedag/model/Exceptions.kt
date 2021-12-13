@@ -8,14 +8,6 @@ class DuplicatedEntityException(entityName: String) : RuntimeException("Duplicat
 class EntityNotFoundException(entityName: String) : RuntimeException("$entityName not found")
 class PermissionDeniedException(message: String) : RuntimeException(message)
 
-class MultihashNotMatchError(
-    expected: String, actual: String
-) : Error(
-    "Hash not match: expected: ${expected}, actual: $actual"
-) {
-    constructor(expected: Multihash, actual: Multihash) : this(expected.toBase58(), actual.toBase58())
-}
-
 class IllegalObjectStatusException(
     operation: String, base58Link: String, status: String
 ) : RuntimeException(

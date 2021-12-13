@@ -19,7 +19,7 @@ cert-signing:
   ca-private-key: file:ssl/rootCA.key
 spring:
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate.ddl-auto: create-drop
     properties:
       hibernate:
@@ -41,7 +41,7 @@ spring:
       max-file-size: 256GB
       max-request-size: 257GB
 archive-dag.proto:
-  blobSize: 1048576 # 1MB
+  fixed-blob-size: 1048576
   listLength: 16 # 16MB per list
   storage:
     type: file_system

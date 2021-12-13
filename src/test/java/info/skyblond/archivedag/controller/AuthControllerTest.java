@@ -1,6 +1,8 @@
 package info.skyblond.archivedag.controller;
 
 import com.google.gson.Gson;
+import info.skyblond.archivedag.config.EmbeddedRedisConfiguration;
+import info.skyblond.archivedag.config.WebMvcConfig;
 import info.skyblond.archivedag.model.bo.JWTAuthResponse;
 import info.skyblond.archivedag.model.bo.JwtAuthRequest;
 import info.skyblond.archivedag.model.entity.UserEntity;
@@ -24,7 +26,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 
-@SpringBootTest
+@SpringBootTest(
+        classes = {EmbeddedRedisConfiguration.class, WebMvcConfig.class}
+)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 class AuthControllerTest {
