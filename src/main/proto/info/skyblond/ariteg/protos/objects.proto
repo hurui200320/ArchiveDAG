@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package ariteg;
+package info.skyblond.ariteg;
 
 option java_multiple_files = true;
 option java_package = "info.skyblond.ariteg.protos";
@@ -42,7 +42,7 @@ message AritegCommitObject {
   // parent of this commit
   AritegLink parent = 1;
   // link of committed object
-  AritegLink committedObject = 2;
+  AritegLink committed_object = 2;
   // unix timestamp of this
   uint64 unix_timestamp = 3;
   // commit message
