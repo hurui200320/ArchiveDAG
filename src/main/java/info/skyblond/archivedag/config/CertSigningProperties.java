@@ -15,7 +15,7 @@ public class CertSigningProperties {
     private Resource caPrivateKey = null;
     private String caPrivateKeyPassword = "";
     private String customSubjectDN = "";
-    private String signAlgName = "SHA3-512WITHRSA";
+    private String signAlgName = "SHA512WITHRSA";
     private int generateKeySize = 4096;
     private long expireInDuration = 90;
     private TimeUnit expireInUnit = TimeUnit.DAYS;
