@@ -1,4 +1,4 @@
-package info.skyblond.archivedag.controller;
+package info.skyblond.archivedag.controller.http;
 
 import com.google.gson.Gson;
 import info.skyblond.archivedag.config.EmbeddedRedisConfiguration;

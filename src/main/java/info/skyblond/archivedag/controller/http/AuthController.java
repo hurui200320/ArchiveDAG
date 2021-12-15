@@ -1,4 +1,4 @@
-package info.skyblond.archivedag.controller;
+package info.skyblond.archivedag.controller.http;
 
 import info.skyblond.archivedag.model.bo.JWTAuthResponse;
 import info.skyblond.archivedag.model.bo.JwtAuthRequest;

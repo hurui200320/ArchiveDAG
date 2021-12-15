@@ -1,4 +1,4 @@
-package info.skyblond.archivedag.controller;
+package info.skyblond.archivedag.controller.http;
 
 import info.skyblond.archivedag.model.PermissionDeniedException;
 import info.skyblond.archivedag.model.ao.CertChangeStatusRequest;

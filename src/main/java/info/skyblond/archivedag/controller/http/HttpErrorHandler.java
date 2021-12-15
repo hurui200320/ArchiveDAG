@@ -1,4 +1,4 @@
-package info.skyblond.archivedag.controller;
+package info.skyblond.archivedag.controller.http;
 
 import info.skyblond.archivedag.model.DuplicatedEntityException;
 import info.skyblond.archivedag.model.EntityNotFoundException;
@@ -25,9 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
 @RestControllerAdvice
-public class ErrorHandler {
-    // TODO What about gRPC exception?
-
+public class HttpErrorHandler {
     // 400 - Bad Request
     @ExceptionHandler({
             IllegalArgumentException.class,

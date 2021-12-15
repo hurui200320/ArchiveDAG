@@ -1,4 +1,4 @@
-package info.skyblond.archivedag.controller;
+package info.skyblond.archivedag.controller.http;
 
 import info.skyblond.archivedag.service.impl.ConfigService;
 import info.skyblond.archivedag.util.SecurityUtils;
