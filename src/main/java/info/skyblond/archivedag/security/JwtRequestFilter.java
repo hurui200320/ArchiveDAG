@@ -39,7 +39,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         this.gson = gson;
     }
 
-    // TODO test this
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
         if (SecurityContextHolder.getContext().getAuthentication() != null) {

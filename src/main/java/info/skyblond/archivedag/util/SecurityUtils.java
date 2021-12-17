@@ -19,12 +19,12 @@ public class SecurityUtils {
         return getCurrentAuthentication().getName();
     }
 
-    public static boolean checkCurrentUserHasRole(String role) {
+    public static boolean checkCurrentUserIsAdmin() {
         Authentication auth = getCurrentAuthentication();
         if (auth == null) {
             return false;
         }
-        return auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(role));
+        return auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
 
     public static void requireValidateRole(String role) {

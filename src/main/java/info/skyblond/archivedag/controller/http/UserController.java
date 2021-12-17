@@ -76,9 +76,9 @@ public class UserController {
             @RequestBody UserChangePasswordRequest request
     ) {
         // check permission
-        if (SecurityUtils.checkCurrentUserHasRole("ROLE_USER")
+        if (!SecurityUtils.checkCurrentUserIsAdmin()
                 && !SecurityUtils.getCurrentUsername().equals(request.getUsername())) {
-            // if is user, and username not match
+            // if is not admin, and username not match
             throw new PermissionDeniedException("You can only change your own password");
         }
         // check old password
@@ -97,9 +97,9 @@ public class UserController {
             @RequestBody UserChangeStatusRequest request
     ) {
         // check permission
-        if (SecurityUtils.checkCurrentUserHasRole("ROLE_USER")
+        if (!SecurityUtils.checkCurrentUserIsAdmin()
                 && !SecurityUtils.getCurrentUsername().equals(request.getUsername())) {
-            // if is user, and username not match
+            // if is not admin, and username not match
             throw new PermissionDeniedException("You can only change your own status");
         }
         // check password

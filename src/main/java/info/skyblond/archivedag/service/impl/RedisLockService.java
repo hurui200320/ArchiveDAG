@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.integration.redis.util.RedisLockRegistry;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 @Slf4j
@@ -25,28 +24,6 @@ public class RedisLockService {
     public void lock(String lockKey) {
         Lock lock = this.obtainLock(lockKey);
         lock.lock();
-    }
-
-    /**
-     * Try lock the key.
-     * Return false immediately if the key not available.
-     */
-    public boolean tryLock(String lockKey) {
-        Lock lock = this.obtainLock(lockKey);
-        return lock.tryLock();
-    }
-
-    /**
-     * Try lock the key in the given time duration.
-     * Return false if we cannot lock the key in given time.
-     */
-    public boolean tryLock(String lockKey, long duration, TimeUnit unit) {
-        Lock lock = this.obtainLock(lockKey);
-        try {
-            return lock.tryLock(duration, unit);
-        } catch (InterruptedException e) {
-            return false;
-        }
     }
 
     /**

@@ -74,13 +74,13 @@ public class CertController {
             expireEnd = Constants.MAX_TIMESTAMP;
         }
         // check permission
-        if (SecurityUtils.checkCurrentUserHasRole("ROLE_USER")
+        if (!SecurityUtils.checkCurrentUserIsAdmin()
                 && !SecurityUtils.getCurrentUsername().equals(owner)) {
-            // if is user, and owner not match
+            // if is not admin, and owner not match
             throw new PermissionDeniedException("You can only list your own certifications");
         }
 
-        if (SecurityUtils.checkCurrentUserHasRole("ROLE_ADMIN")) {
+        if (SecurityUtils.checkCurrentUserIsAdmin()) {
             return this.certService.listCertSerialNumber(true, owner,
                     issueStart, issueEnd, expireStart, expireEnd, pageable);
         } else {
@@ -96,9 +96,9 @@ public class CertController {
             @RequestParam(name = "serial_number") String serialNumber
     ) {
         // check permission
-        if (SecurityUtils.checkCurrentUserHasRole("ROLE_USER")
+        if (!SecurityUtils.checkCurrentUserIsAdmin()
                 && !this.certService.userOwnCert(SecurityUtils.getCurrentUsername(), serialNumber)) {
-            // if is user, and not own this cert
+            // if is not admin, and not own this cert
             throw new PermissionDeniedException("You can only query your own certifications");
         }
         return this.certService.queryCert(serialNumber);
@@ -110,10 +110,10 @@ public class CertController {
             @RequestBody CertChangeStatusRequest request
     ) {
         // check permission
-        if (SecurityUtils.checkCurrentUserHasRole("ROLE_USER")
+        if (!SecurityUtils.checkCurrentUserIsAdmin()
                 && !this.certService.userOwnCert(SecurityUtils.getCurrentUsername(),
                 request.getSerialNumber())) {
-            // if is user, and not own this cert
+            // if is not admin, and not own this cert
             throw new PermissionDeniedException("You can only change your own certifications");
         }
         this.certService.changeCertStatus(request.getSerialNumber(), request.getNewStatus());
@@ -127,10 +127,10 @@ public class CertController {
             @RequestParam("serial_number") String serialNumber
     ) {
         // check permission
-        if (SecurityUtils.checkCurrentUserHasRole("ROLE_USER")
+        if (!SecurityUtils.checkCurrentUserIsAdmin()
                 && !this.certService.userOwnCert(SecurityUtils.getCurrentUsername(),
                 serialNumber)) {
-            // if is user, and not own this cert
+            // if is not admin, and not own this cert
             throw new PermissionDeniedException("You can only delete your own certifications");
         }
         this.certService.deleteCert(serialNumber);

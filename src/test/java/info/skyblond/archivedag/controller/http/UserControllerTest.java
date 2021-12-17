@@ -33,10 +33,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @SpringBootTest(
         classes = {EmbeddedRedisConfiguration.class, WebMvcConfig.class}
-//        properties = {
-//                "grpc.server.inProcessName=testUserController",
-//                "grpc.client.inProcess.address=in-process:testUserController"
-//        }
 )
 @ActiveProfiles("test")
 @AutoConfigureMockMvc

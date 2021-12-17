@@ -9,7 +9,6 @@ import io.ipfs.multihash.Multihash;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class AritegMetaService {
@@ -53,14 +52,6 @@ public class AritegMetaService {
      */
     public void lock(Multihash primary) {
         this.lockService.lock(primary.toBase58());
-    }
-
-    public boolean tryLock(Multihash primary) {
-        return this.lockService.tryLock(primary.toBase58());
-    }
-
-    public boolean tryLock(Multihash primary, long duration, TimeUnit unit) {
-        return this.lockService.tryLock(primary.toBase58(), duration, unit);
     }
 
     public void unlock(Multihash primary) {
