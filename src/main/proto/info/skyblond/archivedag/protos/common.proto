@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-package info.skyblond.archivedag.common;
-
-option java_multiple_files = true;
-option java_package = "info.skyblond.archivedag.protos.common";
-
-message Empty {
-}

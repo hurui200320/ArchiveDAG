@@ -1,0 +1,54 @@
+server:
+  max-http-header-size: 16MB
+logging:
+  level:
+    root: info
+    info.skyblond: debug
+grpc:
+  server:
+    port: -1
+    reflection-service-enabled: true
+    security:
+      enabled: true
+      certificate-chain: file:ssl/localhost.crt
+      private-key: file:ssl/localhost.key
+      trust-cert-collection: file:ssl/rootCA.crt
+      client-auth: require
+cert-signing:
+  ca-cert: file:ssl/rootCA.crt
+  ca-private-key: file:ssl/rootCA.key
+spring:
+  jpa:
+    show-sql: false
+    hibernate.ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:archive_dag_test
+    username: sa
+    password: password
+  redis:
+    database: 0
+    host: localhost
+    port: 6380
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 256GB
+      max-request-size: 257GB
+archive-dag.ariteg:
+  meta:
+    lock-expire-duration: 1
+    lock-expire-time-unit: minutes
+  storage:
+    type: file_system
+    primary-hash-type: sha3_512
+    secondary-hash-type: blake2b_256
+    filesystem:
+      path: "./data/test/protos"
+      threadSize: 16
+      queue-size: 1024
