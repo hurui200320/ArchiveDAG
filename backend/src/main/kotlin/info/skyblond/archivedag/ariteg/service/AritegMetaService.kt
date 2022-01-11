@@ -1,7 +1,7 @@
 package info.skyblond.archivedag.ariteg.service
 
 import info.skyblond.archivedag.ariteg.entity.ProtoMetaEntity
-import info.skyblond.archivedag.ariteg.model.FindTypeReceipt
+import info.skyblond.archivedag.ariteg.model.FindMetaReceipt
 import info.skyblond.archivedag.ariteg.protos.AritegObjectType
 import info.skyblond.archivedag.ariteg.repo.ProtoMetaRepository
 import info.skyblond.archivedag.commons.EntityNotFoundException
@@ -15,12 +15,15 @@ class AritegMetaService(private val metaRepository: ProtoMetaRepository, private
      * Query the object type and mediaType.
      * Return null if not find.
      */
-    fun findType(primary: Multihash): FindTypeReceipt? {
+    fun findMeta(primary: Multihash): FindMetaReceipt? {
         val meta = metaRepository.findByPrimaryHash(primary.toBase58())
         return if (meta == null) {
             null
         } else {
-            FindTypeReceipt(meta.objectType, meta.mediaType)
+            FindMetaReceipt(
+                Multihash.fromBase58(meta.secondaryHash),
+                meta.objectType, meta.mediaType
+            )
         }
     }
 
@@ -47,6 +50,10 @@ class AritegMetaService(private val metaRepository: ProtoMetaRepository, private
 
     fun unlock(primary: Multihash) {
         lockService.unlock("archivedag.ariteg.proto.lock." + primary.toBase58())
+    }
+
+    fun multihashExists(primary: Multihash): Boolean {
+        return metaRepository.existsByPrimaryHash(primary.toBase58())
     }
 
     /**

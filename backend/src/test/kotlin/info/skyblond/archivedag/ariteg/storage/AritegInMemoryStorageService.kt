@@ -7,10 +7,8 @@ import info.skyblond.archivedag.ariteg.model.StorageStatus
 import info.skyblond.archivedag.ariteg.model.StoreReceipt
 import info.skyblond.archivedag.ariteg.multihash.MultihashProvider
 import info.skyblond.archivedag.ariteg.protos.AritegLink
-import info.skyblond.archivedag.ariteg.utils.nop
 import info.skyblond.archivedag.ariteg.utils.toMultihash
 import info.skyblond.archivedag.ariteg.utils.toMultihashBase58
-import info.skyblond.archivedag.commons.getUnixTimestamp
 import io.ipfs.multihash.Multihash
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
@@ -57,17 +55,15 @@ class AritegInMemoryStorageService(
         val multihash = link.multihash.toMultihash()
         return if (contentMap.containsKey(multihash)) {
             StorageStatus(
-                getUnixTimestamp(),
-                -1,
-                contentMap[multihash]!!.toProto().toByteArray().size
+                available = true,
+                protoSize = contentMap[multihash]!!.toProto().toByteArray().size.toLong()
             )
         } else {
             null
         }
     }
 
-    override fun restoreLinks(links: List<AritegLink>, option: RestoreOption?): CompletableFuture<Void> {
-        return CompletableFuture.runAsync { nop() }
+    override fun restoreLink(link: AritegLink, option: RestoreOption?) {
     }
 
     override fun loadProto(link: AritegLink): AritegObject {

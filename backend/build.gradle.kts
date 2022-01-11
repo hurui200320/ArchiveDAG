@@ -3,7 +3,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.6.1"
+    id("org.springframework.boot") version "2.6.2"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version "1.6.0"
     kotlin("plugin.spring") version "1.6.0"
@@ -23,6 +23,7 @@ val postgresqlVersion = "42.3.1"
 val multihashVersion = "v1.3.0"
 val bouncyCastleVersion = "1.69"
 val jjwtVersion = "0.11.2"
+val awsJavaSdkVersion = "2.17.100"
 
 val embeddedRedisVersion = "0.7.3"
 val h2Version = "1.4.200"
@@ -70,6 +71,10 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
 
+    // AWS SDK
+    implementation(platform("software.amazon.awssdk:bom:$awsJavaSdkVersion"))
+    implementation("software.amazon.awssdk:s3")
+
     implementation(project(":grpc-interface"))
 
     // -------------------- TEST --------------------
@@ -91,6 +96,6 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 }

@@ -3,7 +3,6 @@ package info.skyblond.archivedag.ariteg.storage
 import info.skyblond.archivedag.ariteg.model.*
 import info.skyblond.archivedag.ariteg.protos.AritegLink
 import io.ipfs.multihash.Multihash
-import java.util.concurrent.CompletableFuture
 import java.util.function.BiFunction
 
 
@@ -40,10 +39,8 @@ interface AritegStorageService {
      * Might be null.
      *
      * Might throw any exception if something goes wrong.
-     *
-     * Return a [CompletableFuture] represented if the request has been submitted.
      */
-    fun restoreLinks(links: List<AritegLink>, option: RestoreOption?): CompletableFuture<Void>
+    fun restoreLink(link: AritegLink, option: RestoreOption?)
 
     /**
      * Load a proto from a given link.

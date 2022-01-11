@@ -21,7 +21,6 @@ class CertSigningConfiguration(
         if (Security.getProvider("BC") == null) {
             Security.addProvider(BouncyCastleProvider())
         }
-        println("???" + properties.caPrivateKey.file.absolutePath)
         val caPrivateKey: PrivateKey = readPrivateKey(
             properties.caPrivateKey.readableChannel(),
             properties.caPrivateKeyPassword

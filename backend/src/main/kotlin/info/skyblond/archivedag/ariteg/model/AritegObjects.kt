@@ -166,10 +166,4 @@ object AritegObjects {
     @JvmStatic
     fun newLink(name: String, multihash: Multihash, type: AritegObjectType): AritegLink = AritegLink.newBuilder()
         .setName(name).setMultihash(ByteString.copyFrom(multihash.toBytes())).setType(type).build()
-
-    /**
-     * Get [Multihash] from [AritegLink]
-     * */
-    @JvmStatic
-    fun extractMultihashFromLink(link: AritegLink): Multihash = Multihash.deserialize(link.multihash.toByteArray())
 }

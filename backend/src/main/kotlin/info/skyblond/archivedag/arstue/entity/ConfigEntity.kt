@@ -13,5 +13,5 @@ class ConfigEntity(
     val key: String,
 
     @Column(name = "value")
-    var value: String?
+    val value: String?
 )

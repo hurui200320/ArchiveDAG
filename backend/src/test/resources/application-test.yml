@@ -41,14 +41,14 @@ spring:
       max-file-size: 256GB
       max-request-size: 257GB
 archive-dag.ariteg:
+  storage:
+    type: local_file_system_only
+    primary-hash-type: sha3_512
+    secondary-hash-type: blake2b_512
+    threadSize: 16
+    queue-size: 1024
+    filesystem:
+      path: "./data/test/protos"
   meta:
     lock-expire-duration: 1
     lock-expire-time-unit: minutes
-  storage:
-    type: file_system
-    primary-hash-type: sha3_512
-    secondary-hash-type: blake2b_256
-    filesystem:
-      path: "./data/test/protos"
-      threadSize: 16
-      queue-size: 1024

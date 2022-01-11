@@ -10,11 +10,11 @@ class UserEntity(
     val username: String,
 
     @Column(name = "password", nullable = false)
-    var password: String,
+    val password: String,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    var status: Status
+    val status: Status
 ) {
 
     constructor(username: String, password: String) : this(username, password, Status.LOCKED)

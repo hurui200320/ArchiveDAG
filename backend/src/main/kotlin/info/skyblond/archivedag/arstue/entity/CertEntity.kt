@@ -21,7 +21,7 @@ class CertEntity(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    var status: Status,
+    val status: Status,
 ) {
     constructor(
         serialNumber: String, username: String,

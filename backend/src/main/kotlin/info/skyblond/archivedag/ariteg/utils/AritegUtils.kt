@@ -4,8 +4,6 @@ import com.google.protobuf.ByteString
 import info.skyblond.archivedag.ariteg.protos.AritegLink
 import io.ipfs.multihash.Multihash
 
-fun nop() {}
-
 fun ByteString.toMultihash(): Multihash {
     return Multihash.deserialize(this.toByteArray())
 }

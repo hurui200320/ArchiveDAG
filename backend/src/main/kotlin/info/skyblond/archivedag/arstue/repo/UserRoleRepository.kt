@@ -5,7 +5,9 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
+import org.springframework.stereotype.Repository
 
+@Repository
 interface UserRoleRepository : JpaRepository<UserRoleEntity, String> {
 
     fun findAllByUsername(username: String): List<UserRoleEntity>

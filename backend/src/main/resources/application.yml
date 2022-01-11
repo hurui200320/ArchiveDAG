@@ -40,13 +40,17 @@ spring:
       max-request-size: 257GB
 archive-dag.ariteg:
   storage:
-    type: file_system
+    type: local_file_system_only
     primary-hash-type: sha3_512
     secondary-hash-type: blake2b_512
+    threadSize: 16
+    queue-size: 1024
     filesystem:
       path: "./data/protos"
-      threadSize: 16
-      queue-size: 1024
+    s3:
+      region: us-west-2
+      bucket-name: skyblond-develop-test
+      upload-storage-class: intelligent_tiering
   meta:
     lock-expire-duration: 15
     lock-expire-time-unit: minutes

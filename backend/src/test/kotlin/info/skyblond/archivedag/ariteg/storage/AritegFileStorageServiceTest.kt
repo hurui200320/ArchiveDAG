@@ -5,9 +5,7 @@ import info.skyblond.archivedag.ariteg.model.BlobObject
 import info.skyblond.archivedag.ariteg.model.CommitObject
 import info.skyblond.archivedag.ariteg.model.ListObject
 import info.skyblond.archivedag.ariteg.model.TreeObject
-import info.skyblond.archivedag.ariteg.multihash.MultihashProviders
 import info.skyblond.archivedag.ariteg.protos.AritegLink
-import info.skyblond.archivedag.commons.getUnixTimestamp
 import io.ipfs.multihash.Multihash
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
@@ -20,10 +18,8 @@ import kotlin.random.Random
 internal class AritegFileStorageServiceTest {
 
     private val baseDir = File("./data/test/${Random.nextLong()}")
-    private val primary = MultihashProviders.fromMultihashType(Multihash.Type.sha3_512)
-    private val secondary = MultihashProviders.fromMultihashType(Multihash.Type.blake2b_512)
     private val storageService = AritegFileStorageService(
-        primary, secondary, baseDir, 2, 1024
+        Multihash.Type.sha3_512, Multihash.Type.blake2b_512, baseDir, 2, 1024
     )
 
     @BeforeEach
@@ -115,8 +111,7 @@ internal class AritegFileStorageServiceTest {
             "blob", BlobObject(ByteString.copyFrom("Data", Charsets.UTF_8))
         ) { _, _ -> true }
         assertNotNull(storeBlob.completionFuture.get())
-        assertTrue(this.storageService.queryStatus(storeBlob.link)!!.availableFrom <= getUnixTimestamp())
-        assertEquals(-1, this.storageService.queryStatus(storeBlob.link)!!.expiredTimestamp)
+        assertTrue(this.storageService.queryStatus(storeBlob.link)!!.available)
         assertNotEquals(0, this.storageService.queryStatus(storeBlob.link)!!.protoSize)
 
         assertTrue(this.storageService.deleteProto(storeBlob.link))
@@ -126,9 +121,7 @@ internal class AritegFileStorageServiceTest {
     @Test
     fun restoreLink() {
         assertDoesNotThrow {
-            this.storageService.restoreLinks(
-                listOf(AritegLink.getDefaultInstance()), null
-            )
+            this.storageService.restoreLink(AritegLink.getDefaultInstance(), null)
         }
     }
 }

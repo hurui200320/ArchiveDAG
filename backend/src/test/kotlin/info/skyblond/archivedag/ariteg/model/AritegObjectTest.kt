@@ -105,15 +105,4 @@ internal class AritegObjectTest {
         assertEquals(original.committedObject, recovered.committedObject)
         assertEquals(original.author, recovered.author)
     }
-
-    @Test
-    fun testExtractMultihash() {
-        val multihash = multihashProvider.digest("multihash#3".encodeToByteArray())
-        assertEquals(
-            multihash,
-            AritegObjects.extractMultihashFromLink(
-                AritegObjects.newLink(multihash, AritegObjectType.TREE)
-            )
-        )
-    }
 }

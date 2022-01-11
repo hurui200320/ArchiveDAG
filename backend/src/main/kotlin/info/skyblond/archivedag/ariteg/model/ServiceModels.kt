@@ -3,10 +3,10 @@ package info.skyblond.archivedag.ariteg.model
 import info.skyblond.archivedag.ariteg.protos.AritegLink
 import info.skyblond.archivedag.ariteg.protos.AritegObjectType
 import io.ipfs.multihash.Multihash
-import java.io.InputStream
 import java.util.concurrent.CompletableFuture
 
-data class FindTypeReceipt(
+data class FindMetaReceipt(
+    val secondaryMultihash: Multihash,
     val objectType: AritegObjectType,
     val mediaType: String?
 )
@@ -23,18 +23,13 @@ data class WriteReceipt(
     val completionFuture: CompletableFuture<Void>
 )
 
-data class ReadReceipt(
-    val mediaType: String,
-    val inputStream: InputStream
-)
-
 data class RestoreReceipt(
-    val involvedLinks: List<AritegLink>,
-    val completionFuture: CompletableFuture<Void>
+    val involvedLinks: List<AritegLink>
 )
 
 data class ProbeReceipt(
     val link: AritegLink,
+    val secondaryMultihash: Multihash,
     val mediaType: String?,
     val status: StorageStatus,
     // TODO more data needed?
@@ -54,20 +49,13 @@ data class StoreReceipt(
 
 data class StorageStatus(
     /**
-     * When this proto is available to read.
-     * -1 means not available yet.
+     * Whether this proto is available to read.
      * */
-    val availableFrom: Long,
-
-    /**
-     * When this proto is expired and no longer available to read.
-     * -1 means won't expire.
-     * */
-    val expiredTimestamp: Long,
+    val available: Boolean,
 
     /**
      * The size of this proto file (measured in bytes).
-     * -1 means size not available.
+     * null means size not available.
      * */
-    val protoSize: Int
+    val protoSize: Long?
 )

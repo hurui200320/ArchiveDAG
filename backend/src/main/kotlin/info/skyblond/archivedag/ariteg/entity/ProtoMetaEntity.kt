@@ -18,10 +18,10 @@ class ProtoMetaEntity(
     val objectType: AritegObjectType,
 
     @Column(name = "media_type")
-    var mediaType: String?,
+    val mediaType: String?,
 
     @Column(name = "mark", nullable = false)
-    var mark: String
+    val mark: String
 ) {
     constructor(
         primaryHash: String,

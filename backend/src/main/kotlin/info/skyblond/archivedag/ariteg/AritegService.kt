@@ -1,19 +1,15 @@
 package info.skyblond.archivedag.ariteg
 
 import info.skyblond.archivedag.ariteg.model.*
-import info.skyblond.archivedag.ariteg.model.AritegObjects.extractMultihashFromLink
 import info.skyblond.archivedag.ariteg.model.AritegObjects.newLink
 import info.skyblond.archivedag.ariteg.protos.AritegLink
 import info.skyblond.archivedag.ariteg.protos.AritegObjectType
 import info.skyblond.archivedag.ariteg.service.AritegMetaService
 import info.skyblond.archivedag.ariteg.storage.AritegStorageService
-import info.skyblond.archivedag.ariteg.utils.nop
+import info.skyblond.archivedag.ariteg.utils.toMultihash
 import io.ipfs.multihash.Multihash
 import org.slf4j.LoggerFactory
-import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
-import java.io.ByteArrayInputStream
-import java.io.InputStream
 import java.util.*
 
 @Service
@@ -24,11 +20,70 @@ class AritegService(
     private val logger = LoggerFactory.getLogger(AritegService::class.java)
 
     /**
+     * Return true if primary collided, return false if not.
+     * Return null if not found
+     * */
+    fun checkCollision(primary: Multihash, secondary: Multihash): Boolean? {
+        // find meta, return null if not found
+        val meta = metaService.findMeta(primary) ?: return null
+        // if secondary not equal, is collided
+        println(meta.secondaryMultihash)
+        println(secondary)
+        return meta.secondaryMultihash != secondary
+    }
+
+    fun multihashExists(primary: Multihash): Boolean {
+        return metaService.multihashExists(primary)
+    }
+
+    private fun preWriteCheck(link: AritegLink) {
+        val multihash = link.multihash.toMultihash()
+        require(multihashExists(multihash)) { "Sub link not exists: $multihash" }
+    }
+
+    /**
      * Write a proto (BLOB, LIST, TREE or COMMIT) into the system.
      * This method will check with the meta db and see if we can do the
      * deduplication. It will handle meta updates etc.
      * */
     fun writeProto(name: String, proto: AritegObject): WriteReceipt {
+        when (proto) {
+            is BlobObject -> { // No need to check blob, allow duplicate write
+            }
+            is ListObject -> { // make sure all sub links are exists
+                proto.list.forEach {
+                    require(it.type == AritegObjectType.BLOB || it.type == AritegObjectType.LIST) {
+                        "Unsupported sub link type ${it.type}, allow: BLOB and LIST"
+                    }
+                    preWriteCheck(it)
+                }
+            }
+            is TreeObject -> { // make sure all sub links are exists
+                proto.links.forEach {
+                    require(
+                        it.type == AritegObjectType.BLOB
+                                || it.type == AritegObjectType.LIST
+                                || it.type == AritegObjectType.TREE
+                    ) {
+                        "Unsupported sub link type ${it.type}, allow: BLOB, LIST and TREE"
+                    }
+                    preWriteCheck(it)
+                }
+            }
+            is CommitObject -> {
+                require(proto.authorLink.type != AritegObjectType.COMMIT) { "Author link cannot be COMMIT" }
+                preWriteCheck(proto.authorLink)
+                require(proto.parentLink.type == AritegObjectType.COMMIT) { "Parent link must be COMMIT" }
+                if (!proto.parentLink.multihash.isEmpty) {
+                    // check parent link if and only if it's not empty
+                    preWriteCheck(proto.parentLink)
+                }
+                require(proto.committedObjectLink.type != AritegObjectType.COMMIT) { "Content link cannot be COMMIT" }
+                preWriteCheck(proto.committedObjectLink)
+            }
+            else -> throw IllegalStateException("Unchecked operation")
+        }
+        // check passed, do write
         val (link, completionFuture) = storageService.store(name, proto) { primary: Multihash, secondary: Multihash ->
             // lock the primary
             metaService.lock(primary)
@@ -63,90 +118,13 @@ class AritegService(
         return WriteReceipt(link, future)
     }
 
-    /**
-     * Read a chunk of data from a blob of list.
-     *
-     * The link can be: BLOB or LIST
-     *
-     * Return the mediaType and the input stream representing the data.
-     */
-    fun readChunk(link: AritegLink): ReadReceipt {
-        if (link.type != AritegObjectType.BLOB
-            && link.type != AritegObjectType.LIST
-        ) {
-            throw IllegalArgumentException(
-                "Unsupported object type ${link.type.name}, only BLOB or LIST is supported."
-            )
-        }
-        val primary = extractMultihashFromLink(link)
-        // by default (null) is `"application/octet-stream`
-        // it's ok for missing meta data
-        val mediaType = metaService.findType(primary)?.mediaType ?: MediaType.APPLICATION_OCTET_STREAM_VALUE
-        // since here we need the proto exists, if not, exception will be thrown.
-        // It's caller's responsibility to check before read
-        val obj = storageService.loadProto(link)
-
-        // if the link is Blob, then return the content
-        if (obj is BlobObject) {
-            return ReadReceipt(
-                mediaType, ByteArrayInputStream(obj.data.toByteArray())
-            )
-        }
-
-        // Otherwise, it's List
-        val resultStream: InputStream = object : InputStream() {
-            // init with all links
-            val linkList: MutableList<AritegLink> = (obj as ListObject).list.toMutableList()
-            var currentBlob: BlobObject? = null
-            var pointerInBlob = 0
-
-            @Synchronized
-            private fun fetchNextBlob() {
-                // make sure we have more links to read
-                while (linkList.isNotEmpty() && currentBlob == null) {
-                    // fetch the first link and read it
-                    val tempLink = linkList.removeAt(0)
-                    val tempObj = storageService.loadProto(tempLink)
-                    if (tempObj is BlobObject) {
-                        // is blob, read and use it
-                        currentBlob = tempObj
-                        pointerInBlob = 0
-                        break // break the loop, we are done
-                    } else {
-                        // else, assume is list, add them to the list and try again
-                        linkList.addAll(0, (tempObj as ListObject).list)
-                    }
-                }
-            }
-
-            override fun read(): Int {
-                if (currentBlob == null) {
-                    do { // refresh blob
-                        fetchNextBlob()
-                    } while (currentBlob != null && currentBlob!!.data.size() == 0)
-                    // if we get empty blob, skip it and fetch next
-                    // stop when getting null blob
-                }
-                if (currentBlob == null) {
-                    // really the end
-                    return -1
-                }
-                // we got the blob, read the value
-                val b: Int = currentBlob!!.data.byteAt(pointerInBlob++).toInt()
-                if (pointerInBlob >= currentBlob!!.data.size()) {
-                    // if we are the end of blob, release it
-                    currentBlob = null
-                }
-                return b and 0xFF // only keep the low 8 bits for byte
-            }
-        }
-        return ReadReceipt(mediaType, resultStream)
+    fun updateMediaType(link: AritegLink, mediaType: String?) {
+        metaService.updateMediaType(link.multihash.toMultihash(), mediaType)
     }
 
     fun readBlob(link: AritegLink): BlobObject = storageService.loadProto(link) as BlobObject
 
     fun readList(link: AritegLink): ListObject = storageService.loadProto(link) as ListObject
-
 
     fun readTree(link: AritegLink): TreeObject = storageService.loadProto(link) as TreeObject
 
@@ -155,7 +133,7 @@ class AritegService(
     fun renameLink(link: AritegLink, newName: String): AritegLink = link.toBuilder().setName(newName).build()
 
     fun deleteLink(link: AritegLink) {
-        metaService.deleteByPrimaryHash(extractMultihashFromLink(link))
+        metaService.deleteByPrimaryHash(link.multihash.toMultihash())
         storageService.deleteProto(link)
     }
 
@@ -208,7 +186,7 @@ class AritegService(
                 }
                 result.addAll(resolveLinks(committedObjectLink, fullCommit))
             }
-            else -> nop() // nothing to do
+            else -> {} // nothing to do
         }
         return result
     }
@@ -218,8 +196,8 @@ class AritegService(
      */
     fun restore(link: AritegLink, option: RestoreOption?): RestoreReceipt {
         val links = resolveLinks(link)
-        val future = storageService.restoreLinks(links, option)
-        return RestoreReceipt(links, future)
+        links.forEach { storageService.restoreLink(it, option) }
+        return RestoreReceipt(links)
     }
 
     /**
@@ -229,7 +207,7 @@ class AritegService(
      */
     fun probe(primary: Multihash): ProbeReceipt? {
         // find type first
-        val (objectType, mediaType) = metaService.findType(primary) ?: return null
+        val (secondary, objectType, mediaType) = metaService.findMeta(primary) ?: return null
         val link = newLink(primary, objectType)
         // then check the storage status
         val status = storageService.queryStatus(link)
@@ -239,6 +217,6 @@ class AritegService(
             logger.error("Link {} found in meta but not in storage", primary.toBase58())
             return null
         }
-        return ProbeReceipt(link, mediaType, status)
+        return ProbeReceipt(link, secondary, mediaType, status)
     }
 }
