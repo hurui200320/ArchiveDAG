@@ -1,7 +1,6 @@
 package info.skyblond.archivedag.ariteg
 
 import com.google.protobuf.ByteString
-import info.skyblond.archivedag.ariteg.config.EmbeddedRedisConfiguration
 import info.skyblond.archivedag.ariteg.model.*
 import info.skyblond.archivedag.ariteg.multihash.MultihashProviders
 import info.skyblond.archivedag.ariteg.protos.AritegLink
@@ -29,7 +28,7 @@ import kotlin.random.Random
  *
  * But the configs are not tested.
  * */
-@SpringBootTest(classes = [EmbeddedRedisConfiguration::class])
+@SpringBootTest()
 @ActiveProfiles("test")
 internal class AritegServiceTest {
     @Autowired

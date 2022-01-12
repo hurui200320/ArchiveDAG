@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service
 import javax.transaction.Transactional
 
 @Service
-class AritegMetaService(private val metaRepository: ProtoMetaRepository, private val lockService: RedisLockService) {
+class AritegMetaService(
+    private val metaRepository: ProtoMetaRepository,
+    private val lockService: DistributedLockService
+) {
     /**
      * Query the object type and mediaType.
      * Return null if not find.
@@ -45,11 +48,11 @@ class AritegMetaService(private val metaRepository: ProtoMetaRepository, private
      * Try lock the primary hash with the secondary hash
      */
     fun lock(primary: Multihash) {
-        lockService.lock("archivedag.ariteg.proto.lock." + primary.toBase58())
+        lockService.lock(primary)
     }
 
     fun unlock(primary: Multihash) {
-        lockService.unlock("archivedag.ariteg.proto.lock." + primary.toBase58())
+        lockService.unlock(primary)
     }
 
     fun multihashExists(primary: Multihash): Boolean {

@@ -9,9 +9,9 @@ grpc:
       enabled: true
       certificate-chain: file:ssl/localhost.crt
       private-key: file:ssl/localhost.key
-      trust-cert-collection: file:ssl/rootCA.crt
       client-auth: require
 cert-signing:
+  # TODO extend this to: O, OU, C, etc.
   ca-cert: file:ssl/rootCA.crt
   ca-private-key: file:ssl/rootCA.key
   custom-subject-d-n: O=SkyBlond
@@ -41,8 +41,6 @@ spring:
 archive-dag.ariteg:
   storage:
     type: local_file_system_only
-    primary-hash-type: sha3_512
-    secondary-hash-type: blake2b_512
     threadSize: 16
     queue-size: 1024
     filesystem:
@@ -54,6 +52,9 @@ archive-dag.ariteg:
   meta:
     lock-expire-duration: 15
     lock-expire-time-unit: minutes
+etcd:
+  server-addr:
+    - "http://127.0.0.1:2379"
 jwt:
   secret: r5FHVELtfN5CdTLGJ6ZwEEBCNFn4nTr5ig6SwpXbj2nQuWYsOn/EJyqEWvEm4J0NOYdmC51+kdX2efPZRhTYzA==
   expire-in-duration: 30

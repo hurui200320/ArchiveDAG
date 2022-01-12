@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface ProtoMetaRepository : JpaRepository<ProtoMetaEntity, String> {
+
     fun findByPrimaryHash(primaryHash: String): ProtoMetaEntity?
 
     fun existsByPrimaryHash(primaryHash: String): Boolean

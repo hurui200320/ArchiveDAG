@@ -5,32 +5,53 @@ import info.skyblond.archivedag.ariteg.config.AritegProperties.ProtoStoragePrope
 import info.skyblond.archivedag.ariteg.storage.AritegFileStorageService
 import info.skyblond.archivedag.ariteg.storage.AritegS3ArchiveStorageService
 import info.skyblond.archivedag.ariteg.storage.AritegStorageService
+import info.skyblond.archivedag.commons.service.EtcdSimpleConfigService
 import io.ipfs.multihash.Multihash
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Lazy
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import java.io.File
+import java.net.URI
 
 @Configuration
 @EnableConfigurationProperties(AritegProperties::class)
 class AritegConfiguration(
     private val properties: AritegProperties,
+    private val etcdConfig: EtcdSimpleConfigService
 ) {
+    private val etcdConfigPrefix = "/application/ariteg/config/"
     private val logger = LoggerFactory.getLogger(AritegConfiguration::class.java)
+
+    fun getPrimaryHashType(): Multihash.Type {
+        val configKey = "primary_hash_type"
+        val primary = etcdConfig.requireConfig(etcdConfigPrefix, configKey)
+        logger.info("Primary hash type from config: $primary")
+        return Multihash.Type.valueOf(primary)
+    }
+
+    fun getSecondaryHashType(): Multihash.Type {
+        val configKey = "secondary_hash_type"
+        val secondary = etcdConfig.requireConfig(etcdConfigPrefix, configKey)
+        logger.info("Secondary hash type from config: $secondary")
+        return Multihash.Type.valueOf(secondary)
+    }
 
     @Bean
     fun resolveStorage(): AritegStorageService {
         val storageProperties = properties.storage
-        val primary = storageProperties.primaryHashType
-        val secondary = storageProperties.secondaryHashType
+
+        val primaryType = getPrimaryHashType()
+        val secondaryType = getSecondaryHashType()
+
         return when (storageProperties.type) {
-            LOCAL_FILE_SYSTEM_ONLY -> resolveFileSystem(primary, secondary)
-            LOCAL_WITH_S3_ARCHIVE -> resolveS3(primary, secondary)
-//            else -> throw NotImplementedError("TODO")
+            LOCAL_FILE_SYSTEM_ONLY -> resolveFileSystem(primaryType, secondaryType)
+            LOCAL_WITH_S3_ARCHIVE -> resolveS3(primaryType, secondaryType)
+            else -> TODO()
         }
     }
 
@@ -79,6 +100,24 @@ class AritegConfiguration(
     @Lazy
     @Bean
     fun s3Client(): S3Client {
-        return S3Client.builder().region(Region.of(properties.storage.s3!!.region)).build()
+        val s3Properties = properties.storage.s3!!
+        return S3Client.builder()
+            .apply {
+                s3Properties.endpoint?.let {
+                    endpointOverride(URI.create(it))
+                }
+            }
+            .region(Region.of(s3Properties.region))
+            .apply {
+                if (s3Properties.accessKey != null && s3Properties.secretKey != null) {
+                    credentialsProvider {
+                        AwsBasicCredentials.create(
+                            properties.storage.s3.accessKey,
+                            properties.storage.s3.secretKey
+                        )
+                    }
+                }
+            }
+            .build()
     }
 }

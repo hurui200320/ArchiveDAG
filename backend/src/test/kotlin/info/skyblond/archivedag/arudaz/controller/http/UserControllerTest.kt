@@ -1,7 +1,6 @@
 package info.skyblond.archivedag.arudaz.controller.http
 
 import com.google.gson.Gson
-import info.skyblond.archivedag.ariteg.config.EmbeddedRedisConfiguration
 import info.skyblond.archivedag.arstue.entity.UserEntity
 import info.skyblond.archivedag.arstue.entity.UserRoleEntity
 import info.skyblond.archivedag.arstue.repo.UserRepository
@@ -28,7 +27,7 @@ import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-@SpringBootTest(classes = [EmbeddedRedisConfiguration::class])
+@SpringBootTest()
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 internal class UserControllerTest {

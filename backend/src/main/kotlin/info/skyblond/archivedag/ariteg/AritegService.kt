@@ -27,8 +27,6 @@ class AritegService(
         // find meta, return null if not found
         val meta = metaService.findMeta(primary) ?: return null
         // if secondary not equal, is collided
-        println(meta.secondaryMultihash)
-        println(secondary)
         return meta.secondaryMultihash != secondary
     }
 

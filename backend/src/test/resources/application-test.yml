@@ -12,8 +12,10 @@ grpc:
       enabled: true
       certificate-chain: file:ssl/localhost.crt
       private-key: file:ssl/localhost.key
-      trust-cert-collection: file:ssl/rootCA.crt
       client-auth: require
+etcd:
+  server-addr:
+    - "http://127.0.0.1:2379"
 cert-signing:
   ca-cert: file:ssl/rootCA.crt
   ca-private-key: file:ssl/rootCA.key
@@ -43,8 +45,6 @@ spring:
 archive-dag.ariteg:
   storage:
     type: local_file_system_only
-    primary-hash-type: sha3_512
-    secondary-hash-type: blake2b_512
     threadSize: 16
     queue-size: 1024
     filesystem:

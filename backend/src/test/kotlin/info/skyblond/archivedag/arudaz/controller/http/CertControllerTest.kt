@@ -1,7 +1,6 @@
 package info.skyblond.archivedag.arudaz.controller.http
 
 import com.google.gson.Gson
-import info.skyblond.archivedag.ariteg.config.EmbeddedRedisConfiguration
 import info.skyblond.archivedag.arstue.CertService
 import info.skyblond.archivedag.arstue.entity.CertEntity
 import info.skyblond.archivedag.arstue.repo.CertRepository
@@ -21,7 +20,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-@SpringBootTest(classes = [EmbeddedRedisConfiguration::class])
+@SpringBootTest()
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 internal class CertControllerTest {

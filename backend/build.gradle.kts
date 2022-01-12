@@ -24,8 +24,8 @@ val multihashVersion = "v1.3.0"
 val bouncyCastleVersion = "1.69"
 val jjwtVersion = "0.11.2"
 val awsJavaSdkVersion = "2.17.100"
+val jetcdVersion = "0.6.1"
 
-val embeddedRedisVersion = "0.7.3"
 val h2Version = "1.4.200"
 
 dependencies {
@@ -43,23 +43,20 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     // spring boot security
     implementation("org.springframework.boot:spring-boot-starter-security")
-    // spring boot integration and data redis
-    implementation("org.springframework.boot:spring-boot-starter-integration")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
     // spring boot configuration
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     // this is not required when using kapt
     // but IDEA will complain about it if missing this
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
-    // spring integration redis
-    implementation("org.springframework.integration:spring-integration-redis")
-
     // grpc spring boot starter
     implementation("net.devh:grpc-spring-boot-starter:$grpcStarterVersion")
 
     // Postgresql jdbc driver
     runtimeOnly("org.postgresql:postgresql:$postgresqlVersion")
+
+    // jetcd
+    implementation("io.etcd:jetcd-core:$jetcdVersion")
 
     // multihash and crypto
     implementation("com.github.multiformats:java-multihash:$multihashVersion")
@@ -85,10 +82,6 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     // H2 for test database
     testImplementation("com.h2database:h2:$h2Version")
-    // embedded redis
-    testImplementation("it.ozimov:embedded-redis:$embeddedRedisVersion") {
-        exclude("org.slf4j", "slf4j-simple")
-    }
     // grpc test
     testImplementation("io.grpc:grpc-testing:$grpcVersion")
 }
