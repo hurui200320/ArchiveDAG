@@ -3,42 +3,61 @@ package info.skyblond.archivedag.commons.service
 import io.etcd.jetcd.Client
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.time.Duration
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledThreadPoolExecutor
 
 @Service
 class EtcdSimpleLockService(
     private val etcdClient: Client,
     private val config: EtcdSimpleConfigService
-) {
+) : AutoCloseable {
     private val etcdConfigPrefix = "/application/common/config/"
-    private val lockDurationEtcdConfigKey = "lock_duration"
+    private val lockTtlEtcdConfigKey = "lock_ttl_in_sec"
+    private val lockTimeoutEtcdConfigKey = "lock_timeout_in_ms"
 
     private val logger = LoggerFactory.getLogger(EtcdSimpleLockService::class.java)
+    private val defaultTtl: Long = 900
+    private val defaultTimeout: Long = 1000
+    private val executor: ScheduledThreadPoolExecutor =
+        Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors()) as ScheduledThreadPoolExecutor
 
-    fun setLockDuration(duration: Duration) {
+    init {
+        // remove canceled tasks
+        executor.removeOnCancelPolicy = true
+        logger.info("Etcd simple lock ttl: ${getLong(lockTtlEtcdConfigKey, defaultTtl)}s")
+        logger.info("Etcd simple lock timeout: ${getLong(lockTimeoutEtcdConfigKey, defaultTimeout)}ms")
+    }
+
+    private fun setLong(key: String, long: Long) {
         config.putConfig(
-            etcdConfigPrefix, lockDurationEtcdConfigKey,
-            duration.toString()
+            etcdConfigPrefix, key, long.toString()
         )
     }
 
-    fun getLockDuration(): Duration {
-        val text = config.getConfig(etcdConfigPrefix, lockDurationEtcdConfigKey)
+    private fun getLong(key: String, default: Long): Long {
+        val text = config.getConfig(etcdConfigPrefix, key)
         if (text == null) {
             logger.warn(
                 "Config: ${
-                    config.getStringKey(
-                        etcdConfigPrefix,
-                        lockDurationEtcdConfigKey
-                    )
-                } not found, use default value"
+                    config.getStringKey(etcdConfigPrefix, key)
+                } not found, use default value: $default"
             )
-            return Duration.ofMinutes(15)
+            setLong(key, default)
+            return default
         }
-        return Duration.parse(text)
+        return text.toLong()
     }
 
-    fun getLock(lockPath: String, key: String): EtcdLock {
-        return EtcdLock(etcdClient, "$lockPath:$key", getLockDuration())
+    fun getLock(lockPath: String, key: String): EtcdSimpleLock {
+        return EtcdSimpleLock(
+            etcdClient = etcdClient, lockKey = "$lockPath:$key",
+            ttlInSeconds = getLong(lockTtlEtcdConfigKey, defaultTtl),
+            timeoutInMs = getLong(lockTimeoutEtcdConfigKey, defaultTimeout),
+            service = executor
+        )
+    }
+
+    override fun close() {
+        executor.shutdown()
     }
 }

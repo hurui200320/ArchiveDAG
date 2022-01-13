@@ -95,7 +95,6 @@ abstract class AritegFileAbstractStorage(
 
     protected fun loadFromFile(link: AritegLink): AritegObject? {
         val multihash = link.multihash.toMultihash()
-        logger.info("Loading {}", multihash.toBase58())
         val file = multihashToFileMapper(link.type, multihash)
         if (!file.exists())
             return null

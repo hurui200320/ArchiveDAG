@@ -109,12 +109,17 @@ class EtcdSimpleConfigService(
 
     /**
      * Delete config(s).
-     * Return deletes key-value list.
+     * Return deleted key-value, null if no key is found.
      * */
     fun deleteConfig(
         prefix: String, key: String
-    ): List<KeyValue> {
-        return deleteConfig(getKey(prefix, key)).prevKvs
+    ): KeyValue? {
+        return deleteConfig(getKey(prefix, key)).prevKvs.let {
+            if (it.isEmpty())
+                null
+            else
+                it[0]
+        }
     }
 
 }

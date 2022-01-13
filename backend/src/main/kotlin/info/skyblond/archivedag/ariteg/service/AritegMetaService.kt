@@ -12,7 +12,6 @@ import javax.transaction.Transactional
 @Service
 class AritegMetaService(
     private val metaRepository: ProtoMetaRepository,
-    private val lockService: DistributedLockService
 ) {
     /**
      * Query the object type and mediaType.
@@ -42,17 +41,6 @@ class AritegMetaService(
         }
         metaRepository.updateMediaType(p, mediaType)
         return true
-    }
-
-    /**
-     * Try lock the primary hash with the secondary hash
-     */
-    fun lock(primary: Multihash) {
-        lockService.lock(primary)
-    }
-
-    fun unlock(primary: Multihash) {
-        lockService.unlock(primary)
     }
 
     fun multihashExists(primary: Multihash): Boolean {

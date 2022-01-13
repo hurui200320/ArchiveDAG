@@ -3,19 +3,12 @@ package info.skyblond.archivedag.ariteg.config
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 import software.amazon.awssdk.services.s3.model.StorageClass
-import java.util.concurrent.TimeUnit
 
 @ConstructorBinding
 @ConfigurationProperties(prefix = "archive-dag.ariteg")
 data class AritegProperties(
-    val meta: ProtoMetaProperties,
     val storage: ProtoStorageProperties,
 ) {
-    data class ProtoMetaProperties(
-        val lockExpireDuration: Long = 5,
-        val lockExpireTimeUnit: TimeUnit = TimeUnit.MINUTES
-    )
-
     data class ProtoStorageProperties(
         // common settings
         val type: ProtoRepoType = ProtoRepoType.LOCAL_FILE_SYSTEM_ONLY,

@@ -5,17 +5,21 @@ import info.skyblond.archivedag.ariteg.model.AritegObjects.newLink
 import info.skyblond.archivedag.ariteg.protos.AritegLink
 import info.skyblond.archivedag.ariteg.protos.AritegObjectType
 import info.skyblond.archivedag.ariteg.service.AritegMetaService
+import info.skyblond.archivedag.ariteg.service.DistributedLockService
 import info.skyblond.archivedag.ariteg.storage.AritegStorageService
 import info.skyblond.archivedag.ariteg.utils.toMultihash
+import info.skyblond.archivedag.commons.service.EtcdSimpleLock
 import io.ipfs.multihash.Multihash
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.*
+import java.util.concurrent.atomic.AtomicReference
 
 @Service
 class AritegService(
     private val metaService: AritegMetaService,
-    private val storageService: AritegStorageService
+    private val storageService: AritegStorageService,
+    private val lockService: DistributedLockService
 ) {
     private val logger = LoggerFactory.getLogger(AritegService::class.java)
 
@@ -81,10 +85,14 @@ class AritegService(
             }
             else -> throw IllegalStateException("Unchecked operation")
         }
+        // Use AtomicReference to ensure the lock is volatile across threads
+        val lockRef: AtomicReference<EtcdSimpleLock?> = AtomicReference(null)
         // check passed, do write
         val (link, completionFuture) = storageService.store(name, proto) { primary: Multihash, secondary: Multihash ->
             // lock the primary
-            metaService.lock(primary)
+            val lock = lockService.getLock(primary)
+            lockRef.set(lock) // save the lock
+            lockService.lock(lock)
             if (metaService.createNewEntity(primary, secondary, proto.getObjectType())) {
                 // get true -> this is a new proto
                 logger.debug("Confirm writing {}", primary.toBase58())
@@ -100,7 +108,7 @@ class AritegService(
                 } else {
                     logger.debug("Skip writing {}", primary.toBase58())
                     // release lock and cancel current writing
-                    metaService.unlock(primary)
+                    lockService.unlock(lock).also { lockRef.set(null) }
                     return@store false
                 }
             }
@@ -110,7 +118,7 @@ class AritegService(
                 if (primary != null) {
                     logger.debug("Finish writing {}", primary.toBase58())
                     // unlock only when this writing op is done
-                    metaService.unlock(primary)
+                    lockRef.get()?.let { lockService.unlock(it) }
                 }
             }
         return WriteReceipt(link, future)

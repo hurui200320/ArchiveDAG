@@ -10,8 +10,7 @@ import info.skyblond.archivedag.ariteg.protos.AritegLink
 import info.skyblond.archivedag.ariteg.utils.toMultihash
 import info.skyblond.archivedag.ariteg.utils.toMultihashBase58
 import io.ipfs.multihash.Multihash
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.*
 import java.util.function.BiFunction
 
 /**
@@ -20,19 +19,25 @@ import java.util.function.BiFunction
 class AritegInMemoryStorageService(
     private val primaryProvider: MultihashProvider,
     private val secondaryProvider: MultihashProvider,
-) : AritegStorageService {
+) : AritegStorageService, AutoCloseable {
     private val contentMap = ConcurrentHashMap<Multihash, AritegObject>()
+    private val threadPool: ExecutorService = ThreadPoolExecutor(
+        Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors(),
+        0L, TimeUnit.MILLISECONDS, LinkedBlockingQueue(),
+        ThreadPoolExecutor.CallerRunsPolicy()
+    )
 
     override fun store(
         name: String,
         proto: AritegObject,
         checkBeforeWrite: BiFunction<Multihash, Multihash, Boolean>
     ): StoreReceipt {
+
         val rawBytes = proto.toProto().toByteArray()
         val primaryMultihash = primaryProvider.digest(rawBytes)
         val secondaryMultihash = secondaryProvider.digest(rawBytes)
         // run the check, return if we get false
-        val future = CompletableFuture.supplyAsync {
+        val future = CompletableFuture.supplyAsync({
             if (checkBeforeWrite.apply(primaryMultihash, secondaryMultihash)) {
                 // check pass, add to map
                 contentMap[primaryMultihash] = proto
@@ -40,7 +45,7 @@ class AritegInMemoryStorageService(
             } else {
                 null
             }
-        }
+        }, threadPool)
 
         return StoreReceipt(
             AritegLink.newBuilder()
@@ -75,5 +80,9 @@ class AritegInMemoryStorageService(
     override fun deleteProto(link: AritegLink): Boolean {
         val multihash = link.multihash.toMultihash()
         return contentMap.remove(multihash) != null
+    }
+
+    override fun close() {
+        threadPool.shutdown()
     }
 }

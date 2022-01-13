@@ -6,6 +6,7 @@ import info.skyblond.archivedag.ariteg.multihash.MultihashProviders
 import info.skyblond.archivedag.ariteg.protos.AritegLink
 import info.skyblond.archivedag.ariteg.protos.AritegObjectType
 import info.skyblond.archivedag.ariteg.service.AritegMetaService
+import info.skyblond.archivedag.ariteg.service.DistributedLockService
 import info.skyblond.archivedag.ariteg.storage.AritegInMemoryStorageService
 import info.skyblond.archivedag.ariteg.storage.AritegStorageService
 import info.skyblond.archivedag.ariteg.utils.toMultihash
@@ -28,11 +29,14 @@ import kotlin.random.Random
  *
  * But the configs are not tested.
  * */
-@SpringBootTest()
+@SpringBootTest
 @ActiveProfiles("test")
 internal class AritegServiceTest {
     @Autowired
     lateinit var metaService: AritegMetaService
+
+    @Autowired
+    lateinit var lockService: DistributedLockService
 
     private final val primary = MultihashProviders.fromMultihashType(Multihash.Type.sha3_512)
     private final val secondary = MultihashProviders.fromMultihashType(Multihash.Type.blake2b_512)
@@ -43,7 +47,7 @@ internal class AritegServiceTest {
 
     @BeforeEach
     fun setUp() {
-        aritegService = AritegService(metaService, storageService)
+        aritegService = AritegService(metaService, storageService, lockService)
     }
 
     @Test
