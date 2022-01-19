@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 import software.amazon.awssdk.services.s3.model.StorageClass
 
 @ConstructorBinding
-@ConfigurationProperties(prefix = "archive-dag.ariteg")
+@ConfigurationProperties(prefix = "ariteg")
 data class AritegProperties(
     val storage: ProtoStorageProperties,
 ) {
@@ -20,7 +20,6 @@ data class AritegProperties(
         enum class ProtoRepoType {
             LOCAL_FILE_SYSTEM_ONLY, // store proto only in local file system
             LOCAL_WITH_S3_ARCHIVE, // use file system, but upload to S3 for passive backup
-            S3_ONLY, // use custom s3 object gateway, otherwise AWS bill will be super expensive
         }
 
         data class FileSystemProperties(

@@ -82,6 +82,14 @@ class AritegInMemoryStorageService(
         return contentMap.remove(multihash) != null
     }
 
+    override fun primaryMultihashType(): Multihash.Type {
+        return primaryProvider.getType()
+    }
+
+    override fun secondaryMultihashType(): Multihash.Type {
+        return secondaryProvider.getType()
+    }
+
     override fun close() {
         threadPool.shutdown()
     }

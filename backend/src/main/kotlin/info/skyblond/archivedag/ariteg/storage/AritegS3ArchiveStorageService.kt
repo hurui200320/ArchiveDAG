@@ -18,7 +18,6 @@ import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.function.BiFunction
 
-// TODO Test?
 class AritegS3ArchiveStorageService(
     primaryProviderType: Multihash.Type,
     secondaryProviderType: Multihash.Type,

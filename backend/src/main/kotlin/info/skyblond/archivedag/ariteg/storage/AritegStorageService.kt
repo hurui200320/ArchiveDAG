@@ -64,4 +64,6 @@ interface AritegStorageService {
      */
     fun deleteProto(link: AritegLink): Boolean
 
+    fun primaryMultihashType(): Multihash.Type
+    fun secondaryMultihashType(): Multihash.Type
 }

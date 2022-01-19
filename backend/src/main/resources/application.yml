@@ -11,10 +11,9 @@ grpc:
       private-key: file:ssl/localhost.key
       client-auth: require
 cert-signing:
-  # TODO extend this to: O, OU, C, etc.
-  ca-cert: file:ssl/rootCA.crt
-  ca-private-key: file:ssl/rootCA.key
-  custom-subject-d-n: O=SkyBlond
+  subject-dn-c: China
+  subject-dn-o: SkyBlond
+  subject-dn-o-u: R&D
 spring:
   jpa:
     show-sql: false
@@ -38,7 +37,7 @@ spring:
       file-size-threshold: 2KB
       max-file-size: 256GB
       max-request-size: 257GB
-archive-dag.ariteg:
+ariteg:
   storage:
     type: local_file_system_only
     threadSize: 16
@@ -49,9 +48,6 @@ archive-dag.ariteg:
       region: us-west-2
       bucket-name: skyblond-develop-test
       upload-storage-class: intelligent_tiering
-  meta:
-    lock-expire-duration: 15
-    lock-expire-time-unit: minutes
 etcd:
   server-addr:
     - "http://127.0.0.1:2379"

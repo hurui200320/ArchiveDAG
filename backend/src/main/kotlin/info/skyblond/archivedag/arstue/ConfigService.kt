@@ -1,35 +1,46 @@
 package info.skyblond.archivedag.arstue
 
-import info.skyblond.archivedag.arstue.entity.ConfigEntity
-import info.skyblond.archivedag.arstue.repo.ConfigRepository
+import info.skyblond.archivedag.commons.service.EtcdSimpleConfigService
+import io.etcd.jetcd.ByteSequence
+import io.etcd.jetcd.options.GetOption
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.util.*
-import javax.transaction.Transactional
 
 @Service
 class ConfigService(
-    private val configRepository: ConfigRepository
+    private val etcdConfig: EtcdSimpleConfigService,
 ) {
+    private val etcdConfigPrefix = "/application/arstue/config/archive_dag/"
+
     fun listConfig(keyPrefix: String, pageable: Pageable): Map<String, String?> {
+        require(pageable.offset <= Int.MAX_VALUE) { "Offset overflow" }
+
         val result: MutableMap<String, String?> = HashMap()
-        configRepository.findAllByKeyStartingWith(keyPrefix.lowercase(Locale.getDefault()), pageable)
-            .forEach { result[it.key] = it.value }
+        etcdConfig.getConfig(
+            ByteSequence.from(etcdConfig.getStringKey(etcdConfigPrefix, keyPrefix).lowercase(), Charsets.UTF_8),
+            GetOption.newBuilder().isPrefix(true).withKeysOnly(true).build()
+        ).kvs
+            .map { it.key.toString().removePrefix(etcdConfigPrefix) }
+            .sorted()
+            .drop(pageable.offset.toInt())
+            .take(pageable.pageSize)
+            .forEach {
+                val str = etcdConfig.getConfig(etcdConfigPrefix, it)
+                result[it] = if (str.isNullOrBlank()) null else str
+            }
         return Collections.unmodifiableMap(result)
     }
 
-    @Transactional
     fun updateConfig(key: String, value: String?) {
-        val entity = ConfigEntity(key.lowercase(Locale.getDefault()), value)
-        configRepository.save(entity)
+        etcdConfig.putConfig(etcdConfigPrefix, key, value ?: "")
     }
 
     fun allowGrpcWrite(): Boolean {
-        val entity = configRepository.findByKey(ALLOW_GRPC_WRITE_KEY) ?: return false
-        return java.lang.Boolean.parseBoolean(entity.value)
+        return etcdConfig.getConfig(etcdConfigPrefix, ALLOW_GRPC_WRITE_KEY)?.toBooleanStrictOrNull() ?: false
     }
 
     companion object {
-        const val ALLOW_GRPC_WRITE_KEY = "archive-dag.grpc.allow-write"
+        const val ALLOW_GRPC_WRITE_KEY = "grpc.allow-write"
     }
 }

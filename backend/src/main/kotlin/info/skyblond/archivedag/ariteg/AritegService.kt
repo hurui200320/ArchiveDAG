@@ -23,6 +23,9 @@ class AritegService(
 ) {
     private val logger = LoggerFactory.getLogger(AritegService::class.java)
 
+    fun primaryMultihashType(): Multihash.Type = storageService.primaryMultihashType()
+    fun secondaryMultihashType(): Multihash.Type = storageService.secondaryMultihashType()
+
     /**
      * Return true if primary collided, return false if not.
      * Return null if not found

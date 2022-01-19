@@ -2,14 +2,15 @@ package info.skyblond.archivedag.arstue
 
 import info.skyblond.archivedag.arstue.entity.CertEntity
 import info.skyblond.archivedag.arstue.model.CertDetailModel
-import info.skyblond.archivedag.arstue.model.CertSigningInfo
 import info.skyblond.archivedag.arstue.model.CertSigningResult
 import info.skyblond.archivedag.arstue.repo.CertRepository
+import info.skyblond.archivedag.arstue.service.CertSigningConfigService
 import info.skyblond.archivedag.commons.DuplicatedEntityException
 import info.skyblond.archivedag.commons.EntityNotFoundException
 import info.skyblond.archivedag.commons.getUnixTimestamp
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.x500.X500Name
+import org.bouncycastle.asn1.x500.style.BCStyle
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.cert.X509v3CertificateBuilder
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
@@ -34,20 +35,21 @@ import javax.transaction.Transactional
 
 @Service
 class CertService(
-    private val certSigningInfo: CertSigningInfo,
+    private val certSigningConfigService: CertSigningConfigService,
     private val certRepository: CertRepository
 ) {
+    // TODO Using CSR instead of generate key
+    // TODO Support ECC and RSA
     private val secureRandom = SecureRandom()
 
     private fun generateKeyPair(): KeyPair {
         val keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC")
-        keyPairGenerator.initialize(certSigningInfo.generatedKeySize, secureRandom)
+        keyPairGenerator.initialize(certSigningConfigService.generatedKeySize, secureRandom)
         return keyPairGenerator.generateKeyPair()
     }
 
-    private fun signKeyPair(userKeyPair: KeyPair, subjectDN: String): X509Certificate {
-        val issuer = JcaX509CertificateHolder(certSigningInfo.caCert).subject
-        val subject = X500Name(subjectDN)
+    private fun signKeyPair(userKeyPair: KeyPair, subject: X500Name): X509Certificate {
+        val issuer = JcaX509CertificateHolder(certSigningConfigService.caCert).subject
         var serial: BigInteger
         do { // generate serial number
             serial = BigInteger.valueOf(secureRandom.nextLong())
@@ -60,8 +62,7 @@ class CertService(
         val currentTimeStamp = System.currentTimeMillis()
         val notBefore = Date(currentTimeStamp)
         val notAfter = Date(
-            currentTimeStamp + certSigningInfo.expireInUnit
-                .toMillis(certSigningInfo.expireInDuration)
+            currentTimeStamp + certSigningConfigService.expire.toMillis()
         )
         val publicKeyInfo = SubjectPublicKeyInfo.getInstance(
             ASN1Sequence.getInstance(userKeyPair.public.encoded)
@@ -69,10 +70,10 @@ class CertService(
         val certBuilder = X509v3CertificateBuilder(
             issuer, serial, notBefore, notAfter, subject, publicKeyInfo
         )
-        val sigAlgId = DefaultSignatureAlgorithmIdentifierFinder().find(certSigningInfo.signAlgName)
+        val sigAlgId = DefaultSignatureAlgorithmIdentifierFinder().find(certSigningConfigService.signAlgName)
         val digAlgId = DefaultDigestAlgorithmIdentifierFinder().find(sigAlgId)
         val contentSigner = BcRSAContentSignerBuilder(sigAlgId, digAlgId)
-            .build(PrivateKeyFactory.createKey(certSigningInfo.caPrivateKey.encoded))
+            .build(PrivateKeyFactory.createKey(certSigningConfigService.caPrivateKey.encoded))
         val certHolder = certBuilder.build(contentSigner)
         val converter = JcaX509CertificateConverter().setProvider("BC")
         return converter.getCertificate(certHolder)
@@ -81,13 +82,9 @@ class CertService(
     @Transactional
     fun signCert(username: String): CertSigningResult {
         val userKeyPair = generateKeyPair()
-        var subjectDN = certSigningInfo.customSubjectDN
-        if (subjectDN.isBlank()) {
-            subjectDN = "CN="
-        } else {
-            subjectDN += ",CN="
-        }
-        val cert = signKeyPair(userKeyPair, subjectDN + username)
+        val subjectDN = certSigningConfigService.newX500NameBuilder()
+            .addRDN(BCStyle.CN, username).build()
+        val cert = signKeyPair(userKeyPair, subjectDN)
 
         // add cert to database
         val entity = CertEntity(

@@ -51,7 +51,6 @@ class AritegConfiguration(
         return when (storageProperties.type) {
             LOCAL_FILE_SYSTEM_ONLY -> resolveFileSystem(primaryType, secondaryType)
             LOCAL_WITH_S3_ARCHIVE -> resolveS3(primaryType, secondaryType)
-            else -> TODO()
         }
     }
 

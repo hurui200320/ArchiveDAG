@@ -1,7 +1,7 @@
 package info.skyblond.archivedag.arstue
 
 import info.skyblond.archivedag.arstue.entity.CertEntity
-import info.skyblond.archivedag.arstue.model.CertSigningInfo
+import info.skyblond.archivedag.arstue.service.CertSigningConfigService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -26,7 +26,7 @@ internal class CertServiceTest {
     lateinit var certService: CertService
 
     @Autowired
-    lateinit var certSigningInfo: CertSigningInfo
+    lateinit var certSigningInfo: CertSigningConfigService
 
     @Test
     fun testSignedCert() {

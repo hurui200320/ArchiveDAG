@@ -1,41 +1,27 @@
 package info.skyblond.archivedag.arstue.config
 
-import info.skyblond.archivedag.arstue.model.CertSigningInfo
-import info.skyblond.archivedag.arstue.utils.readPrivateKey
-import info.skyblond.archivedag.arstue.utils.readX509Cert
-import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import java.security.PrivateKey
-import java.security.Security
-import java.security.cert.X509Certificate
+import javax.annotation.PostConstruct
 
 @Configuration
 @EnableConfigurationProperties(CertSigningProperties::class)
 class CertSigningConfiguration(
     private val properties: CertSigningProperties
 ) {
-    @Bean
-    fun certSigningInfo(): CertSigningInfo {
-        if (Security.getProvider("BC") == null) {
-            Security.addProvider(BouncyCastleProvider())
+    private val logger = LoggerFactory.getLogger(CertSigningConfiguration::class.java)
+
+    @PostConstruct
+    fun postConstruct() {
+        if (!properties.subjectDnC.isNullOrBlank()) {
+            logger.info("Custom subject dn for C: ${properties.subjectDnC}")
         }
-        val caPrivateKey: PrivateKey = readPrivateKey(
-            properties.caPrivateKey.readableChannel(),
-            properties.caPrivateKeyPassword
-        )
-        val caCert: X509Certificate = readX509Cert(
-            properties.caCert.readableChannel()
-        )
-        return CertSigningInfo(
-            caPrivateKey = caPrivateKey,
-            caCert = caCert,
-            generatedKeySize = properties.generateKeySize,
-            signAlgName = properties.signAlgName,
-            customSubjectDN = properties.customSubjectDN,
-            expireInDuration = properties.expireInDuration,
-            expireInUnit = properties.expireInUnit
-        )
+        if (!properties.subjectDnO.isNullOrBlank()) {
+            logger.info("Custom subject dn for O: ${properties.subjectDnO}")
+        }
+        if (!properties.subjectDnOU.isNullOrBlank()) {
+            logger.info("Custom subject dn for OU: ${properties.subjectDnOU}")
+        }
     }
 }

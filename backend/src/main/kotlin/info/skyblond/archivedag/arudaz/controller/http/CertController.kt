@@ -3,18 +3,19 @@ package info.skyblond.archivedag.arudaz.controller.http
 import info.skyblond.archivedag.arstue.CertService
 import info.skyblond.archivedag.arstue.model.CertDetailModel
 import info.skyblond.archivedag.arstue.model.CertSigningResult
-import info.skyblond.archivedag.arstue.utils.writeSignCertToString
-import info.skyblond.archivedag.arstue.utils.writeSignKeyToString
 import info.skyblond.archivedag.arudaz.model.controller.CertChangeStatusRequest
 import info.skyblond.archivedag.arudaz.utils.checkCurrentUserIsAdmin
 import info.skyblond.archivedag.arudaz.utils.getCurrentUsername
 import info.skyblond.archivedag.arudaz.utils.requireSortPropertiesInRange
 import info.skyblond.archivedag.commons.PermissionDeniedException
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter
+import org.bouncycastle.util.io.pem.PemObject
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import java.io.ByteArrayOutputStream
 import java.sql.Timestamp
 
 @RestController
@@ -25,6 +26,22 @@ class CertController(
 
     private val minTimestamp = Timestamp(0)
     private val maxTimestamp = Timestamp.valueOf("9999-12-31 23:59:59.999999999")
+
+    private fun writeSignCertToString(result: CertSigningResult): String {
+        val outputStream = ByteArrayOutputStream()
+        val pemWriter = JcaPEMWriter(outputStream.writer(Charsets.UTF_8))
+        pemWriter.writeObject(result.certificate)
+        pemWriter.close()
+        return String(outputStream.toByteArray(), Charsets.UTF_8)
+    }
+
+    private fun writeSignKeyToString(result: CertSigningResult): String {
+        val outputStream = ByteArrayOutputStream()
+        val pemWriter = JcaPEMWriter(outputStream.writer(Charsets.UTF_8))
+        pemWriter.writeObject(PemObject("PRIVATE KEY", result.privateKey.encoded))
+        pemWriter.close()
+        return String(outputStream.toByteArray(), Charsets.UTF_8)
+    }
 
     @GetMapping("/signNewCert")
     @PreAuthorize("hasRole('USER')")

@@ -4,7 +4,6 @@ import com.google.gson.Gson
 import info.skyblond.archivedag.arstue.CertService
 import info.skyblond.archivedag.arstue.entity.CertEntity
 import info.skyblond.archivedag.arstue.repo.CertRepository
-import info.skyblond.archivedag.arstue.utils.readX509Cert
 import info.skyblond.archivedag.arudaz.model.controller.CertChangeStatusRequest
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions
@@ -19,8 +18,10 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
 
-@SpringBootTest()
+@SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 internal class CertControllerTest {
@@ -223,6 +224,12 @@ internal class CertControllerTest {
 
         // make sure it appears in database
         Assertions.assertTrue(certRepository.existsBySerialNumber(certificate.serialNumber.toString(16)))
+    }
+
+    private fun readX509Cert(pem: String): X509Certificate {
+        val factory = CertificateFactory.getInstance("X.509", "BC")
+        return pem.byteInputStream(Charsets.UTF_8)
+            .use { inputStream -> factory.generateCertificate(inputStream) as X509Certificate }
     }
 
     private fun generateCert(username: String): String {

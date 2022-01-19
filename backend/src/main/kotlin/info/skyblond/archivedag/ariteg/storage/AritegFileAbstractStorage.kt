@@ -115,4 +115,12 @@ abstract class AritegFileAbstractStorage(
     protected fun deleteFile(link: AritegLink): Boolean {
         return multihashToFileMapper(link.type, link.multihash.toMultihash()).delete()
     }
+
+    override fun primaryMultihashType(): Multihash.Type {
+        return primaryProvider.getType()
+    }
+
+    override fun secondaryMultihashType(): Multihash.Type {
+        return secondaryProvider.getType()
+    }
 }

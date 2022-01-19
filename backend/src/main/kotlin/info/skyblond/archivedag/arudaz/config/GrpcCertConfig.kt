@@ -3,6 +3,7 @@ package info.skyblond.archivedag.arudaz.config
 import info.skyblond.archivedag.commons.service.EtcdSimpleConfigService
 import net.devh.boot.grpc.server.autoconfigure.GrpcServerFactoryAutoConfiguration
 import net.devh.boot.grpc.server.config.GrpcServerProperties
+import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfigureBefore
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ByteArrayResource
@@ -17,6 +18,8 @@ class GrpcCertConfig(
     val properties: GrpcServerProperties,
     val etcdConfigService: EtcdSimpleConfigService
 ) {
+    private val logger = LoggerFactory.getLogger(GrpcCertConfig::class.java)
+
     @PostConstruct
     fun postConstruct() {
         val securitySetting = properties.security
@@ -25,7 +28,10 @@ class GrpcCertConfig(
                 etcdConfigService.requireConfig(
                     "/application/arstue/config/user_cert/",
                     "ca_cert_pem"
-                ) { it.bytes }
+                ) {
+                    logger.info("Grpc server trust cert collection: \n$it")
+                    it.bytes
+                }
             )
         }
     }
