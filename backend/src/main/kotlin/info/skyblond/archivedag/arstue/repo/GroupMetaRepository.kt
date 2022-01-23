@@ -25,6 +25,5 @@ interface GroupMetaRepository : JpaRepository<GroupMetaEntity, String> {
 
     fun findAllByOwner(owner: String, pageable: Pageable): Page<GroupMetaEntity>
 
-
     fun findAllByGroupNameContains(keyword: String, pageable: Pageable): Page<GroupMetaEntity>
 }
