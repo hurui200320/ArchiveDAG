@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package archivedag.arudaz.protos;
+
+option java_multiple_files = true;
+option java_package = "info.skyblond.archivedag.arudaz.protos.group";
+
+import "archivedag/arudaz/protos/common.proto";
+
+service GroupService {
+  rpc CreateGroup (CreateGroupRequest) returns (Empty);
+  rpc DeleteGroup (DeleteGroupRequest) returns (Empty);
+  rpc QueryGroup (QueryGroupRequest) returns (GroupDetailResponse);
+  rpc TransferGroup (TransferGroupRequest) returns (Empty);
+  rpc JoinGroup (JoinGroupRequest) returns (Empty);
+  rpc LeaveGroup (LeaveGroupRequest) returns (Empty);
+  rpc ListOwnedGroup (ListOwnedGroupRequest) returns (GroupNameListResponse);
+  rpc ListJoinedGroup (ListJoinedGroupRequest) returns (GroupNameListResponse);
+  rpc ListGroupName (ListGroupNameRequest) returns (GroupNameListResponse);
+}
+
+message CreateGroupRequest {
+  string group_name = 1;
+  string owner = 2;
+}
+
+message DeleteGroupRequest {
+  string group_name = 1;
+}
+
+message QueryGroupRequest {
+  string group_name = 1;
+}
+
+message TransferGroupRequest {
+  string group_name = 1;
+  string new_owner = 2;
+}
+
+message JoinGroupRequest {
+  string group_name = 1;
+  string new_member = 2;
+}
+
+message LeaveGroupRequest {
+  string group_name = 1;
+  string leaving_member = 2;
+}
+
+message ListOwnedGroupRequest {
+  string username = 1;
+  uint32 page = 2;
+  uint32 size = 3;
+}
+
+message ListJoinedGroupRequest {
+  string username = 1;
+  uint32 page = 2;
+  uint32 size = 3;
+}
+
+message ListGroupNameRequest {
+  string keyword = 1;
+  uint32 page = 2;
+  uint32 size = 3;
+}
+
+message GroupDetailResponse {
+  string group_name = 1;
+  string owner = 2;
+  uint64 created_timestamp = 3;
+}
+
+message GroupNameListResponse {
+  repeated string group_name = 1;
+}

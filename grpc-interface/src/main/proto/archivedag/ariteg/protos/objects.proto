@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package archivedag.ariteg.protos;
+
+option java_multiple_files = true;
+option java_package = "info.skyblond.archivedag.ariteg.protos";
+
+enum AritegObjectType {
+  NULL = 0;
+  BLOB = 1;
+  LIST = 2;
+  TREE = 3;
+  COMMIT = 4;
+}
+
+message AritegLink {
+  // name of the link
+  string name = 1;
+  // multihash of target
+  bytes multihash = 2;
+  // type of this link
+  // it's useful to know the type before actually read the data
+  AritegObjectType type = 3;
+}
+
+message AritegBlobObject {
+  // blob data content
+  bytes data = 1;
+}
+
+message AritegListObject {
+  // list links
+  repeated AritegLink links = 1;
+}
+
+message AritegTreeObject {
+  // tree links
+  repeated AritegLink links = 1;
+}
+
+message AritegCommitObject {
+  // parent of this commit
+  AritegLink parent = 1;
+  // link of committed object
+  AritegLink committed_object = 2;
+  // unix timestamp of this
+  uint64 unix_timestamp = 3;
+  // commit message
+  string message = 4;
+  // author
+  AritegLink author = 5;
+}

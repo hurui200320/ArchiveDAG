@@ -1,0 +1,57 @@
+server:
+  port: 8888
+  max-http-header-size: 16MB
+grpc:
+  server:
+    port: 9090
+    reflection-service-enabled: true
+    security:
+      enabled: true
+      certificate-chain: file:ssl/localhost.crt
+      private-key: file:ssl/localhost.key
+      client-auth: require
+cert-signing:
+  subject-dn-c: China
+  subject-dn-o: SkyBlond
+  subject-dn-o-u: R&D
+spring:
+  jpa:
+    show-sql: false
+    hibernate.ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/archive_dag
+    password: password
+    username: postgres
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 256GB
+      max-request-size: 257GB
+ariteg:
+  storage:
+    type: local_file_system_only
+    threadSize: 16
+    queue-size: 1024
+    filesystem:
+      path: "./data/protos"
+    s3:
+      region: us-west-2
+      bucket-name: skyblond-develop-test
+      upload-storage-class: intelligent_tiering
+etcd:
+  server-addr:
+    - "http://127.0.0.1:2379"
+jwt:
+  secret: r5FHVELtfN5CdTLGJ6ZwEEBCNFn4nTr5ig6SwpXbj2nQuWYsOn/EJyqEWvEm4J0NOYdmC51+kdX2efPZRhTYzA==
+  expire-in-duration: 30
+  expire-in-unit: minutes
