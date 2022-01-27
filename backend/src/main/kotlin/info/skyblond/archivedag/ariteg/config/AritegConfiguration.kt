@@ -1,11 +1,11 @@
 package info.skyblond.archivedag.ariteg.config
 
 import info.skyblond.archivedag.ariteg.config.AritegProperties.ProtoStorageProperties.ProtoRepoType.LOCAL_FILE_SYSTEM_ONLY
-import info.skyblond.archivedag.ariteg.config.AritegProperties.ProtoStorageProperties.ProtoRepoType.LOCAL_WITH_S3_ARCHIVE
+import info.skyblond.archivedag.ariteg.config.AritegProperties.ProtoStorageProperties.ProtoRepoType.LOCAL_WITH_S3_BACKUP
 import info.skyblond.archivedag.ariteg.storage.AritegFileStorageService
 import info.skyblond.archivedag.ariteg.storage.AritegS3ArchiveStorageService
 import info.skyblond.archivedag.ariteg.storage.AritegStorageService
-import info.skyblond.archivedag.commons.service.EtcdSimpleConfigService
+import info.skyblond.archivedag.commons.service.EtcdConfigService
 import io.ipfs.multihash.Multihash
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -22,21 +22,21 @@ import java.net.URI
 @EnableConfigurationProperties(AritegProperties::class)
 class AritegConfiguration(
     private val properties: AritegProperties,
-    private val etcdConfig: EtcdSimpleConfigService
+    private val etcdConfig: EtcdConfigService
 ) {
-    private val etcdConfigPrefix = "/application/ariteg/config/"
+    private val etcdNamespace = "ariteg/proto"
     private val logger = LoggerFactory.getLogger(AritegConfiguration::class.java)
 
     fun getPrimaryHashType(): Multihash.Type {
         val configKey = "primary_hash_type"
-        val primary = etcdConfig.requireConfig(etcdConfigPrefix, configKey)
+        val primary = etcdConfig.requireString(etcdNamespace, configKey)
         logger.info("Primary hash type from config: $primary")
         return Multihash.Type.valueOf(primary)
     }
 
     fun getSecondaryHashType(): Multihash.Type {
         val configKey = "secondary_hash_type"
-        val secondary = etcdConfig.requireConfig(etcdConfigPrefix, configKey)
+        val secondary = etcdConfig.requireString(etcdNamespace, configKey)
         logger.info("Secondary hash type from config: $secondary")
         return Multihash.Type.valueOf(secondary)
     }
@@ -50,7 +50,7 @@ class AritegConfiguration(
 
         return when (storageProperties.type) {
             LOCAL_FILE_SYSTEM_ONLY -> resolveFileSystem(primaryType, secondaryType)
-            LOCAL_WITH_S3_ARCHIVE -> resolveS3(primaryType, secondaryType)
+            LOCAL_WITH_S3_BACKUP -> resolveS3(primaryType, secondaryType)
         }
     }
 

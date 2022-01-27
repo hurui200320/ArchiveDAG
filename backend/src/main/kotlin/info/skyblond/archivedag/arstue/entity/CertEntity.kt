@@ -18,15 +18,10 @@ class CertEntity(
 
     @Column(name = "expired_at", nullable = false)
     val expiredTime: Timestamp,
-
+) {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    val status: Status,
-) {
-    constructor(
-        serialNumber: String, username: String,
-        issuedTime: Timestamp, expiredTime: Timestamp
-    ) : this(serialNumber, username, issuedTime, expiredTime, Status.LOCKED)
+    var status: Status = Status.LOCKED
 
     enum class Status {
         ENABLED, DISABLED, REVOKED, LOCKED

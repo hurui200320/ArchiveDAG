@@ -12,7 +12,7 @@ class DistributedLockService(
 ) {
     private val logger = LoggerFactory.getLogger(DistributedLockService::class.java)
 
-    private val lockPath = "/application/ariteg/lock/proto"
+    private val lockPath = "/archive_dag/lock/ariteg/proto"
 
     fun getLock(primary: Multihash): EtcdSimpleLock {
         return lockService.getLock(lockPath, primary.toBase58())

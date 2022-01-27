@@ -1,7 +1,7 @@
 package info.skyblond.archivedag.arudaz.controller.http
 
-import info.skyblond.archivedag.arudaz.model.controller.ExceptionResponse
-import info.skyblond.archivedag.arudaz.model.controller.ExceptionResponse.Companion.generateResp
+import info.skyblond.archivedag.arudaz.model.ExceptionResponse
+import info.skyblond.archivedag.arudaz.model.ExceptionResponse.Companion.generateResp
 import info.skyblond.archivedag.commons.DuplicatedEntityException
 import info.skyblond.archivedag.commons.EntityNotFoundException
 import info.skyblond.archivedag.commons.PermissionDeniedException

@@ -20,7 +20,7 @@ interface FileRecordRepository : JpaRepository<FileRecordEntity, UUID> {
     fun updateRecordRef(recordId: UUID, newRef: String?)
 
     @Modifying
-    @Query("update FileRecordEntity r set r.name = ?2 where r.recordId = ?1")
+    @Query("update FileRecordEntity r set r.recordName = ?2 where r.recordId = ?1")
     fun updateRecordName(recordId: UUID, newName: String)
 
     @Modifying

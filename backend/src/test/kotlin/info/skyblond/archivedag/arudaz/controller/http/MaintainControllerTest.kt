@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-@SpringBootTest()
+@SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 internal class MaintainControllerTest {
@@ -33,7 +33,7 @@ internal class MaintainControllerTest {
                     .content(
                         gson.toJson(
                             mapOf(
-                                "test-maintain-controller-key" to "value"
+                                "/test-maintain-controller-key" to "value"
                             )
                         )
                     )
@@ -42,12 +42,12 @@ internal class MaintainControllerTest {
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get("/maintain/listConfig")
-                    .param("prefix", "test-maintain-controller")
+                    .param("prefix", "/test-maintain-controller")
             )
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(
                 MockMvcResultMatchers.jsonPath(
-                    "$.test-maintain-controller-key",
+                    "$['/test-maintain-controller-key']",
                     Matchers.equalTo("value")
                 )
             )

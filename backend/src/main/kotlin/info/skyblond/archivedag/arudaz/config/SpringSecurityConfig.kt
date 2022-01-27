@@ -1,6 +1,7 @@
 package info.skyblond.archivedag.arudaz.config
 
 import info.skyblond.archivedag.arstue.CertService
+import info.skyblond.archivedag.arudaz.security.JWTAuthenticationEntryPoint
 import info.skyblond.archivedag.arudaz.security.JwtRequestFilter
 import net.devh.boot.grpc.server.security.authentication.*
 import org.springframework.context.annotation.Bean
@@ -15,7 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
@@ -26,7 +26,7 @@ import java.util.function.Function
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
 class SpringSecurityConfig(
-    private val entryPoint: AuthenticationEntryPoint,
+    private val entryPoint: JWTAuthenticationEntryPoint,
     private val jwtRequestFilter: JwtRequestFilter,
     private val userDetailsService: UserDetailsService,
     private val certService: CertService
@@ -41,6 +41,7 @@ class SpringSecurityConfig(
             )
     }
 
+    // Use CN from x509 cert as username
     @Bean
     fun x509UsernameExtractor(): Function<X509CertificateAuthentication, String?> {
         return Function { authentication: X509CertificateAuthentication ->

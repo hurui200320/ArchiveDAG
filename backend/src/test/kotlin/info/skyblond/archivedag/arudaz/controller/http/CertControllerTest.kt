@@ -4,7 +4,7 @@ import com.google.gson.Gson
 import info.skyblond.archivedag.arstue.CertService
 import info.skyblond.archivedag.arstue.entity.CertEntity
 import info.skyblond.archivedag.arstue.repo.CertRepository
-import info.skyblond.archivedag.arudaz.model.controller.CertChangeStatusRequest
+import info.skyblond.archivedag.arudaz.model.CertChangeStatusRequest
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
+import javax.transaction.Transactional
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -38,6 +39,7 @@ internal class CertControllerTest {
     lateinit var certService: CertService
 
     @BeforeEach
+    @Transactional
     internal fun setUp() {
         certRepository.deleteAllByUsername("test_user_404")
     }

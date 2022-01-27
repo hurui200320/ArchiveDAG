@@ -11,8 +11,9 @@ import info.skyblond.archivedag.commons.EntityNotFoundException
 import info.skyblond.archivedag.commons.getUnixTimestamp
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Isolation
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
-import javax.transaction.Transactional
 
 @Service
 class GroupService(
@@ -20,7 +21,7 @@ class GroupService(
     private val groupMetaRepository: GroupMetaRepository,
     private val groupUserRepository: GroupUserRepository
 ) {
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     fun createGroup(groupName: String, owner: String) {
         require(patternService.isValidGroupName(groupName)) { "In valid group name. The group name must meet the regex: " + patternService.groupNameRegex }
         val entity = GroupMetaEntity(groupName, owner)

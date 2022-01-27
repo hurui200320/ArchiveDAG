@@ -1,7 +1,7 @@
 package info.skyblond.archivedag.arstue.service
 
 import info.skyblond.archivedag.arstue.config.CertSigningProperties
-import info.skyblond.archivedag.commons.service.EtcdSimpleConfigService
+import info.skyblond.archivedag.commons.service.EtcdConfigService
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.asn1.x500.X500NameBuilder
 import org.bouncycastle.asn1.x500.style.BCStyle
@@ -18,11 +18,11 @@ import java.time.Duration
 
 @Service
 class CertSigningConfigService(
-    private val config: EtcdSimpleConfigService,
+    private val config: EtcdConfigService,
     private val certSigningProperties: CertSigningProperties
 ) {
     private val logger = LoggerFactory.getLogger(CertSigningConfigService::class.java)
-    private val etcdConfigPrefix = "/application/arstue/config/user_cert/"
+    private val etcdNamespace = "arstue/user_cert"
 
     private val caCertPemEtcdConfigKey = "ca_cert_pem"
     private val caPrivateKeyPemEtcdConfigKey = "ca_private_key_pem"
@@ -43,18 +43,15 @@ class CertSigningConfigService(
         logger.info(
             "Cert signing CA subject: ${
                 parseCertPem(
-                    config.requireConfig(
-                        etcdConfigPrefix,
-                        caCertPemEtcdConfigKey
-                    )
+                    config.requireString(etcdNamespace, caCertPemEtcdConfigKey)
                 ).subjectX500Principal.name
             }"
         )
         logger.info(
             "Cert signing CA private key: ${
                 parsePrivateKeyPem(
-                    config.requireConfig(
-                        etcdConfigPrefix,
+                    config.requireString(
+                        etcdNamespace,
                         caPrivateKeyPemEtcdConfigKey
                     )
                 ).encoded.size
@@ -62,17 +59,17 @@ class CertSigningConfigService(
         )
         logger.info(
             "Cert generated key size: ${
-                getInt(generatedKeySizeEtcdConfigKey, defaultGeneratedKeySize)
+                config.getInt(etcdNamespace, generatedKeySizeEtcdConfigKey, defaultGeneratedKeySize)
             }"
         )
         logger.info(
             "Cert sign alg name: ${
-                getString(signAlgNameEtcdConfigKey, defaultSignAlgName)
+                config.getString(etcdNamespace, signAlgNameEtcdConfigKey, defaultSignAlgName)
             }"
         )
         logger.info(
             "Cert expire time: ${
-                getInt(expireInDayEtcdConfigKey, defaultExpireInDay)
+                config.getInt(etcdNamespace, expireInDayEtcdConfigKey, defaultExpireInDay)
             } days"
         )
     }
@@ -100,56 +97,20 @@ class CertSigningConfigService(
         return privateKey
     }
 
-    private fun setInt(key: String, int: Int) {
-        config.putConfig(etcdConfigPrefix, key, int.toString())
-    }
-
-    private fun getInt(key: String, default: Int): Int {
-        val text = config.getConfig(etcdConfigPrefix, key)
-        if (text == null) {
-            logger.warn(
-                "Config: ${
-                    config.getStringKey(etcdConfigPrefix, key)
-                } not found, use default value: $default"
-            )
-            setInt(key, default)
-            return default
-        }
-        return text.toInt()
-    }
-
-    private fun setString(key: String, str: String) {
-        config.putConfig(etcdConfigPrefix, key, str)
-    }
-
-    private fun getString(key: String, default: String): String {
-        val text = config.getConfig(etcdConfigPrefix, key)
-        if (text == null) {
-            logger.warn(
-                "Config: ${
-                    config.getStringKey(etcdConfigPrefix, key)
-                } not found, use default value: $default"
-            )
-            setString(key, default)
-            return default
-        }
-        return text
-    }
-
     val caCert: X509Certificate
-        get() = parseCertPem(config.requireConfig(etcdConfigPrefix, caCertPemEtcdConfigKey))
+        get() = parseCertPem(config.requireString(etcdNamespace, caCertPemEtcdConfigKey))
 
     val caPrivateKey: PrivateKey
-        get() = parsePrivateKeyPem(config.requireConfig(etcdConfigPrefix, caPrivateKeyPemEtcdConfigKey))
+        get() = parsePrivateKeyPem(config.requireString(etcdNamespace, caPrivateKeyPemEtcdConfigKey))
 
     val generatedKeySize: Int
-        get() = getInt(generatedKeySizeEtcdConfigKey, defaultGeneratedKeySize)
+        get() = config.getInt(etcdNamespace, generatedKeySizeEtcdConfigKey, defaultGeneratedKeySize)
 
     val signAlgName: String
-        get() = getString(signAlgNameEtcdConfigKey, defaultSignAlgName)
+        get() = config.getString(etcdNamespace, signAlgNameEtcdConfigKey, defaultSignAlgName)
 
     val expire: Duration
-        get() = Duration.ofDays(getInt(expireInDayEtcdConfigKey, defaultExpireInDay).toLong())
+        get() = Duration.ofDays(config.getInt(etcdNamespace, expireInDayEtcdConfigKey, defaultExpireInDay).toLong())
 
     fun newX500NameBuilder(): X500NameBuilder {
         val builder = X500NameBuilder()

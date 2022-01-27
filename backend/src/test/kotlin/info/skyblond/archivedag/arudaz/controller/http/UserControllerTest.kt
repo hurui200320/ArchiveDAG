@@ -3,13 +3,13 @@ package info.skyblond.archivedag.arudaz.controller.http
 import com.google.gson.Gson
 import info.skyblond.archivedag.arstue.entity.UserEntity
 import info.skyblond.archivedag.arstue.entity.UserRoleEntity
+import info.skyblond.archivedag.arstue.model.UserDetailModel
 import info.skyblond.archivedag.arstue.repo.UserRepository
 import info.skyblond.archivedag.arstue.repo.UserRoleRepository
-import info.skyblond.archivedag.arudaz.model.controller.CreateUserRequest
-import info.skyblond.archivedag.arudaz.model.controller.UserChangePasswordRequest
-import info.skyblond.archivedag.arudaz.model.controller.UserChangeStatusRequest
-import info.skyblond.archivedag.arudaz.model.controller.UserRoleRequest
-import info.skyblond.archivedag.arudaz.model.service.UserDetailModel
+import info.skyblond.archivedag.arudaz.model.CreateUserRequest
+import info.skyblond.archivedag.arudaz.model.UserChangePasswordRequest
+import info.skyblond.archivedag.arudaz.model.UserChangeStatusRequest
+import info.skyblond.archivedag.arudaz.model.UserRoleRequest
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
@@ -225,7 +225,6 @@ internal class UserControllerTest {
                         gson.toJson(
                             UserChangeStatusRequest(
                                 "test_user_change_status",
-                                "123456",
                                 UserEntity.Status.DISABLED
                             )
                         )
@@ -256,7 +255,6 @@ internal class UserControllerTest {
                         gson.toJson(
                             UserChangeStatusRequest(
                                 "test_user_change_status",
-                                "123456",
                                 UserEntity.Status.DISABLED
                             )
                         )
@@ -267,33 +265,6 @@ internal class UserControllerTest {
             UserEntity.Status.DISABLED,
             userRepository.findByUsername("test_user_change_status")!!.status
         )
-    }
-
-    @WithMockUser(username = "test_user_admin", roles = ["ADMIN"])
-    @Test
-    fun testChangeStatusWrongPassword() {
-        userRepository.save(
-            UserEntity(
-                "test_user_change_status",
-                passwordEncoder.encode("123456"),
-                UserEntity.Status.ENABLED
-            )
-        )
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.post("/user/changeStatus")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        gson.toJson(
-                            UserChangeStatusRequest(
-                                "test_user_change_status",
-                                "1123456",
-                                UserEntity.Status.DISABLED
-                            )
-                        )
-                    )
-            )
-            .andExpect(MockMvcResultMatchers.status().isUnauthorized)
     }
 
     @WithMockUser(username = "test_user", roles = ["USER"])
@@ -307,7 +278,6 @@ internal class UserControllerTest {
                         gson.toJson(
                             UserChangeStatusRequest(
                                 "test_user_404",
-                                "123456",
                                 UserEntity.Status.DISABLED
                             )
                         )
@@ -334,7 +304,6 @@ internal class UserControllerTest {
                         gson.toJson(
                             UserChangePasswordRequest(
                                 "test_user_change_password",
-                                "123456",
                                 "654321"
                             )
                         )
@@ -367,7 +336,6 @@ internal class UserControllerTest {
                         gson.toJson(
                             UserChangePasswordRequest(
                                 "test_user_change_password",
-                                "123456",
                                 "654321"
                             )
                         )
@@ -382,33 +350,6 @@ internal class UserControllerTest {
         )
     }
 
-    @WithMockUser(username = "test_user_admin", roles = ["ADMIN"])
-    @Test
-    fun testChangePasswordWrongPassword() {
-        userRepository.save(
-            UserEntity(
-                "test_user_change_password",
-                passwordEncoder.encode("123456"),
-                UserEntity.Status.ENABLED
-            )
-        )
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.post("/user/changePassword")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        gson.toJson(
-                            UserChangePasswordRequest(
-                                "test_user_change_password",
-                                "1123456",
-                                "654321"
-                            )
-                        )
-                    )
-            )
-            .andExpect(MockMvcResultMatchers.status().isUnauthorized)
-    }
-
     @WithMockUser(username = "test_user", roles = ["USER"])
     @Test
     fun testChangePasswordNoPermission() {
@@ -421,7 +362,6 @@ internal class UserControllerTest {
                             UserChangePasswordRequest(
                                 "test_user_404",
                                 "123456",
-                                "654321"
                             )
                         )
                     )

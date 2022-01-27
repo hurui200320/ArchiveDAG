@@ -15,10 +15,7 @@ class GroupMetaEntity(
 
     @Column(name = "owner", nullable = false)
     val owner: String,
-
-    @Column(name = "created_time", nullable = false)
-    val createdTime: Timestamp,
 ) {
-    constructor(groupName: String, owner: String)
-            : this(groupName, owner, Timestamp(System.currentTimeMillis()))
+    @Column(name = "created_time", nullable = false)
+    val createdTime: Timestamp = Timestamp(System.currentTimeMillis())
 }

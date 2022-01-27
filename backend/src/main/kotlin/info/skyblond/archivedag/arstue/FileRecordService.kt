@@ -17,9 +17,7 @@ import javax.transaction.Transactional
 @Service
 class FileRecordService(
     private val fileRecordRepository: FileRecordRepository,
-    private val recordAccessControlRepository: RecordAccessControlRepository,
-//    private val config: EtcdSimpleConfigService,
-//    private val encryptionService: EncryptionService
+    private val recordAccessControlRepository: RecordAccessControlRepository
 ) {
     companion object {
         const val READ_CURRENT_PERMISSION_BIT: Int = 1 shl 0
@@ -34,14 +32,10 @@ class FileRecordService(
         const val UPDATE_NAME_PERMISSION_BIT: Int = 1 shl 3
         const val UPDATE_NAME_PERMISSION_CHAR: Char = 'n'
 
-        const val CHERRY_PICK_PERMISSION_BIT: Int = 1 shl 4
-        const val CHERRY_PICK_PERMISSION_CHAR: Char = 'c'
-
         const val FULL_PERMISSION: Int = READ_CURRENT_PERMISSION_BIT or
                 READ_HISTORY_PERMISSION_BIT or
                 UPDATE_REF_PERMISSION_BIT or
-                UPDATE_NAME_PERMISSION_BIT or
-                CHERRY_PICK_PERMISSION_BIT
+                UPDATE_NAME_PERMISSION_BIT
 
         @JvmStatic
         fun permissionStringToInt(permissionStr: String): Int {
@@ -52,7 +46,6 @@ class FileRecordService(
                     READ_HISTORY_PERMISSION_CHAR -> result = result or READ_HISTORY_PERMISSION_BIT
                     UPDATE_REF_PERMISSION_CHAR -> result = result or UPDATE_REF_PERMISSION_BIT
                     UPDATE_NAME_PERMISSION_CHAR -> result = result or UPDATE_NAME_PERMISSION_BIT
-                    CHERRY_PICK_PERMISSION_CHAR -> result = result or CHERRY_PICK_PERMISSION_BIT
                 }
             }
             return result
@@ -74,33 +67,10 @@ class FileRecordService(
             if (permissionInt and UPDATE_NAME_PERMISSION_BIT != 0) {
                 stringBuilder.append('n')
             }
-            if (permissionInt and CHERRY_PICK_PERMISSION_BIT != 0) {
-                stringBuilder.append('c')
-            }
 
             return stringBuilder.toString()
         }
     }
-
-    // TODO: ----------------------------- ↓Move to controller↓ -----------------------------
-//    private val etcdConfigPrefix = "/application/arstue/config/record/"
-//    private val encryptionKeyBase64EtcdConfigKey = "encryption_key_base64"
-//    private fun getEncryptionKey(): ByteArray {
-//        val text = config.getConfig(etcdConfigPrefix, encryptionKeyBase64EtcdConfigKey)
-//        return if (text == null) {
-//            logger.warn(
-//                "Config: ${
-//                    config.getStringKey(etcdConfigPrefix, encryptionKeyBase64EtcdConfigKey)
-//                } not found, generating a new one..."
-//            )
-//            val keyBase64 = encryptionService.newKeyBase64()
-//            config.putConfig(etcdConfigPrefix, encryptionKeyBase64EtcdConfigKey, keyBase64)
-//            encryptionService.decodeKeyBase64(keyBase64)
-//        } else {
-//            encryptionService.decodeKeyBase64(text)
-//        }
-//    }
-    // TODO: ----------------------------- ↑Move to controller↑ -----------------------------
 
     @Transactional
     fun createRecord(recordName: String, owner: String): UUID {
@@ -147,7 +117,7 @@ class FileRecordService(
             ?: throw EntityNotFoundException("Record #$recordId")
         return FileRecordDetailModel(
             recordId = entity.recordId!!,
-            recordName = entity.name,
+            recordName = entity.recordName,
             multihash = entity.multihash?.let { Multihash.fromBase58(it) },
             createdTimestamp = getUnixTimestamp(entity.createdTime.time),
             owner = entity.owner

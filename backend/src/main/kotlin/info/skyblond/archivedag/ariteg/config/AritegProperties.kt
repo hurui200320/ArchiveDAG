@@ -19,7 +19,7 @@ data class AritegProperties(
     ) {
         enum class ProtoRepoType {
             LOCAL_FILE_SYSTEM_ONLY, // store proto only in local file system
-            LOCAL_WITH_S3_ARCHIVE, // use file system, but upload to S3 for passive backup
+            LOCAL_WITH_S3_BACKUP, // use file system, but upload to S3 for backup
         }
 
         data class FileSystemProperties(

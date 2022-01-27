@@ -1,7 +1,8 @@
 package info.skyblond.archivedag.arudaz.security
 
 import com.google.gson.Gson
-import info.skyblond.archivedag.arudaz.model.controller.ExceptionResponse.Companion.generateResp
+import info.skyblond.archivedag.arudaz.model.ExceptionResponse.Companion.generateResp
+import info.skyblond.archivedag.arudaz.service.JwtTokenService
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -20,7 +21,7 @@ import javax.servlet.http.HttpServletResponse
 
 @Component
 class JwtRequestFilter(
-    private val jwtTokenManager: JwtTokenManager,
+    private val jwtTokenService: JwtTokenService,
     private val userDetailsService: UserDetailsService,
     private val userDetailsChecker: AccountStatusUserDetailsChecker,
     private val gson: Gson
@@ -45,7 +46,7 @@ class JwtRequestFilter(
         }
         // check token
         val token = jwtHeader.substring(7) // skip `Bearer `
-        val claimedUsername = jwtTokenManager.getUsernameFromToken(token)
+        val claimedUsername = jwtTokenService.getUsernameFromToken(token)
         if (claimedUsername == null) {
             // No valid username found in JWT token, but might be other tokens.
             // keep calling the filters
@@ -71,7 +72,6 @@ class JwtRequestFilter(
         // keep calling the filter chain
         filterChain.doFilter(request, response)
     }
-
 
     private fun writeToResp(resp: ResponseEntity<*>, response: HttpServletResponse) {
         response.status = resp.statusCodeValue

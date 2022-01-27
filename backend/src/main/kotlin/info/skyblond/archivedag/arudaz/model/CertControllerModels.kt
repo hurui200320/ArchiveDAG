@@ -1,4 +1,4 @@
-package info.skyblond.archivedag.arudaz.model.controller
+package info.skyblond.archivedag.arudaz.model
 
 import com.fasterxml.jackson.annotation.JsonAlias
 import com.fasterxml.jackson.annotation.JsonProperty

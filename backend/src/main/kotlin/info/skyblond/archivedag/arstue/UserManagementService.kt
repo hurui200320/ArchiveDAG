@@ -2,18 +2,19 @@ package info.skyblond.archivedag.arstue
 
 import info.skyblond.archivedag.arstue.entity.UserEntity
 import info.skyblond.archivedag.arstue.entity.UserRoleEntity
+import info.skyblond.archivedag.arstue.model.UserDetailModel
 import info.skyblond.archivedag.arstue.repo.CertRepository
 import info.skyblond.archivedag.arstue.repo.UserRepository
 import info.skyblond.archivedag.arstue.repo.UserRoleRepository
 import info.skyblond.archivedag.arstue.service.PatternService
-import info.skyblond.archivedag.arudaz.model.service.UserDetailModel
 import info.skyblond.archivedag.commons.DuplicatedEntityException
 import info.skyblond.archivedag.commons.EntityNotFoundException
 import org.springframework.data.domain.Pageable
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Isolation
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
-import javax.transaction.Transactional
 
 @Service
 class UserManagementService(
@@ -71,19 +72,13 @@ class UserManagementService(
         userRepository.updateUserStatus(username, status)
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     fun createUser(username: String, password: String) {
         require(patternService.isValidUsername(username)) { "In valid username. The username must meet the regex: " + patternService.usernameRegex }
         val entity = UserEntity(username, passwordEncoder.encode(password))
-        // Here we should use lock to ensure the user still doesn't exist
-        // after this execution, but seems like a lock can only be applied
-        // to select statement in JPA, and transaction cannot ensure this
-        // unless the isolation is sequence.
         if (userRepository.existsByUsername(username)) {
             throw DuplicatedEntityException("user")
         }
-        // The issue for save is: If the username not exists, then it's an insert
-        // But if the username exists, it updates.
         userRepository.save(entity)
     }
 

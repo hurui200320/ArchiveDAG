@@ -9,9 +9,9 @@ import java.util.concurrent.ScheduledThreadPoolExecutor
 @Service
 class EtcdSimpleLockService(
     private val etcdClient: Client,
-    private val config: EtcdSimpleConfigService
+    private val config: EtcdConfigService
 ) : AutoCloseable {
-    private val etcdConfigPrefix = "/application/common/config/"
+    private val etcdNamespace = "common"
     private val lockTtlEtcdConfigKey = "lock_ttl_in_sec"
     private val lockTimeoutEtcdConfigKey = "lock_timeout_in_ms"
 
@@ -24,35 +24,26 @@ class EtcdSimpleLockService(
     init {
         // remove canceled tasks
         executor.removeOnCancelPolicy = true
-        logger.info("Etcd simple lock ttl: ${getLong(lockTtlEtcdConfigKey, defaultTtl)}s")
-        logger.info("Etcd simple lock timeout: ${getLong(lockTimeoutEtcdConfigKey, defaultTimeout)}ms")
+        logger.info("Etcd simple lock ttl: ${getLongWithDefault(lockTtlEtcdConfigKey, defaultTtl)}s")
+        logger.info("Etcd simple lock timeout: ${getLongWithDefault(lockTimeoutEtcdConfigKey, defaultTimeout)}ms")
     }
 
-    private fun setLong(key: String, long: Long) {
-        config.putConfig(
-            etcdConfigPrefix, key, long.toString()
-        )
-    }
-
-    private fun getLong(key: String, default: Long): Long {
-        val text = config.getConfig(etcdConfigPrefix, key)
-        if (text == null) {
+    private fun getLongWithDefault(key: String, default: Long): Long {
+        return config.getLong(etcdNamespace, key) ?: run {
             logger.warn(
                 "Config: ${
-                    config.getStringKey(etcdConfigPrefix, key)
+                    config.getStringKey(etcdNamespace, key)
                 } not found, use default value: $default"
             )
-            setLong(key, default)
-            return default
+            default
         }
-        return text.toLong()
     }
 
     fun getLock(lockPath: String, key: String): EtcdSimpleLock {
         return EtcdSimpleLock(
             etcdClient = etcdClient, lockKey = "$lockPath:$key",
-            ttlInSeconds = getLong(lockTtlEtcdConfigKey, defaultTtl),
-            timeoutInMs = getLong(lockTimeoutEtcdConfigKey, defaultTimeout),
+            ttlInSeconds = getLongWithDefault(lockTtlEtcdConfigKey, defaultTtl),
+            timeoutInMs = getLongWithDefault(lockTimeoutEtcdConfigKey, defaultTimeout),
             service = executor
         )
     }

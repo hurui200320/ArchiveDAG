@@ -1,4 +1,4 @@
-package info.skyblond.archivedag.arudaz.model.service
+package info.skyblond.archivedag.arstue.model
 
 import info.skyblond.archivedag.arstue.entity.UserEntity
 

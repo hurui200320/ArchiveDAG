@@ -8,13 +8,7 @@ import javax.persistence.*
 @Table(name = "file_record")
 class FileRecordEntity(
     @Column(name = "record_name", nullable = false)
-    val name: String,
-
-    @Column(name = "multihash", nullable = true)
-    val multihash: String?,
-
-    @Column(name = "created_time", nullable = false)
-    val createdTime: Timestamp,
+    val recordName: String,
 
     @Column(name = "owner", nullable = false)
     val owner: String,
@@ -28,12 +22,9 @@ class FileRecordEntity(
     @Column(name = "record_id", updatable = false)
     val recordId: UUID? = null
 
-    constructor(
-        recordName: String, owner: String
-    ) : this(
-        name = recordName,
-        multihash = null,
-        createdTime = Timestamp(System.currentTimeMillis()),
-        owner = owner
-    )
+    @Column(name = "multihash", nullable = true)
+    val multihash: String? = null
+
+    @Column(name = "created_time", nullable = false)
+    val createdTime: Timestamp = Timestamp(System.currentTimeMillis())
 }

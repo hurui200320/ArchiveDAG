@@ -19,14 +19,8 @@ class ProtoMetaEntity(
 
     @Column(name = "media_type")
     val mediaType: String?,
+) {
 
     @Column(name = "mark", nullable = false)
-    val mark: String
-) {
-    constructor(
-        primaryHash: String,
-        secondaryHash: String,
-        objectType: AritegObjectType,
-        mediaType: String?
-    ) : this(primaryHash, secondaryHash, objectType, mediaType, "")
+    val mark: String = ""
 }

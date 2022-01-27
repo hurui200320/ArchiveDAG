@@ -24,6 +24,8 @@ import org.springframework.data.domain.Pageable
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.AuthenticationException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Isolation
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigInteger
 import java.security.KeyPair
 import java.security.KeyPairGenerator
@@ -31,7 +33,6 @@ import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import java.sql.Timestamp
 import java.util.*
-import javax.transaction.Transactional
 
 @Service
 class CertService(
@@ -50,15 +51,13 @@ class CertService(
 
     private fun signKeyPair(userKeyPair: KeyPair, subject: X500Name): X509Certificate {
         val issuer = JcaX509CertificateHolder(certSigningConfigService.caCert).subject
-        var serial: BigInteger
-        do { // generate serial number
-            serial = BigInteger.valueOf(secureRandom.nextLong())
-            serial = serial.shiftLeft(java.lang.Long.BYTES * 8)
-            serial = serial.or(BigInteger.valueOf(System.currentTimeMillis()))
-            serial = serial.shiftLeft(java.lang.Long.BYTES * 8)
-            serial = serial.or(BigInteger.valueOf(System.nanoTime()))
-            serial = serial.abs()
-        } while (certRepository.existsBySerialNumber(serial.toString(16)))
+        // generate serial number
+        var serial: BigInteger = BigInteger.valueOf(secureRandom.nextLong())
+        serial = serial.shiftLeft(java.lang.Long.BYTES * 8)
+        serial = serial.or(BigInteger.valueOf(System.currentTimeMillis()))
+        serial = serial.shiftLeft(java.lang.Long.BYTES * 8)
+        serial = serial.or(BigInteger.valueOf(System.nanoTime()))
+        serial = serial.abs()
         val currentTimeStamp = System.currentTimeMillis()
         val notBefore = Date(currentTimeStamp)
         val notAfter = Date(
@@ -79,7 +78,7 @@ class CertService(
         return converter.getCertificate(certHolder)
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     fun signCert(username: String): CertSigningResult {
         val userKeyPair = generateKeyPair()
         val subjectDN = certSigningConfigService.newX500NameBuilder()
@@ -93,8 +92,7 @@ class CertService(
             Timestamp(cert.notBefore.time),
             Timestamp(cert.notAfter.time)
         )
-        // No lock, might fail since at the time this cert is generating
-        // the same serial number might be taken
+        // the cert might have a duplicated id (low chance)
         if (certRepository.existsBySerialNumber(entity.serialNumber)) {
             throw DuplicatedEntityException("Cert#" + entity.serialNumber)
         }

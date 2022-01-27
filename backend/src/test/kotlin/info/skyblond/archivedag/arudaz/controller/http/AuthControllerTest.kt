@@ -5,9 +5,9 @@ import info.skyblond.archivedag.arstue.entity.UserEntity
 import info.skyblond.archivedag.arstue.entity.UserRoleEntity
 import info.skyblond.archivedag.arstue.repo.UserRepository
 import info.skyblond.archivedag.arstue.repo.UserRoleRepository
-import info.skyblond.archivedag.arudaz.model.controller.JWTAuthResponse
-import info.skyblond.archivedag.arudaz.model.controller.JwtAuthRequest
-import info.skyblond.archivedag.arudaz.security.JwtTokenManager
+import info.skyblond.archivedag.arudaz.model.JWTAuthResponse
+import info.skyblond.archivedag.arudaz.model.JwtAuthRequest
+import info.skyblond.archivedag.arudaz.service.JwtTokenService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -41,7 +41,7 @@ internal class AuthControllerTest {
     lateinit var gson: Gson
 
     @Autowired
-    lateinit var tokenManager: JwtTokenManager
+    lateinit var tokenManager: JwtTokenService
 
     @BeforeEach
     fun setUp() {

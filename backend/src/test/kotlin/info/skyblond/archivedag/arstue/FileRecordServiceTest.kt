@@ -1,7 +1,5 @@
 package info.skyblond.archivedag.arstue
 
-import info.skyblond.archivedag.arstue.FileRecordService.Companion.CHERRY_PICK_PERMISSION_BIT
-import info.skyblond.archivedag.arstue.FileRecordService.Companion.CHERRY_PICK_PERMISSION_CHAR
 import info.skyblond.archivedag.arstue.FileRecordService.Companion.FULL_PERMISSION
 import info.skyblond.archivedag.arstue.FileRecordService.Companion.READ_CURRENT_PERMISSION_BIT
 import info.skyblond.archivedag.arstue.FileRecordService.Companion.READ_CURRENT_PERMISSION_CHAR
@@ -68,25 +66,16 @@ internal class FileRecordServiceTest {
             permissionIntToString(UPDATE_NAME_PERMISSION_BIT)
         )
 
-        assertEquals(
-            CHERRY_PICK_PERMISSION_BIT,
-            permissionStringToInt(CHERRY_PICK_PERMISSION_CHAR.toString())
-        )
-        assertEquals(
-            CHERRY_PICK_PERMISSION_CHAR.toString(),
-            permissionIntToString(CHERRY_PICK_PERMISSION_BIT)
-        )
-
-        assertEquals("rhunc", permissionIntToString(FULL_PERMISSION))
-        assertEquals(FULL_PERMISSION, permissionStringToInt("rhunc"))
+        assertEquals("rhun", permissionIntToString(FULL_PERMISSION))
+        assertEquals(FULL_PERMISSION, permissionStringToInt("rhun"))
 
         assertEquals(
-            "rhc",
-            permissionIntToString(READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT or CHERRY_PICK_PERMISSION_BIT)
+            "rh",
+            permissionIntToString(READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT)
         )
         assertEquals(
-            READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT or CHERRY_PICK_PERMISSION_BIT,
-            permissionStringToInt("rhc")
+            READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT,
+            permissionStringToInt("rh")
         )
     }
 
@@ -110,11 +99,11 @@ internal class FileRecordServiceTest {
         // overwrite it
         fileRecordService.setAccessRule(
             recordId, Type.USER, "user",
-            permissionStringToInt("rhc")
+            permissionStringToInt("rh")
         )
         assertEquals(1, fileRecordService.listAccessRules(recordId, Pageable.unpaged()).size)
         assertEquals(
-            "rhc", permissionIntToString(
+            "rh", permissionIntToString(
                 fileRecordService.queryPermission(
                     recordId, "user", listOf()
                 )
@@ -173,14 +162,14 @@ internal class FileRecordServiceTest {
         fileRecordService.setAccessRule(
             recordId, Type.GROUP, "group_a", READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT
         )
-        // group:group_b:rc
+        // group:group_b:ru
         fileRecordService.setAccessRule(
-            recordId, Type.GROUP, "group_b", READ_CURRENT_PERMISSION_BIT or CHERRY_PICK_PERMISSION_BIT
+            recordId, Type.GROUP, "group_b", READ_CURRENT_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT
         )
-        // user:user_a:rhuc
+        // user:user_a:rhun
         fileRecordService.setAccessRule(
             recordId, Type.USER, "user_a",
-            READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT or CHERRY_PICK_PERMISSION_BIT
+            READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT or UPDATE_NAME_PERMISSION_BIT
         )
 
         // for group_c:user_b, it should be r (other)
@@ -195,21 +184,21 @@ internal class FileRecordServiceTest {
             fileRecordService.queryPermission(recordId, "user_c", listOf("group_a"))
         )
 
-        // for group_b:user_d, it should be rc (group_b)
+        // for group_b:user_d, it should be ru (group_b)
         assertEquals(
-            READ_CURRENT_PERMISSION_BIT or CHERRY_PICK_PERMISSION_BIT,
+            READ_CURRENT_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT,
             fileRecordService.queryPermission(recordId, "user_d", listOf("group_b"))
         )
 
-        // for user_e, he/she is in both group_a and group_b, it should be rhc (group a+b)
+        // for user_e, he/she is in both group_a and group_b, it should be rhu (group a+b)
         assertEquals(
-            READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT or CHERRY_PICK_PERMISSION_BIT,
+            READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT,
             fileRecordService.queryPermission(recordId, "user_e", listOf("group_a", "group_b"))
         )
 
-        // for user_a, it should be rhuc
+        // for user_a, it should be rhun
         assertEquals(
-            READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT or CHERRY_PICK_PERMISSION_BIT,
+            READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT or UPDATE_NAME_PERMISSION_BIT,
             fileRecordService.queryPermission(recordId, "user_a", listOf())
         )
 

@@ -1,11 +1,11 @@
 package info.skyblond.archivedag.arudaz.controller.http
 
 import info.skyblond.archivedag.arstue.UserManagementService
-import info.skyblond.archivedag.arudaz.model.controller.CreateUserRequest
-import info.skyblond.archivedag.arudaz.model.controller.UserChangePasswordRequest
-import info.skyblond.archivedag.arudaz.model.controller.UserChangeStatusRequest
-import info.skyblond.archivedag.arudaz.model.controller.UserRoleRequest
-import info.skyblond.archivedag.arudaz.model.service.UserDetailModel
+import info.skyblond.archivedag.arstue.model.UserDetailModel
+import info.skyblond.archivedag.arudaz.model.CreateUserRequest
+import info.skyblond.archivedag.arudaz.model.UserChangePasswordRequest
+import info.skyblond.archivedag.arudaz.model.UserChangeStatusRequest
+import info.skyblond.archivedag.arudaz.model.UserRoleRequest
 import info.skyblond.archivedag.arudaz.utils.checkCurrentUserIsAdmin
 import info.skyblond.archivedag.arudaz.utils.getCurrentUsername
 import info.skyblond.archivedag.arudaz.utils.requireSortPropertiesInRange
@@ -15,18 +15,15 @@ import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/user")
 class UserController(
-    private val userService: UserManagementService,
-    private val authenticationManager: AuthenticationManager
+    private val userService: UserManagementService
 ) {
     @GetMapping("/whoami")
-    fun listUsername(): String {
+    fun getUsername(): String {
         return getCurrentUsername()
     }
 
@@ -68,12 +65,6 @@ class UserController(
             // if is not admin, and username not match
             throw PermissionDeniedException("You can only change your own password")
         }
-        // check old password
-        authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(
-                request.username, request.oldPassword
-            )
-        )
         // apply changes
         userService.changePassword(request.username, request.newPassword)
         // return 204
@@ -90,12 +81,6 @@ class UserController(
             // if is not admin, and username not match
             throw PermissionDeniedException("You can only change your own status")
         }
-        // check password
-        authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(
-                request.username, request.password
-            )
-        )
         // apply changes
         userService.changeStatus(request.username, request.newStatus)
         // return 204

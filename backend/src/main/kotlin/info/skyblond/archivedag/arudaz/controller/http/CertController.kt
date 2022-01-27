@@ -3,7 +3,7 @@ package info.skyblond.archivedag.arudaz.controller.http
 import info.skyblond.archivedag.arstue.CertService
 import info.skyblond.archivedag.arstue.model.CertDetailModel
 import info.skyblond.archivedag.arstue.model.CertSigningResult
-import info.skyblond.archivedag.arudaz.model.controller.CertChangeStatusRequest
+import info.skyblond.archivedag.arudaz.model.CertChangeStatusRequest
 import info.skyblond.archivedag.arudaz.utils.checkCurrentUserIsAdmin
 import info.skyblond.archivedag.arudaz.utils.getCurrentUsername
 import info.skyblond.archivedag.arudaz.utils.requireSortPropertiesInRange

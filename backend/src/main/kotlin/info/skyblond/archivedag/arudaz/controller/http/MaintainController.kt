@@ -1,6 +1,6 @@
 package info.skyblond.archivedag.arudaz.controller.http
 
-import info.skyblond.archivedag.arstue.ConfigService
+import info.skyblond.archivedag.arstue.ApplicationConfigService
 import info.skyblond.archivedag.arudaz.utils.requireSortPropertiesInRange
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/maintain")
 class MaintainController(
-    private val configService: ConfigService,
+    private val applicationConfigService: ApplicationConfigService,
     private val transactionManager: PlatformTransactionManager
 ) {
     @GetMapping("/listConfig")
@@ -23,7 +23,7 @@ class MaintainController(
         pageable: Pageable
     ): Map<String, String?> {
         requireSortPropertiesInRange(pageable, listOf("key", "value"))
-        return configService.listConfig(prefix, pageable)
+        return applicationConfigService.listConfig(prefix, pageable)
     }
 
     @PostMapping("/updateConfig")
@@ -34,7 +34,7 @@ class MaintainController(
         val status = transactionManager.getTransaction(DefaultTransactionDefinition())
         return try {
             newConfig.forEach { (k: String, v: Any?) ->
-                configService.updateConfig(k, v?.toString())
+                applicationConfigService.updateConfig(k, v?.toString())
             }
             transactionManager.commit(status)
             ResponseEntity.status(HttpStatus.NO_CONTENT).body<Any>(null)

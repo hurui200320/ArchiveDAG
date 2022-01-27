@@ -1,6 +1,7 @@
 package info.skyblond.archivedag.arudaz.security
 
 import com.google.gson.Gson
+import info.skyblond.archivedag.arudaz.service.JwtTokenService
 import info.skyblond.archivedag.arudaz.utils.getCurrentAuthentication
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -27,7 +28,7 @@ import org.springframework.test.context.ActiveProfiles
 internal class JwtRequestFilterTest {
 
     @Autowired
-    lateinit var tokenManager: JwtTokenManager
+    lateinit var tokenManager: JwtTokenService
 
     @Autowired
     lateinit var userDetailsChecker: AccountStatusUserDetailsChecker

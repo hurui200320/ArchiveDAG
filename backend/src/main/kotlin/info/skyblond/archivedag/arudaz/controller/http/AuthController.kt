@@ -1,8 +1,8 @@
 package info.skyblond.archivedag.arudaz.controller.http
 
-import info.skyblond.archivedag.arudaz.model.controller.JWTAuthResponse
-import info.skyblond.archivedag.arudaz.model.controller.JwtAuthRequest
-import info.skyblond.archivedag.arudaz.security.JwtTokenManager
+import info.skyblond.archivedag.arudaz.model.JWTAuthResponse
+import info.skyblond.archivedag.arudaz.model.JwtAuthRequest
+import info.skyblond.archivedag.arudaz.service.JwtTokenService
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/public/auth")
 class AuthController(
-    private val jwtTokenManager: JwtTokenManager,
+    private val jwtTokenService: JwtTokenService,
     private val authenticationManager: AuthenticationManager,
     private val userDetailsService: UserDetailsService
 ) {
@@ -28,7 +28,7 @@ class AuthController(
             )
         )
         val userDetails = userDetailsService.loadUserByUsername(request.username)
-        val token = jwtTokenManager.generateToken(userDetails)
+        val token = jwtTokenService.generateToken(userDetails)
         return JWTAuthResponse(token)
     }
 }

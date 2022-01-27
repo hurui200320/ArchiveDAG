@@ -1,4 +1,4 @@
-package info.skyblond.archivedag.arudaz.model.controller
+package info.skyblond.archivedag.arudaz.model
 
 import com.fasterxml.jackson.annotation.JsonAlias
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -7,9 +7,6 @@ import info.skyblond.archivedag.arstue.entity.UserEntity
 data class UserChangePasswordRequest(
     @JsonProperty("username")
     val username: String,
-    @JsonProperty("old_password")
-    @JsonAlias("oldPassword")
-    val oldPassword: String,
     @JsonProperty("new_password")
     @JsonAlias("newPassword")
     val newPassword: String
@@ -18,8 +15,6 @@ data class UserChangePasswordRequest(
 data class UserChangeStatusRequest(
     @JsonProperty("username")
     val username: String,
-    @JsonProperty("password")
-    val password: String,
     @JsonProperty("new_status")
     @JsonAlias("newStatus")
     val newStatus: UserEntity.Status
