@@ -29,16 +29,14 @@ class EncryptionService {
         return Base64.getDecoder().decode(base64)
     }
 
-    fun newKeyBase64(): String {
+    fun newKey(): ByteArray {
         val result = ByteArray(keyByteSize)
         secureRandom.nextBytes(result)
-        return encodeToBase64(result)
+        return result
     }
 
-    fun decodeKeyBase64(base64Key: String): ByteArray {
-        val result = decodeFromBase64(base64Key)
-        require(result.size == keyByteSize) { "Wrong key size. Expected $keyByteSize bytes, actual ${result.size} bytes" }
-        return result
+    private fun checkKeySize(key: ByteArray) {
+        require(key.size == keyByteSize) { "Wrong key size. Expected $keyByteSize bytes, actual ${key.size} bytes" }
     }
 
     private fun newNonce(): ByteArray {
@@ -54,6 +52,7 @@ class EncryptionService {
     }
 
     private fun encryptInternal(source: ByteArray, key: ByteArray, nonce: ByteArray): ByteArray {
+        checkKeySize(key)
         val cipher = GCMBlockCipher(AESEngine())
         val parameters = AEADParameters(KeyParameter(key), macBitSize, nonce)
         cipher.init(true, parameters)
@@ -75,6 +74,7 @@ class EncryptionService {
     }
 
     private fun decryptInternal(source: ByteArray, key: ByteArray, nonce: ByteArray): ByteArray {
+        checkKeySize(key)
         val cipher = GCMBlockCipher(AESEngine())
         val parameters = AEADParameters(KeyParameter(key), macBitSize, nonce)
         cipher.init(false, parameters)

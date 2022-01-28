@@ -23,7 +23,7 @@ class JwtTokenService(
     // Hard coded sig alg
     private val signatureAlgorithm = SignatureAlgorithm.HS512
 
-    private val secretKeyEtcdConfigKey = "hs512_secret_key"
+    private val secretKeyEtcdConfigKey = "hs512_secret_key_bytearray"
 
     private val expireInMinuteEtcdConfigKey = "expire_in_minute"
     private val defaultExpireInMinute: Long = 120

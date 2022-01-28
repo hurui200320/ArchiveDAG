@@ -16,17 +16,17 @@ class ProtoReceiptService(
     private val logger = LoggerFactory.getLogger(ProtoReceiptService::class.java)
 
     private val etcdNamespace = "arudaz/proto_receipt"
-    private val encryptionKeyBase64EtcdConfigKey = "encryption_key_base64"
+    private val encryptionKeyEtcdConfigKey = "encryption_key_bytearray"
 
     private fun getEncryptionKey(): ByteArray {
-        val result = configService.getString(etcdNamespace, encryptionKeyBase64EtcdConfigKey)
+        val result = configService.getByteArray(etcdNamespace, encryptionKeyEtcdConfigKey)
         if (result == null) {
             logger.warn("No proto receipt encryption key found, generating one...")
-            val keyBase64 = encryptionService.newKeyBase64()
-            configService.setString(etcdNamespace, encryptionKeyBase64EtcdConfigKey, keyBase64)
-            return encryptionService.decodeKeyBase64(keyBase64)
+            val key = encryptionService.newKey()
+            configService.setByteArray(etcdNamespace, encryptionKeyEtcdConfigKey, key)
+            return key
         }
-        return encryptionService.decodeKeyBase64(result)
+        return result
     }
 
     fun encryptReceipt(receipt: ProtoReceipt): String {

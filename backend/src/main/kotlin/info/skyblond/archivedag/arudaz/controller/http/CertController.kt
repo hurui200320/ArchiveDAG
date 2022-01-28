@@ -78,24 +78,13 @@ class CertController(
             // if is not admin, and owner not match
             throw PermissionDeniedException("You can only list your own certifications")
         }
-        return if (checkCurrentUserIsAdmin()) {
-            certService.listCertSerialNumber(
-                true, username,
-                issueStart ?: minTimestamp,
-                issueEnd ?: maxTimestamp,
-                expireStart ?: minTimestamp,
-                expireEnd ?: maxTimestamp, pageable
-            )
-        } else {
-            // if is user
-            certService.listCertSerialNumber(
-                false, username,
-                issueStart ?: minTimestamp,
-                issueEnd ?: maxTimestamp,
-                expireStart ?: minTimestamp,
-                expireEnd ?: maxTimestamp, pageable
-            )
-        }
+        return certService.listCertSerialNumber(
+            blurOwner = checkCurrentUserIsAdmin(), owner = username,
+            issueStart = issueStart ?: minTimestamp,
+            issueEnd = issueEnd ?: maxTimestamp,
+            expireStart = expireStart ?: minTimestamp,
+            expireEnd = expireEnd ?: maxTimestamp, pageable = pageable
+        )
     }
 
     @GetMapping("/queryCert")

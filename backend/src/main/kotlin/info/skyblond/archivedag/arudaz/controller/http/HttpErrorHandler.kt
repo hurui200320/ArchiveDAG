@@ -20,6 +20,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import javax.servlet.http.HttpServletRequest
 
 @RestControllerAdvice
@@ -30,7 +31,8 @@ class HttpErrorHandler {
     @ExceptionHandler(
         IllegalArgumentException::class,
         HttpMessageNotReadableException::class,
-        MissingServletRequestParameterException::class
+        MissingServletRequestParameterException::class,
+        MethodArgumentTypeMismatchException::class
     )
     @ResponseBody
     fun handleBadRequest(request: HttpServletRequest, t: Throwable): ResponseEntity<ExceptionResponse> {

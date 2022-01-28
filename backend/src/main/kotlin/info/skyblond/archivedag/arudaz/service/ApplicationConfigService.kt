@@ -1,4 +1,4 @@
-package info.skyblond.archivedag.arstue
+package info.skyblond.archivedag.arudaz.service
 
 import info.skyblond.archivedag.commons.component.EtcdSimpleConfigClient
 import info.skyblond.archivedag.commons.service.EtcdConfigService
@@ -16,7 +16,7 @@ class ApplicationConfigService(
     fun listConfig(keyPrefix: String, pageable: Pageable): Map<String, String?> {
         require(pageable.offset <= Int.MAX_VALUE) { "Offset overflow" }
 
-        val result: MutableMap<String, String?> = HashMap()
+        val result: MutableMap<String, String?> = TreeMap()
         configClient.getConfig(
             ByteSequence.from("${configService.applicationPrefix}$keyPrefix".lowercase(), Charsets.UTF_8),
             GetOption.newBuilder().isPrefix(true).withKeysOnly(true).build()
@@ -26,18 +26,41 @@ class ApplicationConfigService(
             .drop(pageable.offset.toInt())
             .take(pageable.pageSize)
             .forEach { fullKey ->
-                val str = configClient.getConfig(ByteSequence.from(fullKey, Charsets.UTF_8))
-                    .let { if (it.kvs.isEmpty()) null else it.kvs[0] }?.value?.toString()
                 val key = fullKey.removePrefix(configService.applicationPrefix)
-                result[key] = if (str.isNullOrBlank()) null else str
+                result[key] = configClient.getConfig(ByteSequence.from(fullKey, Charsets.UTF_8))
+                    .let { if (it.kvs.isEmpty()) null else it.kvs[0] }?.value?.let {
+                        if (key.endsWith("_bytearray")) {
+                            Base64.getEncoder().encodeToString(it.bytes)
+                        } else {
+                            it.toString()
+                        }
+                    }
             }
-        return Collections.unmodifiableMap(result)
+        return result
     }
 
     fun updateConfig(key: String, value: String?) {
-        configClient.putConfig(
-            ByteSequence.from("${configService.applicationPrefix}$key".lowercase(), Charsets.UTF_8),
-            ByteSequence.from(value ?: "", Charsets.UTF_8)
+        if (value == null) {
+            deleteConfig(key)
+        } else {
+            val byteSequence = if (key.endsWith("_bytearray")) {
+                ByteSequence.from(Base64.getDecoder().decode(value))
+            } else {
+                ByteSequence.from(value, Charsets.UTF_8)
+            }
+            configClient.putConfig(
+                ByteSequence.from("${configService.applicationPrefix}$key".lowercase(), Charsets.UTF_8),
+                byteSequence
+            )
+        }
+    }
+
+    private fun deleteConfig(key: String) {
+        configClient.deleteConfig(
+            ByteSequence.from(
+                "${configService.applicationPrefix}$key".lowercase(),
+                Charsets.UTF_8
+            )
         )
     }
 

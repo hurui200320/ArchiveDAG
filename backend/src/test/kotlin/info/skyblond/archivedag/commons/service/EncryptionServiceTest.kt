@@ -10,7 +10,7 @@ internal class EncryptionServiceTest {
 
     @Test
     fun testNormalOperation() {
-        val key = encryptionService.decodeKeyBase64(encryptionService.newKeyBase64())
+        val key = encryptionService.newKey()
         val text = "0123456789\n" +
                 "A fox jumps over the lazy dog\n" +
                 "UTF-8编码测试\n日本語"
@@ -21,30 +21,23 @@ internal class EncryptionServiceTest {
     }
 
     @Test
-    fun testDecodeInvalidKey() {
-        assertThrows<IllegalArgumentException> { encryptionService.decodeKeyBase64("!_+?:>haha") }
-        // AAAAAA== -> byte[4] {0,0,0,0}
-        assertThrows<IllegalArgumentException> { encryptionService.decodeKeyBase64("AAAAAA==") }
-    }
-
-    @Test
     fun testEncryptWithInvalidKey() {
         assertThrows<IllegalArgumentException> { encryptionService.encrypt(ByteArray(0), ByteArray(6)) }
     }
 
     @Test
     fun testDecryptWithInvalidKey() {
-        val key1 = encryptionService.decodeKeyBase64(encryptionService.newKeyBase64())
+        val key1 = encryptionService.newKey()
         val encrypted = encryptionService.encrypt("0123456789", key1)
 
-        val key2 = encryptionService.decodeKeyBase64(encryptionService.newKeyBase64())
+        val key2 = encryptionService.newKey()
         // mac check in GCM failed
         assertThrows<InvalidCipherTextException> { encryptionService.decryptToString(encrypted, key2) }
     }
 
     @Test
     fun testDecryptInvalidSource() {
-        val key = encryptionService.decodeKeyBase64(encryptionService.newKeyBase64())
+        val key = encryptionService.newKey()
         assertThrows<IllegalArgumentException> { encryptionService.decrypt("some.thing", key) }
         assertThrows<IllegalArgumentException> { encryptionService.decrypt("something", key) }
         assertThrows<IllegalArgumentException> { encryptionService.decrypt("AAAAAA==.AAAAAA==", key) }

@@ -3,14 +3,12 @@ package info.skyblond.archivedag.commons.service
 import info.skyblond.archivedag.commons.component.EtcdSimpleConfigClient
 import io.etcd.jetcd.ByteSequence
 import io.etcd.jetcd.KeyValue
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
 class EtcdConfigService(
     private val configClient: EtcdSimpleConfigClient
 ) {
-    private val logger = LoggerFactory.getLogger(EtcdConfigService::class.java)
     val applicationPrefix = "/archive_dag/config".removeSuffix("/")
 
     /**
