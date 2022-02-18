@@ -96,5 +96,4 @@ class EncryptionService {
     fun decryptToString(source: String, key: ByteArray): String {
         return String(decrypt(source, key), Charsets.UTF_8)
     }
-
 }

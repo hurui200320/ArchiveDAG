@@ -2,9 +2,11 @@ package info.skyblond.archivedag.arstue
 
 import info.skyblond.archivedag.arstue.entity.GroupMetaEntity
 import info.skyblond.archivedag.arstue.entity.GroupUserEntity
+import info.skyblond.archivedag.arstue.entity.RecordAccessControlEntity
 import info.skyblond.archivedag.arstue.model.GroupDetailModel
 import info.skyblond.archivedag.arstue.repo.GroupMetaRepository
 import info.skyblond.archivedag.arstue.repo.GroupUserRepository
+import info.skyblond.archivedag.arstue.repo.RecordAccessControlRepository
 import info.skyblond.archivedag.arstue.service.PatternService
 import info.skyblond.archivedag.commons.DuplicatedEntityException
 import info.skyblond.archivedag.commons.EntityNotFoundException
@@ -19,7 +21,8 @@ import java.util.*
 class GroupService(
     private val patternService: PatternService,
     private val groupMetaRepository: GroupMetaRepository,
-    private val groupUserRepository: GroupUserRepository
+    private val groupUserRepository: GroupUserRepository,
+    private val accessControlRepository: RecordAccessControlRepository,
 ) {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     fun createGroup(groupName: String, owner: String) {
@@ -36,6 +39,8 @@ class GroupService(
         if (!groupMetaRepository.existsByGroupName(groupName)) {
             throw EntityNotFoundException(groupName)
         }
+        // delete all shares
+        accessControlRepository.deleteAllByTypeAndTarget(RecordAccessControlEntity.Type.GROUP, groupName)
         // delete all member
         groupUserRepository.deleteAllByGroupName(groupName)
         // delete meta data
@@ -90,10 +95,21 @@ class GroupService(
         return result
     }
 
+    fun groupExists(groupName: String): Boolean {
+        return groupMetaRepository.existsByGroupName(groupName)
+    }
+
     fun listUserJoinedGroup(username: String, pageable: Pageable): List<String> {
         val result: MutableList<String> = LinkedList()
         groupUserRepository.findAllByUsername(username, pageable)
             .forEach { result.add(it.groupName) }
+        return result
+    }
+
+    fun listGroupMember(groupName: String, pageable: Pageable): List<String> {
+        val result: MutableList<String> = LinkedList()
+        groupUserRepository.findAllByGroupName(groupName, pageable)
+            .forEach { result.add(it.username) }
         return result
     }
 
