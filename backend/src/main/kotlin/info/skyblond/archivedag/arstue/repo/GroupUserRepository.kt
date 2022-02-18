@@ -19,4 +19,6 @@ interface GroupUserRepository : JpaRepository<GroupUserEntity, String> {
     fun deleteByGroupNameAndUsername(groupName: String, username: String)
 
     fun findAllByUsername(username: String, pageable: Pageable): Page<GroupUserEntity>
+
+    fun findAllByGroupName(groupName: String, pageable: Pageable): Page<GroupUserEntity>
 }

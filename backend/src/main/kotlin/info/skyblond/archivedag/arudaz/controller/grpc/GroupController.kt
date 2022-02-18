@@ -6,16 +6,16 @@ import info.skyblond.archivedag.arudaz.protos.common.Empty
 import info.skyblond.archivedag.arudaz.protos.group.*
 import info.skyblond.archivedag.arudaz.utils.checkCurrentUserIsAdmin
 import info.skyblond.archivedag.arudaz.utils.getCurrentUsername
+import info.skyblond.archivedag.arudaz.utils.parsePagination
 import info.skyblond.archivedag.commons.EntityNotFoundException
 import info.skyblond.archivedag.commons.PermissionDeniedException
 import io.grpc.stub.StreamObserver
 import net.devh.boot.grpc.server.service.GrpcService
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.security.access.prepost.PreAuthorize
 
 @GrpcService
-class GroupServiceImpl(
+class GroupController(
     private val groupService: GroupService,
     private val userManagementService: UserManagementService
 ) : GroupServiceGrpc.GroupServiceImplBase() {
@@ -84,14 +84,10 @@ class GroupServiceImpl(
             // not admin, not owner
             throw PermissionDeniedException("You can only add member to group owned by you")
         }
-        var username = request.newMember
-        if (username.isBlank()) {
-            username = getCurrentUsername()
+        if (!userManagementService.userExists(request.newMember)) {
+            throw EntityNotFoundException("User ${request.newMember}")
         }
-        if (!userManagementService.userExists(username)) {
-            throw EntityNotFoundException("User $username")
-        }
-        groupService.addUserToGroup(request.groupName, username)
+        groupService.addUserToGroup(request.groupName, request.newMember)
         responseObserver.onNext(Empty.getDefaultInstance())
         responseObserver.onCompleted()
     }
@@ -129,7 +125,7 @@ class GroupServiceImpl(
             // not admin, not self
             throw PermissionDeniedException("You can only query for yourself")
         }
-        val pageable: Pageable = PageRequest.of(request.page, request.size)
+        val pageable: Pageable = parsePagination(request.pagination)
         val result = groupService.listUserOwnedGroup(username, pageable)
         responseObserver.onNext(GroupNameListResponse.newBuilder().addAllGroupName(result).build())
         responseObserver.onCompleted()
@@ -148,15 +144,33 @@ class GroupServiceImpl(
             // not admin, not self
             throw PermissionDeniedException("You can only query for yourself")
         }
-        val pageable: Pageable = PageRequest.of(request.page, request.size)
+        val pageable: Pageable = parsePagination(request.pagination)
         val result = groupService.listUserJoinedGroup(username, pageable)
         responseObserver.onNext(GroupNameListResponse.newBuilder().addAllGroupName(result).build())
         responseObserver.onCompleted()
     }
 
+    @PreAuthorize("hasAnyRole('VIEWER', 'ADMIN')")
+    override fun listGroupMember(
+        request: ListGroupMemberRequest,
+        responseObserver: StreamObserver<UsernameListResponse>
+    ) {
+        val groupName = request.groupName
+        if (!checkCurrentUserIsAdmin()
+            && !groupService.userIsGroupOwner(groupName, getCurrentUsername())
+        ) {
+            // not admin, not owner
+            throw PermissionDeniedException("You can only query for yourself")
+        }
+        val pageable: Pageable = parsePagination(request.pagination)
+        val result = groupService.listGroupMember(groupName, pageable)
+        responseObserver.onNext(UsernameListResponse.newBuilder().addAllUsername(result).build())
+        responseObserver.onCompleted()
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     override fun listGroupName(request: ListGroupNameRequest, responseObserver: StreamObserver<GroupNameListResponse>) {
-        val pageable: Pageable = PageRequest.of(request.page, request.size)
+        val pageable: Pageable = parsePagination(request.pagination)
         val result = groupService.listGroupName(request.keyword, pageable)
         responseObserver.onNext(GroupNameListResponse.newBuilder().addAllGroupName(result).build())
         responseObserver.onCompleted()
