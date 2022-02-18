@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package archivedag.arudaz.protos;
+
+option java_multiple_files = true;
+option java_package = "info.skyblond.archivedag.arudaz.protos.record";
+
+import "archivedag/arudaz/protos/common.proto";
+import "archivedag/ariteg/protos/objects.proto";
+
+service FileRecordService {
+  rpc CreateFileRecord (CreateFileRecordRequest) returns (FileRecordUuidListResponse);
+  rpc UpdateFileRecordRef (UpdateFileRecordRefRequest) returns (Empty);
+  rpc UpdateFileRecordName (UpdateFileRecordNameRequest) returns (Empty);
+  rpc TransferFileRecord (TransferFileRecordRequest) returns (Empty);
+  rpc DeleteFileRecord (DeleteFileRecordRequest) returns (Empty);
+  rpc QueryFileRecord (QueryFileRecordRequest) returns (FileRecordDetailResponse);
+
+  rpc ListOwnedFileRecords (Page) returns (FileRecordUuidListResponse);
+  rpc ListUserSharedFileRecords (Page) returns (FileRecordUuidListResponse);
+  rpc ListGroupSharedFileRecords (ListGroupSharedFileRecordsRequest) returns (FileRecordUuidListResponse);
+  rpc ListPublicSharedFileRecords (Page) returns (FileRecordUuidListResponse);
+
+  rpc SetSharedRuleForRecord (SharedRule) returns (Empty);
+  rpc DeleteSharedRuleForRecord (DeleteSharedRuleForRecordRequest) returns (Empty);
+  rpc ListSharedRulesForRecord (ListSharedRulesForRecordRequest) returns (SharedRuleListResponse);
+  rpc QueryMyPermissionOnRecord (QueryMyPermissionOnRecordRequest) returns (SharedRulePermissionResponse);
+}
+
+message CreateFileRecordRequest {
+  string record_name = 1;
+}
+
+message UpdateFileRecordRefRequest {
+  string record_uuid = 1;
+  string receipt = 2;
+  string message = 3;
+}
+
+message UpdateFileRecordNameRequest {
+  string record_uuid = 1;
+  string new_record_name = 2;
+}
+
+message TransferFileRecordRequest {
+  string record_uuid = 1;
+  string new_owner = 2;
+}
+
+message DeleteFileRecordRequest {
+  string record_uuid = 1;
+}
+
+message QueryFileRecordRequest {
+  string record_uuid = 1;
+}
+
+message ListGroupSharedFileRecordsRequest {
+  string group_name = 1;
+  Page pagination = 2;
+}
+
+enum SharedRuleType {
+  NULL = 0; // default value for grpc, no use
+  USER = 1;
+  GROUP = 2;
+  OTHER = 3;
+}
+
+message SharedRule {
+  string record_uuid = 1;
+  SharedRuleType rule_type = 2;
+  string rule_target = 3;
+  string permission = 4;
+}
+
+message DeleteSharedRuleForRecordRequest {
+  string record_uuid = 1;
+  SharedRuleType rule_type = 2;
+  string rule_target = 3;
+}
+
+message ListSharedRulesForRecordRequest {
+  string record_uuid = 1;
+  Page pagination = 2;
+}
+
+message QueryMyPermissionOnRecordRequest {
+  string record_uuid = 1;
+}
+
+message FileRecordUuidListResponse {
+  repeated string record_uuid = 1;
+}
+
+message FileRecordDetailResponse {
+  string record_uuid = 1;
+  string record_name = 2;
+  string receipt = 3;
+  uint64 created_timestamp = 4;
+  string owner = 5;
+}
+
+message SharedRuleListResponse {
+  repeated SharedRule shared_rule = 1;
+}
+
+message SharedRulePermissionResponse {
+  string permission = 1;
+}

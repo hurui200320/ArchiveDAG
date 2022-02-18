@@ -6,7 +6,7 @@ option java_multiple_files = true;
 option java_package = "info.skyblond.archivedag.ariteg.protos";
 
 enum AritegObjectType {
-  NULL = 0;
+  NULL = 0; // default value for gRPC, no use.
   BLOB = 1;
   LIST = 2;
   TREE = 3;

@@ -16,6 +16,7 @@ service GroupService {
   rpc LeaveGroup (LeaveGroupRequest) returns (Empty);
   rpc ListOwnedGroup (ListOwnedGroupRequest) returns (GroupNameListResponse);
   rpc ListJoinedGroup (ListJoinedGroupRequest) returns (GroupNameListResponse);
+  rpc ListGroupMember (ListGroupMemberRequest) returns (UsernameListResponse);
   rpc ListGroupName (ListGroupNameRequest) returns (GroupNameListResponse);
 }
 
@@ -49,20 +50,22 @@ message LeaveGroupRequest {
 
 message ListOwnedGroupRequest {
   string username = 1;
-  uint32 page = 2;
-  uint32 size = 3;
+  Page pagination = 2;
 }
 
 message ListJoinedGroupRequest {
   string username = 1;
-  uint32 page = 2;
-  uint32 size = 3;
+  Page pagination = 2;
+}
+
+message ListGroupMemberRequest {
+  string group_name = 1;
+  Page pagination = 2;
 }
 
 message ListGroupNameRequest {
   string keyword = 1;
-  uint32 page = 2;
-  uint32 size = 3;
+  Page pagination = 2;
 }
 
 message GroupDetailResponse {
@@ -73,4 +76,8 @@ message GroupDetailResponse {
 
 message GroupNameListResponse {
   repeated string group_name = 1;
+}
+
+message UsernameListResponse {
+  repeated string username = 1;
 }

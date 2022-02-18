@@ -7,3 +7,8 @@ option java_package = "info.skyblond.archivedag.arudaz.protos.common";
 
 message Empty {
 }
+
+message Page {
+  uint32 page = 1;
+  uint32 size = 2;
+}
