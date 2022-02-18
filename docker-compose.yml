@@ -1,7 +1,8 @@
-version: "3.9"  # optional since v1.27.0
+version: "3.3"
 services:
   postgres:
     image: postgres
+    user: 1000:100
     ports:
       - "5432:5432"
     restart: always
@@ -10,7 +11,8 @@ services:
       POSTGRES_DB: archive_dag
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./data/postgresql:/var/lib/postgresql/data
+      - /home/skyblond/ArchiveDAG/data/postgresql:/var/lib/postgresql/data
+      - /etc/passwd:/etc/passwd:ro
   # No need for redis for now
   #redis:
   #  image: redis
@@ -18,7 +20,7 @@ services:
   #    - "6379:6379"
   #  restart: always
   #  volumes:
-  #    - ./data/redis:/data
+  #    - /home/skyblond/ArchiveDAG/data/redis:/data
   etcd:
     image: bitnami/etcd
     environment:
@@ -27,5 +29,6 @@ services:
     ports:
       - "2379:2379"
       - "2380:2380"
+    restart: always
     volumes:
-      - ./data/etcd:/bitnami/etcd
+      - /home/skyblond/ArchiveDAG/data/etcd:/bitnami/etcd

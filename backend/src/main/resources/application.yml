@@ -24,13 +24,9 @@ spring:
         format_sql: true
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/archive_dag
+    url: jdbc:postgresql://10.172.1.10:5432/archive_dag
     password: password
     username: postgres
-  redis:
-    database: 0
-    host: localhost
-    port: 6379
   servlet:
     multipart:
       enabled: true
@@ -50,7 +46,7 @@ ariteg:
       upload-storage-class: intelligent_tiering
 etcd:
   server-addr:
-    - "http://127.0.0.1:2379"
+    - "http://10.172.1.10:2379"
 jwt:
   secret: r5FHVELtfN5CdTLGJ6ZwEEBCNFn4nTr5ig6SwpXbj2nQuWYsOn/EJyqEWvEm4J0NOYdmC51+kdX2efPZRhTYzA==
   expire-in-duration: 30
