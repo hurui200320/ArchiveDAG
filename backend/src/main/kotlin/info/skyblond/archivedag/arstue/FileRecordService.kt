@@ -74,6 +74,7 @@ class FileRecordService(
 
     @Transactional
     fun createRecord(recordName: String, owner: String): UUID {
+        require(recordName.isNotBlank()) { "Record name cannot be blank" }
         val entity = FileRecordEntity(recordName, owner)
         fileRecordRepository.save(entity)
         return entity.recordId!!
@@ -92,6 +93,7 @@ class FileRecordService(
         if (!fileRecordRepository.existsByRecordId(recordId)) {
             throw EntityNotFoundException("Record #$recordId")
         }
+        require(newName.isNotBlank()) { "Record name cannot be blank" }
         fileRecordRepository.updateRecordName(recordId, newName)
     }
 
@@ -204,34 +206,25 @@ class FileRecordService(
             // if owner, grant full access
             return FULL_PERMISSION
         }
-
-        val str = StringBuilder()
-        recordAccessControlRepository.findByRecordIdAndTypeAndTarget(
+        // get default value with user scope, 0 if no rules for user
+        var permission = recordAccessControlRepository.findByRecordIdAndTypeAndTarget(
             recordId, RecordAccessControlEntity.Type.USER, username
-        )?.let {
-            str.append(it.permission)
-        }
-        if (str.isNotBlank()) {
-            // user matches
-            return permissionStringToInt(str.toString())
-        }
+        )?.let { permissionStringToInt(it.permission) } ?: 0
+        // add group permission
         groupNames.forEach { group ->
             recordAccessControlRepository.findByRecordIdAndTypeAndTarget(
                 recordId, RecordAccessControlEntity.Type.GROUP, group
             )?.let {
-                str.append(it.permission)
+                permission = permission or permissionStringToInt(it.permission)
             }
         }
-        if (str.isNotBlank()) {
-            // group matches
-            return permissionStringToInt(str.toString())
-        }
+        // add other/public permission
         recordAccessControlRepository.findByRecordIdAndTypeAndTarget(
             recordId, RecordAccessControlEntity.Type.OTHER, ""
         )?.let {
-            str.append(it.permission)
+            permission = permission or permissionStringToInt(it.permission)
         }
-        // other, or empty (not matched)
-        return permissionStringToInt(str.toString())
+        // return the result
+        return permission
     }
 }

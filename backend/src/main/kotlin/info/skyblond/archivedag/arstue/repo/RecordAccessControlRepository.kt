@@ -24,6 +24,11 @@ interface RecordAccessControlRepository : JpaRepository<RecordAccessControlEntit
     )
 
     @Modifying
+    fun deleteAllByTypeAndTarget(
+        type: RecordAccessControlEntity.Type, target: String
+    )
+
+    @Modifying
     fun deleteAllByRecordId(recordId: UUID)
 
     fun findAllByRecordId(recordId: UUID, pageable: Pageable): Page<RecordAccessControlEntity>

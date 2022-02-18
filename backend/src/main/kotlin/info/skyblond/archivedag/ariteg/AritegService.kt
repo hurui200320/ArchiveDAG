@@ -209,6 +209,11 @@ class AritegService(
         return RestoreReceipt(links)
     }
 
+    fun parseMultihash(primary: Multihash, name: String = ""): AritegLink? {
+        val meta = metaService.findMeta(primary) ?: return null
+        return newLink(name, primary, meta.objectType)
+    }
+
     /**
      * Probe the status of a give primary hash.
      *

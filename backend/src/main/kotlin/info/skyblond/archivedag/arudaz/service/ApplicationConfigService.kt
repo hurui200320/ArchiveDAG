@@ -70,11 +70,11 @@ class ApplicationConfigService(
         ).let { if (it.kvs.isEmpty()) null else it.kvs[0] }?.value?.toString()
     }
 
-    fun allowGrpcWrite(): Boolean {
-        return getConfig(ALLOW_GRPC_WRITE_KEY)?.toBooleanStrictOrNull() ?: false
+    fun allowGrpcWriteProto(): Boolean {
+        return getConfig(ALLOW_GRPC_WRITE_PROTO_KEY)?.toBooleanStrictOrNull() ?: false
     }
 
     companion object {
-        const val ALLOW_GRPC_WRITE_KEY = "/application/grpc/allow-write"
+        const val ALLOW_GRPC_WRITE_PROTO_KEY = "/application/grpc/allow-write-proto"
     }
 }
