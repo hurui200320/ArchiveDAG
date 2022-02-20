@@ -5,6 +5,7 @@ import info.skyblond.archivedag.ariteg.AritegService
 import info.skyblond.archivedag.ariteg.model.BlobObject
 import info.skyblond.archivedag.ariteg.model.CommitObject
 import info.skyblond.archivedag.ariteg.protos.AritegLink
+import info.skyblond.archivedag.ariteg.protos.AritegObjectType
 import info.skyblond.archivedag.ariteg.utils.toMultihash
 import info.skyblond.archivedag.arstue.FileRecordService
 import info.skyblond.archivedag.arstue.GroupService
@@ -25,7 +26,6 @@ import net.devh.boot.grpc.server.service.GrpcService
 import org.springframework.data.domain.Pageable
 import org.springframework.security.access.prepost.PreAuthorize
 import java.util.*
-import java.util.concurrent.CompletableFuture
 
 @GrpcService
 class FileRecordController(
@@ -36,7 +36,7 @@ class FileRecordController(
     private val userManagementService: UserManagementService
 ) : FileRecordServiceGrpc.FileRecordServiceImplBase() {
 
-    @PreAuthorize("hasAnyRole('UPLOADER') && applicationConfigService.allowGrpcWriteProto()")
+    @PreAuthorize("hasAnyRole('UPLOADER') && @applicationConfigService.allowGrpcWriteProto()")
     override fun createFileRecord(
         request: CreateFileRecordRequest,
         responseObserver: StreamObserver<FileRecordUuidListResponse>
@@ -46,12 +46,15 @@ class FileRecordController(
         responseObserver.onCompleted()
     }
 
-    @PreAuthorize("hasRole('UPLOADER') && applicationConfigService.allowGrpcWriteProto()")
+    @PreAuthorize("hasRole('UPLOADER') && @applicationConfigService.allowGrpcWriteProto()")
     override fun updateFileRecordRef(request: UpdateFileRecordRefRequest, responseObserver: StreamObserver<Empty>) {
         val username = getCurrentUsername()
         val recordUUID = UUID.fromString(request.recordUuid)
-        val receipt = protoReceiptService.decryptReceipt(request.receipt)
-            ?: throw IllegalArgumentException("Invalid receipt")
+        val receipt = try {
+            protoReceiptService.decryptReceipt(request.receipt)
+        } catch (_: Exception) {
+            null
+        } ?: throw IllegalArgumentException("Invalid receipt")
         // check the receipt
         val targetLink = receipt.checkUsage(username, recordUUID, aritegService)
         // check his/her permission
@@ -61,14 +64,16 @@ class FileRecordController(
             // do not have update ref permission
             throw PermissionDeniedException("You can't perform update ref on this record")
         }
+        // get old ref link, use empty link if null
+        val oldRef = fileRecordService.queryRecord(recordUUID).multihash
+            ?.let { aritegService.parseMultihash(it) } ?: AritegLink.newBuilder()
+            .setType(AritegObjectType.COMMIT).build()
+
         // write author
         val authorReceipt = aritegService.writeProto(
             "author",
             BlobObject(ByteString.copyFrom(username, Charsets.UTF_8))
-        )
-        // get old ref link, use empty link if null
-        val oldRef = fileRecordService.queryRecord(recordUUID).multihash
-            ?.let { aritegService.parseMultihash(it) } ?: AritegLink.getDefaultInstance()
+        ).also { it.completionFuture.get() }
         val commitObject = CommitObject(
             unixTimestamp = getUnixTimestamp(),
             message = request.message,
@@ -77,7 +82,7 @@ class FileRecordController(
         )
         val commitReceipt = aritegService.writeProto("", commitObject)
         // wait writing data into system
-        CompletableFuture.allOf(authorReceipt.completionFuture, commitReceipt.completionFuture).get()
+        commitReceipt.completionFuture.get()
         // update ref
         fileRecordService.setRecordRef(recordUUID, commitReceipt.link.multihash.toMultihash())
         responseObserver.onNext(Empty.getDefaultInstance())
@@ -119,7 +124,7 @@ class FileRecordController(
         responseObserver.onCompleted()
     }
 
-    @PreAuthorize("hasAnyRole('UPLOADER', 'ADMIN') && applicationConfigService.allowGrpcWriteProto()")
+    @PreAuthorize("hasAnyRole('UPLOADER', 'ADMIN') && @applicationConfigService.allowGrpcWriteProto()")
     override fun deleteFileRecord(request: DeleteFileRecordRequest, responseObserver: StreamObserver<Empty>) {
         val username = getCurrentUsername()
         val recordUUID = UUID.fromString(request.recordUuid)
