@@ -6,7 +6,7 @@ import info.skyblond.archivedag.commons.PermissionDeniedException
 import io.ipfs.multihash.Multihash
 import java.util.*
 
-data class ProtoReceipt(
+data class TransferReceipt(
     val recordId: UUID,
     val username: String,
     val primaryHash: Multihash

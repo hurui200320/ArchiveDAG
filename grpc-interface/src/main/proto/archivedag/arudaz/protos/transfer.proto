@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package archivedag.arudaz.protos;
+
+option java_multiple_files = true;
+option java_package = "info.skyblond.archivedag.arudaz.protos.transfer";
+
+import "archivedag/arudaz/protos/common.proto";
+import "archivedag/ariteg/protos/objects.proto";
+
+service ProtoTransferService {
+  rpc QueryServerProtoConfig (Empty) returns (QueryServerProtoConfigResponse);
+
+  rpc UploadBlob (UploadBlobRequest) returns (TransferReceiptResponse);
+  rpc UploadList (UploadListRequest) returns (TransferReceiptResponse);
+  rpc UploadTree (UploadTreeRequest) returns (TransferReceiptResponse);
+  rpc ProveOwnership (ProveOwnershipRequest) returns (TransferReceiptResponse);
+
+  rpc ReadBlob (ReadObjectRequest) returns (ReadBlobResponse);
+  rpc ReadList (ReadObjectRequest) returns (ReadListResponse);
+  rpc ReadTree (ReadObjectRequest) returns (ReadTreeResponse);
+  rpc ReadCommit (ReadObjectRequest) returns (ReadCommitResponse);
+  rpc ValidateObject (ReadObjectRequest) returns (ValidateObjectResponse);
+
+  rpc CherryPick (CherryPickRequest) returns (TransferReceiptResponse);
+}
+
+message UploadBlobRequest {
+  string record_uuid = 1;
+  bytes primary_hash = 2;
+  ariteg.protos.AritegBlobObject blob_obj = 3;
+}
+
+message UploadListRequest {
+  string record_uuid = 1;
+  bytes primary_hash = 2;
+  // here the links in obj is receipt
+  ariteg.protos.AritegListObject list_obj = 3;
+}
+
+message UploadTreeRequest {
+  string record_uuid = 1;
+  bytes primary_hash = 2;
+  // here the links in obj is receipt
+  ariteg.protos.AritegTreeObject Tree_obj = 3;
+}
+
+message ProveOwnershipRequest {
+  string record_uuid = 1;
+  bytes primary_hash = 2;
+  bytes secondary_hash = 3;
+}
+
+message ReadObjectRequest {
+  string transfer_receipt = 1;
+}
+
+message CherryPickRequest {
+  string target_record_uuid = 1;
+  string current_transfer_receipt = 2;
+}
+
+message QueryServerProtoConfigResponse {
+  string primary_hash_type = 1;
+  string secondary_hash_type = 2;
+}
+
+message TransferReceiptResponse {
+  bytes primary_hash = 1;
+  string transfer_receipt = 2;
+}
+
+message ReadBlobResponse {
+  bytes primary_hash = 1;
+  ariteg.protos.AritegBlobObject blob_obj = 2;
+}
+
+message ReadListResponse {
+  bytes primary_hash = 1;
+  // here the links in obj is receipt
+  ariteg.protos.AritegListObject list_obj = 2;
+}
+
+message ReadTreeResponse {
+  bytes primary_hash = 1;
+  // here the links in obj is receipt
+  ariteg.protos.AritegTreeObject tree_obj = 2;
+}
+
+message ReadCommitResponse {
+  bytes primary_hash = 1;
+  // here the links in obj is receipt
+  ariteg.protos.AritegCommitObject commit_obj = 2;
+}
+
+message ValidateObjectResponse {
+  bytes primary_hash = 1;
+}

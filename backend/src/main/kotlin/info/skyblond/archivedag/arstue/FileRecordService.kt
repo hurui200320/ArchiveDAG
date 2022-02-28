@@ -20,20 +20,16 @@ class FileRecordService(
     private val recordAccessControlRepository: RecordAccessControlRepository
 ) {
     companion object {
-        const val READ_CURRENT_PERMISSION_BIT: Int = 1 shl 0
-        const val READ_CURRENT_PERMISSION_CHAR: Char = 'r'
+        const val READ_PERMISSION_BIT: Int = 1 shl 0
+        const val READ_PERMISSION_CHAR: Char = 'r'
 
-        const val READ_HISTORY_PERMISSION_BIT: Int = 1 shl 1
-        const val READ_HISTORY_PERMISSION_CHAR: Char = 'h'
-
-        const val UPDATE_REF_PERMISSION_BIT: Int = 1 shl 2
+        const val UPDATE_REF_PERMISSION_BIT: Int = 1 shl 1
         const val UPDATE_REF_PERMISSION_CHAR: Char = 'u'
 
-        const val UPDATE_NAME_PERMISSION_BIT: Int = 1 shl 3
+        const val UPDATE_NAME_PERMISSION_BIT: Int = 1 shl 2
         const val UPDATE_NAME_PERMISSION_CHAR: Char = 'n'
 
-        const val FULL_PERMISSION: Int = READ_CURRENT_PERMISSION_BIT or
-                READ_HISTORY_PERMISSION_BIT or
+        const val FULL_PERMISSION: Int = READ_PERMISSION_BIT or
                 UPDATE_REF_PERMISSION_BIT or
                 UPDATE_NAME_PERMISSION_BIT
 
@@ -42,8 +38,7 @@ class FileRecordService(
             var result = 0
             for (c in permissionStr) {
                 when (c) {
-                    READ_CURRENT_PERMISSION_CHAR -> result = result or READ_CURRENT_PERMISSION_BIT
-                    READ_HISTORY_PERMISSION_CHAR -> result = result or READ_HISTORY_PERMISSION_BIT
+                    READ_PERMISSION_CHAR -> result = result or READ_PERMISSION_BIT
                     UPDATE_REF_PERMISSION_CHAR -> result = result or UPDATE_REF_PERMISSION_BIT
                     UPDATE_NAME_PERMISSION_CHAR -> result = result or UPDATE_NAME_PERMISSION_BIT
                 }
@@ -55,17 +50,14 @@ class FileRecordService(
         fun permissionIntToString(permissionInt: Int): String {
             val stringBuilder = StringBuilder()
 
-            if (permissionInt and READ_CURRENT_PERMISSION_BIT != 0) {
-                stringBuilder.append('r')
-            }
-            if (permissionInt and READ_HISTORY_PERMISSION_BIT != 0) {
-                stringBuilder.append('h')
+            if (permissionInt and READ_PERMISSION_BIT != 0) {
+                stringBuilder.append(READ_PERMISSION_CHAR)
             }
             if (permissionInt and UPDATE_REF_PERMISSION_BIT != 0) {
-                stringBuilder.append('u')
+                stringBuilder.append(UPDATE_REF_PERMISSION_CHAR)
             }
             if (permissionInt and UPDATE_NAME_PERMISSION_BIT != 0) {
-                stringBuilder.append('n')
+                stringBuilder.append(UPDATE_NAME_PERMISSION_CHAR)
             }
 
             return stringBuilder.toString()

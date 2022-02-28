@@ -11,11 +11,11 @@ import info.skyblond.archivedag.arstue.FileRecordService
 import info.skyblond.archivedag.arstue.GroupService
 import info.skyblond.archivedag.arstue.UserManagementService
 import info.skyblond.archivedag.arstue.entity.RecordAccessControlEntity
-import info.skyblond.archivedag.arudaz.model.ProtoReceipt
+import info.skyblond.archivedag.arudaz.model.TransferReceipt
 import info.skyblond.archivedag.arudaz.protos.common.Empty
 import info.skyblond.archivedag.arudaz.protos.common.Page
 import info.skyblond.archivedag.arudaz.protos.record.*
-import info.skyblond.archivedag.arudaz.service.ProtoReceiptService
+import info.skyblond.archivedag.arudaz.service.TransferReceiptService
 import info.skyblond.archivedag.arudaz.utils.checkCurrentUserIsAdmin
 import info.skyblond.archivedag.arudaz.utils.getCurrentUsername
 import info.skyblond.archivedag.arudaz.utils.parsePagination
@@ -30,7 +30,7 @@ import java.util.*
 @GrpcService
 class FileRecordController(
     private val fileRecordService: FileRecordService,
-    private val protoReceiptService: ProtoReceiptService,
+    private val transferReceiptService: TransferReceiptService,
     private val aritegService: AritegService,
     private val groupService: GroupService,
     private val userManagementService: UserManagementService
@@ -51,7 +51,7 @@ class FileRecordController(
         val username = getCurrentUsername()
         val recordUUID = UUID.fromString(request.recordUuid)
         val receipt = try {
-            protoReceiptService.decryptReceipt(request.receipt)
+            transferReceiptService.decryptReceipt(request.receipt)
         } catch (_: Exception) {
             null
         } ?: throw IllegalArgumentException("Invalid receipt")
@@ -149,7 +149,7 @@ class FileRecordController(
         // check his/her permission
         val groups = groupService.listUserJoinedGroup(username, Pageable.unpaged())
         val permission = fileRecordService.queryPermission(recordUUID, username, groups)
-        if (permission and FileRecordService.READ_CURRENT_PERMISSION_BIT == 0) {
+        if (permission and FileRecordService.READ_PERMISSION_BIT == 0) {
             // do not have update ref permission
             throw PermissionDeniedException("You can't query this record")
         }
@@ -160,8 +160,8 @@ class FileRecordController(
             .setRecordName(queryResult.recordName)
             .also {
                 if (queryResult.multihash != null) {
-                    it.receipt = protoReceiptService.encryptReceipt(
-                        ProtoReceipt(
+                    it.receipt = transferReceiptService.encryptReceipt(
+                        TransferReceipt(
                             queryResult.recordId, username, queryResult.multihash
                         )
                     )

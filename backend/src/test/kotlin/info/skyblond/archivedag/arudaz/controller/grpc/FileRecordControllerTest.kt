@@ -10,12 +10,12 @@ import info.skyblond.archivedag.arstue.UserManagementService
 import info.skyblond.archivedag.arstue.entity.RecordAccessControlEntity
 import info.skyblond.archivedag.arstue.repo.FileRecordRepository
 import info.skyblond.archivedag.arstue.repo.RecordAccessControlRepository
-import info.skyblond.archivedag.arudaz.model.ProtoReceipt
+import info.skyblond.archivedag.arudaz.model.TransferReceipt
 import info.skyblond.archivedag.arudaz.protos.common.Empty
 import info.skyblond.archivedag.arudaz.protos.common.Page
 import info.skyblond.archivedag.arudaz.protos.record.*
 import info.skyblond.archivedag.arudaz.service.ApplicationConfigService
-import info.skyblond.archivedag.arudaz.service.ProtoReceiptService
+import info.skyblond.archivedag.arudaz.service.TransferReceiptService
 import info.skyblond.archivedag.commons.EntityNotFoundException
 import info.skyblond.archivedag.commons.PermissionDeniedException
 import info.skyblond.archivedag.commons.getUnixTimestamp
@@ -57,7 +57,7 @@ internal class FileRecordControllerTest {
     lateinit var applicationConfigService: ApplicationConfigService
 
     @Autowired
-    lateinit var protoReceiptService: ProtoReceiptService
+    lateinit var transferReceiptService: TransferReceiptService
 
     @Autowired
     lateinit var fileRecordService: FileRecordService
@@ -154,8 +154,8 @@ internal class FileRecordControllerTest {
                 UpdateFileRecordRefRequest.newBuilder()
                     .setRecordUuid(UUID.randomUUID().toString())
                     .setReceipt(
-                        protoReceiptService.encryptReceipt(
-                            ProtoReceipt(
+                        transferReceiptService.encryptReceipt(
+                            TransferReceipt(
                                 UUID.randomUUID(),
                                 "test_user_404",
                                 Multihash(Multihash.Type.id, ByteArray(0))
@@ -171,8 +171,8 @@ internal class FileRecordControllerTest {
                 UpdateFileRecordRefRequest.newBuilder()
                     .setRecordUuid(UUID.randomUUID().toString())
                     .setReceipt(
-                        protoReceiptService.encryptReceipt(
-                            ProtoReceipt(
+                        transferReceiptService.encryptReceipt(
+                            TransferReceipt(
                                 UUID.randomUUID(),
                                 "test_user",
                                 Multihash(Multihash.Type.id, ByteArray(0))
@@ -189,8 +189,8 @@ internal class FileRecordControllerTest {
                     UpdateFileRecordRefRequest.newBuilder()
                         .setRecordUuid(uuid.toString())
                         .setReceipt(
-                            protoReceiptService.encryptReceipt(
-                                ProtoReceipt(
+                            transferReceiptService.encryptReceipt(
+                                TransferReceipt(
                                     uuid,
                                     "test_user",
                                     Multihash(Multihash.Type.id, ByteArray(0))
@@ -212,8 +212,8 @@ internal class FileRecordControllerTest {
                         UpdateFileRecordRefRequest.newBuilder()
                             .setRecordUuid(uuid.toString())
                             .setReceipt(
-                                protoReceiptService.encryptReceipt(
-                                    ProtoReceipt(uuid, "test_user", multihash)
+                                transferReceiptService.encryptReceipt(
+                                    TransferReceipt(uuid, "test_user", multihash)
                                 )
                             )
                             .build(), StreamRecorder.create()
@@ -229,7 +229,7 @@ internal class FileRecordControllerTest {
             UpdateFileRecordRefRequest.newBuilder()
                 .setRecordUuid(recordUUID.toString())
                 .setReceipt(
-                    protoReceiptService.encryptReceipt(ProtoReceipt(recordUUID, "test_user", multihash))
+                    transferReceiptService.encryptReceipt(TransferReceipt(recordUUID, "test_user", multihash))
                 )
                 .build(), responseObserver
         )
@@ -248,7 +248,7 @@ internal class FileRecordControllerTest {
             UpdateFileRecordRefRequest.newBuilder()
                 .setRecordUuid(recordUUID.toString())
                 .setReceipt(
-                    protoReceiptService.encryptReceipt(ProtoReceipt(recordUUID, "test_user", multihash))
+                    transferReceiptService.encryptReceipt(TransferReceipt(recordUUID, "test_user", multihash))
                 )
                 .build(), responseObserver
         )
@@ -489,7 +489,7 @@ internal class FileRecordControllerTest {
             assertEquals(uuid.toString(), result.recordUuid)
             assertEquals(entity.recordName, result.recordName)
             if (entity.multihash != null) {
-                val receipt = protoReceiptService.decryptReceipt(result.receipt)!!
+                val receipt = transferReceiptService.decryptReceipt(result.receipt)!!
                 assertEquals(entity.multihash, receipt.primaryHash)
                 assertEquals(uuid, receipt.recordId)
                 assertEquals("test_user", receipt.username)

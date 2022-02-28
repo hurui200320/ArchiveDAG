@@ -33,9 +33,15 @@ abstract class AritegFileAbstractStorage(
     ): File {
         val typeDir = File(baseDir, type.name.lowercase())
         if (typeDir.mkdirs()) {
-            logger.trace("Create dir: " + typeDir.absolutePath)
+            logger.trace("Create type dir: " + typeDir.absolutePath)
         }
-        return File(typeDir, primaryHash.toBase58())
+        // add sub dir to fast the file finding process
+        val name = primaryHash.toBase58()
+        val midDir = File(typeDir, name.take(6))
+        if (midDir.mkdirs()) {
+            logger.trace("Create mid dir: " + midDir.absolutePath)
+        }
+        return File(midDir, name)
     }
 
     abstract fun doWrite(primaryMultihash: Multihash, type: AritegObjectType, rawBytes: ByteArray)

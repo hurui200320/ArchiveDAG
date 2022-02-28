@@ -1,10 +1,8 @@
 package info.skyblond.archivedag.arstue
 
 import info.skyblond.archivedag.arstue.FileRecordService.Companion.FULL_PERMISSION
-import info.skyblond.archivedag.arstue.FileRecordService.Companion.READ_CURRENT_PERMISSION_BIT
-import info.skyblond.archivedag.arstue.FileRecordService.Companion.READ_CURRENT_PERMISSION_CHAR
-import info.skyblond.archivedag.arstue.FileRecordService.Companion.READ_HISTORY_PERMISSION_BIT
-import info.skyblond.archivedag.arstue.FileRecordService.Companion.READ_HISTORY_PERMISSION_CHAR
+import info.skyblond.archivedag.arstue.FileRecordService.Companion.READ_PERMISSION_BIT
+import info.skyblond.archivedag.arstue.FileRecordService.Companion.READ_PERMISSION_CHAR
 import info.skyblond.archivedag.arstue.FileRecordService.Companion.UPDATE_NAME_PERMISSION_BIT
 import info.skyblond.archivedag.arstue.FileRecordService.Companion.UPDATE_NAME_PERMISSION_CHAR
 import info.skyblond.archivedag.arstue.FileRecordService.Companion.UPDATE_REF_PERMISSION_BIT
@@ -31,21 +29,12 @@ internal class FileRecordServiceTest {
     @Test
     fun testPermissionStringAndInt() {
         assertEquals(
-            READ_CURRENT_PERMISSION_BIT,
-            permissionStringToInt(READ_CURRENT_PERMISSION_CHAR.toString())
+            READ_PERMISSION_BIT,
+            permissionStringToInt(READ_PERMISSION_CHAR.toString())
         )
         assertEquals(
-            READ_CURRENT_PERMISSION_CHAR.toString(),
-            permissionIntToString(READ_CURRENT_PERMISSION_BIT)
-        )
-
-        assertEquals(
-            READ_HISTORY_PERMISSION_BIT,
-            permissionStringToInt(READ_HISTORY_PERMISSION_CHAR.toString())
-        )
-        assertEquals(
-            READ_HISTORY_PERMISSION_CHAR.toString(),
-            permissionIntToString(READ_HISTORY_PERMISSION_BIT)
+            READ_PERMISSION_CHAR.toString(),
+            permissionIntToString(READ_PERMISSION_BIT)
         )
 
         assertEquals(
@@ -66,16 +55,16 @@ internal class FileRecordServiceTest {
             permissionIntToString(UPDATE_NAME_PERMISSION_BIT)
         )
 
-        assertEquals("rhun", permissionIntToString(FULL_PERMISSION))
-        assertEquals(FULL_PERMISSION, permissionStringToInt("rhun"))
+        assertEquals("run", permissionIntToString(FULL_PERMISSION))
+        assertEquals(FULL_PERMISSION, permissionStringToInt("run"))
 
         assertEquals(
-            "rh",
-            permissionIntToString(READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT)
+            "ru",
+            permissionIntToString(READ_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT)
         )
         assertEquals(
-            READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT,
-            permissionStringToInt("rh")
+            READ_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT,
+            permissionStringToInt("ru")
         )
     }
 
@@ -99,11 +88,11 @@ internal class FileRecordServiceTest {
         // overwrite it
         fileRecordService.setAccessRule(
             recordId, Type.USER, "user",
-            permissionStringToInt("rh")
+            permissionStringToInt("ru")
         )
         assertEquals(1, fileRecordService.listAccessRules(recordId, Pageable.unpaged()).size)
         assertEquals(
-            "rh", permissionIntToString(
+            "ru", permissionIntToString(
                 fileRecordService.queryPermission(
                     recordId, "user", listOf()
                 )
@@ -117,7 +106,7 @@ internal class FileRecordServiceTest {
             fileRecordService.createRecord("test user shared $it", "owner")
         }
         recordIdList.forEach {
-            fileRecordService.setAccessRule(it, Type.USER, "user", READ_CURRENT_PERMISSION_BIT)
+            fileRecordService.setAccessRule(it, Type.USER, "user", READ_PERMISSION_BIT)
         }
         val list = fileRecordService.listUserSharedRecords("user", Pageable.unpaged())
         assertArrayEquals(recordIdList, list.toTypedArray())
@@ -129,7 +118,7 @@ internal class FileRecordServiceTest {
             fileRecordService.createRecord("test group shared $it", "owner")
         }
         recordIdList.forEach {
-            fileRecordService.setAccessRule(it, Type.GROUP, "group", READ_CURRENT_PERMISSION_BIT)
+            fileRecordService.setAccessRule(it, Type.GROUP, "group", READ_PERMISSION_BIT)
         }
         val list = fileRecordService.listGroupSharedRecords("group", Pageable.unpaged())
         assertArrayEquals(recordIdList, list.toTypedArray())
@@ -141,7 +130,7 @@ internal class FileRecordServiceTest {
             fileRecordService.createRecord("test public shared $it", "owner")
         }
         recordIdList.forEach {
-            fileRecordService.setAccessRule(it, Type.OTHER, it.toString(), READ_CURRENT_PERMISSION_BIT)
+            fileRecordService.setAccessRule(it, Type.OTHER, it.toString(), READ_PERMISSION_BIT)
         }
         val list = fileRecordService.listPublicSharedRecords(Pageable.unpaged())
         for (r in recordIdList) {
@@ -156,49 +145,49 @@ internal class FileRecordServiceTest {
         val recordId = fileRecordService.createRecord("name", "owner")
         // other::r
         fileRecordService.setAccessRule(
-            recordId, Type.OTHER, "", READ_CURRENT_PERMISSION_BIT
+            recordId, Type.OTHER, "", READ_PERMISSION_BIT
         )
-        // group:group_a:rh
+        // group:group_a:rn
         fileRecordService.setAccessRule(
-            recordId, Type.GROUP, "group_a", READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT
+            recordId, Type.GROUP, "group_a", READ_PERMISSION_BIT or UPDATE_NAME_PERMISSION_BIT
         )
         // group:group_b:ru
         fileRecordService.setAccessRule(
-            recordId, Type.GROUP, "group_b", READ_CURRENT_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT
+            recordId, Type.GROUP, "group_b", READ_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT
         )
-        // user:user_a:rhun
+        // user:user_a:run
         fileRecordService.setAccessRule(
             recordId, Type.USER, "user_a",
-            READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT or UPDATE_NAME_PERMISSION_BIT
+            READ_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT or UPDATE_NAME_PERMISSION_BIT
         )
 
         // for group_c:user_b, it should be r (other)
         assertEquals(
-            READ_CURRENT_PERMISSION_BIT,
+            READ_PERMISSION_BIT,
             fileRecordService.queryPermission(recordId, "user_b", listOf("group_c"))
         )
 
-        // for group_a:user_c, it should be rh (group_a)
+        // for group_a:user_c, it should be rn (group_a)
         assertEquals(
-            READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT,
+            READ_PERMISSION_BIT or UPDATE_NAME_PERMISSION_BIT,
             fileRecordService.queryPermission(recordId, "user_c", listOf("group_a"))
         )
 
         // for group_b:user_d, it should be ru (group_b)
         assertEquals(
-            READ_CURRENT_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT,
+            READ_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT,
             fileRecordService.queryPermission(recordId, "user_d", listOf("group_b"))
         )
 
-        // for user_e, he/she is in both group_a and group_b, it should be rhu (group a+b)
+        // for user_e, he/she is in both group_a and group_b, it should be run (group a+b)
         assertEquals(
-            READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT,
+            READ_PERMISSION_BIT or UPDATE_NAME_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT,
             fileRecordService.queryPermission(recordId, "user_e", listOf("group_a", "group_b"))
         )
 
-        // for user_a, it should be rhun
+        // for user_a, it should be run
         assertEquals(
-            READ_CURRENT_PERMISSION_BIT or READ_HISTORY_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT or UPDATE_NAME_PERMISSION_BIT,
+            READ_PERMISSION_BIT or UPDATE_REF_PERMISSION_BIT or UPDATE_NAME_PERMISSION_BIT,
             fileRecordService.queryPermission(recordId, "user_a", listOf())
         )
 

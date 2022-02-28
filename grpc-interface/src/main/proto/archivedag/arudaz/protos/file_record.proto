@@ -6,7 +6,6 @@ option java_multiple_files = true;
 option java_package = "info.skyblond.archivedag.arudaz.protos.record";
 
 import "archivedag/arudaz/protos/common.proto";
-import "archivedag/ariteg/protos/objects.proto";
 
 service FileRecordService {
   rpc CreateFileRecord (CreateFileRecordRequest) returns (FileRecordUuidListResponse);
