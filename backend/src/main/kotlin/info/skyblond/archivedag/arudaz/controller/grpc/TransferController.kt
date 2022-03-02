@@ -270,7 +270,9 @@ class TransferController(
         // map multihash to receipt
         val encryptedParentLink = rawCommitObj.parentLink.let {
             if (it.multihash.isEmpty) {
-                it // initial commit, empty link
+                AritegLink.newBuilder()
+                    .setType(it.type)
+                    .build() // initial commit, empty link
             } else {
                 val receipt = transferReceiptService.encryptReceipt(
                     TransferReceipt(transferReceipt.recordId, username, it.multihash.toMultihash())

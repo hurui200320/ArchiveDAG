@@ -121,7 +121,7 @@ internal class AritegFileStorageServiceTest {
     @Test
     fun restoreLink() {
         assertDoesNotThrow {
-            this.storageService.restoreLink(AritegLink.getDefaultInstance(), null)
+            this.storageService.restoreLink(AritegLink.getDefaultInstance())
         }
     }
 }

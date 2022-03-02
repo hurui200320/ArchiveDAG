@@ -203,9 +203,9 @@ class AritegService(
     /**
      * Give a root link and resolve all related link using resolveLinks(link, false).
      */
-    fun restore(link: AritegLink, option: RestoreOption?): RestoreReceipt {
+    fun restore(link: AritegLink): RestoreReceipt {
         val links = resolveLinks(link)
-        links.forEach { storageService.restoreLink(it, option) }
+        links.forEach { storageService.restoreLink(it) }
         return RestoreReceipt(links)
     }
 

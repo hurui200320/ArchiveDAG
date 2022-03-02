@@ -119,14 +119,13 @@ class AritegS3ArchiveStorageService(
         return StorageStatus(resolveAvailability(headResp), null)
     }
 
-    override fun restoreLink(link: AritegLink, option: RestoreOption?) {
+    override fun restoreLink(link: AritegLink) {
         try {
             s3Client.restoreObject { b ->
                 b.bucket(bucketName)
                     .key(multihashToKeyMapper(link.type, link.multihash.toMultihash()))
                     .restoreRequest {
-                        it.days(option?.days ?: 3)
-                            .tier(option?.tier ?: Tier.BULK)
+                        it.days(3).tier(Tier.BULK)
                     }
             }
         } catch (e: InvalidObjectStateException) {

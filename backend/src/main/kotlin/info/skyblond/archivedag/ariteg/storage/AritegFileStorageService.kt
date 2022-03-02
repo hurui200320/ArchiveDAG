@@ -1,7 +1,6 @@
 package info.skyblond.archivedag.ariteg.storage
 
 import info.skyblond.archivedag.ariteg.model.AritegObject
-import info.skyblond.archivedag.ariteg.model.RestoreOption
 import info.skyblond.archivedag.ariteg.model.StorageStatus
 import info.skyblond.archivedag.ariteg.model.StoreReceipt
 import info.skyblond.archivedag.ariteg.protos.AritegLink
@@ -52,7 +51,7 @@ class AritegFileStorageService(
         return queryFile(link)
     }
 
-    override fun restoreLink(link: AritegLink, option: RestoreOption?) {
+    override fun restoreLink(link: AritegLink) {
         // no need to restore on disk
     }
 

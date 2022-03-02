@@ -2,7 +2,6 @@ package info.skyblond.archivedag.ariteg.storage
 
 import com.google.protobuf.ByteString
 import info.skyblond.archivedag.ariteg.model.AritegObject
-import info.skyblond.archivedag.ariteg.model.RestoreOption
 import info.skyblond.archivedag.ariteg.model.StorageStatus
 import info.skyblond.archivedag.ariteg.model.StoreReceipt
 import info.skyblond.archivedag.ariteg.multihash.MultihashProvider
@@ -68,7 +67,7 @@ class AritegInMemoryStorageService(
         }
     }
 
-    override fun restoreLink(link: AritegLink, option: RestoreOption?) {
+    override fun restoreLink(link: AritegLink) {
     }
 
     override fun loadProto(link: AritegLink): AritegObject {

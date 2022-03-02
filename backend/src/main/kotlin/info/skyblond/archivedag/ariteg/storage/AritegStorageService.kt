@@ -34,13 +34,9 @@ interface AritegStorageService {
      * Restore some links for reading. Some storage system like AWS S3
      * need restore the object before reading (Glacier).
      *
-     * The [option] depends. AWS S3 might require a duration for how long
-     * the copy stay, and some other system might have different option.
-     * Might be null.
-     *
      * Might throw any exception if something goes wrong.
      */
-    fun restoreLink(link: AritegLink, option: RestoreOption?)
+    fun restoreLink(link: AritegLink)
 
     /**
      * Load a proto from a given link.

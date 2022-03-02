@@ -65,7 +65,7 @@ internal class AritegServiceTest {
     @Test
     fun testRestore() {
         val link = writeBlob("name").first
-        val (involvedLinks) = aritegService.restore(link, null)
+        val (involvedLinks) = aritegService.restore(link)
         assertEquals(aritegService.resolveLinks(link), involvedLinks)
     }
 
