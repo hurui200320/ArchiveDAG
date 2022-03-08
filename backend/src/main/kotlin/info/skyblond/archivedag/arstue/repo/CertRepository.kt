@@ -7,21 +7,14 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
-import java.sql.Timestamp
 
 @Repository
 interface CertRepository : JpaRepository<CertEntity, String> {
     fun existsBySerialNumber(serialNumber: String): Boolean
 
-    fun findAllByUsernameContainingAndIssuedTimeBetweenAndExpiredTimeBetween(
-        ownerKeyword: String, issueStart: Timestamp, issueEnd: Timestamp,
-        expireStart: Timestamp, expireEnd: Timestamp, pageable: Pageable
-    ): Page<CertEntity>
+    fun findAllByUsernameContaining(ownerKeyword: String, pageable: Pageable): Page<CertEntity>
 
-    fun findAllByUsernameAndIssuedTimeBetweenAndExpiredTimeBetween(
-        owner: String, issueStart: Timestamp, issueEnd: Timestamp,
-        expireStart: Timestamp, expireEnd: Timestamp, pageable: Pageable
-    ): Page<CertEntity>
+    fun findAllByUsername(owner: String, pageable: Pageable): Page<CertEntity>
 
     fun existsBySerialNumberAndUsername(serialNumber: String, username: String): Boolean
 

@@ -16,17 +16,12 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import java.io.ByteArrayOutputStream
-import java.sql.Timestamp
 
 @RestController
 @RequestMapping("/cert")
 class CertController(
     private val certService: CertService
 ) {
-
-    private val minTimestamp = Timestamp(0)
-    private val maxTimestamp = Timestamp.valueOf("9999-12-31 23:59:59.999999999")
-
     private fun writeSignCertToString(result: CertSigningResult): String {
         val outputStream = ByteArrayOutputStream()
         val pemWriter = JcaPEMWriter(outputStream.writer(Charsets.UTF_8))
@@ -53,6 +48,7 @@ class CertController(
             throw RuntimeException("Failed to sign new certification", t)
         }
         val result: MutableMap<String, String> = HashMap()
+        result["serial_number"] = signingResult.serialNumber
         result["cert"] = writeSignCertToString(signingResult)
         result["private_key"] = writeSignKeyToString(signingResult)
         return result
@@ -62,29 +58,31 @@ class CertController(
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     fun listCertSerialNumber(
         @RequestParam(name = "owner", required = false) owner: String?,
-        @RequestParam(name = "issue_start", required = false) issueStart: Timestamp?,
-        @RequestParam(name = "issue_end", required = false) issueEnd: Timestamp?,
-        @RequestParam(name = "expire_start", required = false) expireStart: Timestamp?,
-        @RequestParam(name = "expire_end", required = false) expireEnd: Timestamp?,
         pageable: Pageable?
     ): List<String> {
         requireSortPropertiesInRange(
             pageable!!,
             listOf("username", "serialNumber", "issuedTime", "expiredTime", "status")
         )
-        val username = owner ?: getCurrentUsername()
-        // check permission
-        if (!checkCurrentUserIsAdmin() && getCurrentUsername() != username) {
-            // if is not admin, and owner not match
-            throw PermissionDeniedException("You can only list your own certifications")
+
+        return if (owner.isNullOrBlank()) {
+            // owner is empty, return current user's cert
+            certService.listCertSerialNumber(
+                blurOwner = false,
+                owner = getCurrentUsername(),
+                pageable = pageable
+            )
+        } else {
+            if (!checkCurrentUserIsAdmin()) {
+                // if is not admin, and owner not match
+                throw PermissionDeniedException("You can only list your own certifications")
+            }
+            certService.listCertSerialNumber(
+                blurOwner = true,
+                owner = owner,
+                pageable = pageable
+            )
         }
-        return certService.listCertSerialNumber(
-            blurOwner = checkCurrentUserIsAdmin(), owner = username,
-            issueStart = issueStart ?: minTimestamp,
-            issueEnd = issueEnd ?: maxTimestamp,
-            expireStart = expireStart ?: minTimestamp,
-            expireEnd = expireEnd ?: maxTimestamp, pageable = pageable
-        )
     }
 
     @GetMapping("/queryCert")

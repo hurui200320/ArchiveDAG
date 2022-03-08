@@ -5,8 +5,9 @@ import java.security.PrivateKey
 import java.security.cert.X509Certificate
 
 data class CertSigningResult(
-    var certificate: X509Certificate,
-    var privateKey: PrivateKey,
+    val serialNumber: String,
+    val certificate: X509Certificate,
+    val privateKey: PrivateKey,
 )
 
 data class CertDetailModel(

@@ -97,21 +97,16 @@ class CertService(
             throw DuplicatedEntityException("Cert#" + entity.serialNumber)
         }
         certRepository.save(entity)
-        return CertSigningResult(cert, userKeyPair.private)
+        return CertSigningResult(entity.serialNumber, cert, userKeyPair.private)
     }
 
     fun listCertSerialNumber(
-        blurOwner: Boolean, owner: String, issueStart: Timestamp, issueEnd: Timestamp,
-        expireStart: Timestamp, expireEnd: Timestamp, pageable: Pageable
+        blurOwner: Boolean, owner: String, pageable: Pageable
     ): List<String> {
         val queryResult: Page<CertEntity> = if (blurOwner) {
-            certRepository.findAllByUsernameContainingAndIssuedTimeBetweenAndExpiredTimeBetween(
-                owner, issueStart, issueEnd, expireStart, expireEnd, pageable
-            )
+            certRepository.findAllByUsernameContaining(owner, pageable)
         } else {
-            certRepository.findAllByUsernameAndIssuedTimeBetweenAndExpiredTimeBetween(
-                owner, issueStart, issueEnd, expireStart, expireEnd, pageable
-            )
+            certRepository.findAllByUsername(owner, pageable)
         }
         val result: MutableList<String> = LinkedList()
         queryResult.forEach { result.add(it.serialNumber) }

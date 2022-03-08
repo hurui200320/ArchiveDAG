@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 @SpringBootTest()
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-internal class AuthControllerTest {
+internal class PublicControllerTest {
     @Autowired
     lateinit var mockMvc: MockMvc
 

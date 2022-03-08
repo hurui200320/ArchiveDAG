@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/public/auth")
-class AuthController(
+@RequestMapping("/public")
+class PublicController(
     private val jwtTokenService: JwtTokenService,
     private val authenticationManager: AuthenticationManager,
     private val userDetailsService: UserDetailsService
 ) {
-    @PostMapping
+    @PostMapping("/auth")
     fun signJwtToken(
         @RequestBody request: JwtAuthRequest
     ): JWTAuthResponse {

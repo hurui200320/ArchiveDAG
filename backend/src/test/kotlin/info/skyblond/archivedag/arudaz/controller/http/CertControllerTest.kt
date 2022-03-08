@@ -189,7 +189,7 @@ internal class CertControllerTest {
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get("/cert/listCertSerialNumber")
-                    .param("owner", "test_user")
+                    .param("owner", "")
             )
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.not(0)))
