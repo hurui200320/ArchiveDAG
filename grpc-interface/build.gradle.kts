@@ -10,8 +10,8 @@ plugins {
     id("com.google.protobuf") version "0.8.18"
 }
 
-val grpcVersion = "1.42.1"
-val protobufVersion = "3.19.1"
+val grpcVersion = "1.44.1"
+val protobufVersion = "3.19.4"
 val javaxAnnotationApiVersion = "1.3.2"
 
 dependencies {

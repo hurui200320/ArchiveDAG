@@ -47,7 +47,3 @@ ariteg:
 etcd:
   server-addr:
     - "http://10.172.1.10:2379"
-jwt:
-  secret: r5FHVELtfN5CdTLGJ6ZwEEBCNFn4nTr5ig6SwpXbj2nQuWYsOn/EJyqEWvEm4J0NOYdmC51+kdX2efPZRhTYzA==
-  expire-in-duration: 30
-  expire-in-unit: minutes
