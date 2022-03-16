@@ -4,7 +4,6 @@ import info.skyblond.archivedag.apwiho.interfaces.SwappableScene;
 import info.skyblond.archivedag.apwiho.scenes.file.FileRecordManagementScene;
 import info.skyblond.archivedag.apwiho.scenes.group.GroupManagementScene;
 import info.skyblond.archivedag.apwiho.scenes.user.UserInfoScene;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -84,15 +83,6 @@ public class HomeScene extends SwappableScene {
             b.setDisable(false);
         }));
         return root;
-    }
-
-    @Override
-    protected void debugShortCut() {
-        // TODO debug shortcut
-        if (this.fileRecordManagementScene == null) {
-            this.fileRecordManagementScene = new FileRecordManagementScene(this.getCurrentScene(), this);
-        }
-        Platform.runLater(() -> this.swapTo(this.fileRecordManagementScene));
     }
 
     @Override

@@ -1,11 +1,11 @@
-package info.skyblond.archivedag.apwiho.scenes.group;
+package info.skyblond.archivedag.apwiho.scenes.group.tabs;
 
 import info.skyblond.archivedag.apwiho.interfaces.BasicScene;
-import info.skyblond.archivedag.apwiho.interfaces.Renderable;
+import info.skyblond.archivedag.apwiho.scenes.group.GroupTableModel;
 import info.skyblond.archivedag.apwiho.services.GrpcClientService;
-import info.skyblond.archivedag.arudaz.protos.group.ListOwnedGroupRequest;
+import info.skyblond.archivedag.apwiho.services.JavaFXUtils;
+import info.skyblond.archivedag.arudaz.protos.group.ListJoinedGroupRequest;
 import javafx.scene.Parent;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -17,17 +17,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-@SuppressWarnings("DuplicatedCode")
-public class OwnedGroupTab extends BasicScene {
+public class JoinedGroupTab extends BasicScene {
 
     private TableView<GroupTableModel> tableView;
     private TextField usernameTextField;
-    private final BiConsumer<String, Renderable> addNewTab;
+    private final BiConsumer<String, GroupDetailTab> addNewTab;
 
-    public OwnedGroupTab(BiConsumer<String, Renderable> addNewTab) {
+    public JoinedGroupTab(BiConsumer<String, GroupDetailTab> addNewTab) {
         this.addNewTab = addNewTab;
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     protected @NotNull Parent generateLayout() {
         VBox root = new VBox();
@@ -45,16 +45,7 @@ public class OwnedGroupTab extends BasicScene {
 
         this.tableView.getColumns().setAll(GroupTableModel.getColumns());
         VBox.setVgrow(this.tableView, Priority.ALWAYS);
-        this.tableView.setRowFactory(t -> {
-            TableRow<GroupTableModel> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    GroupTableModel rowData = row.getItem();
-                    this.addNewTab.accept(rowData.getGroupName(), new GroupDetailTab(rowData.getGroupName()));
-                }
-            });
-            return row;
-        });
+        JavaFXUtils.setTableViewDoubleAction(this.tableView, r -> this.addNewTab.accept(r.getGroupName(), new GroupDetailTab(r.getGroupName())));
         root.getChildren().add(this.tableView);
 
         return root;
@@ -68,7 +59,7 @@ public class OwnedGroupTab extends BasicScene {
     private List<GroupTableModel> refreshResult() {
         try {
             return GroupTableModel.resolveFromGroupNameList(GrpcClientService.getInstance().getGroupServiceFutureStub()
-                    .listOwnedGroup(ListOwnedGroupRequest.newBuilder()
+                    .listJoinedGroup(ListJoinedGroupRequest.newBuilder()
                             .setUsername(this.usernameTextField.getText())
                             .build()).get().getGroupNameList());
         } catch (Throwable t) {

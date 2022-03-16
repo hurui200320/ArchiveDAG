@@ -1,7 +1,6 @@
-package info.skyblond.archivedag.apwiho.scenes.group;
+package info.skyblond.archivedag.apwiho.scenes.group.tabs;
 
 import info.skyblond.archivedag.apwiho.interfaces.BasicScene;
-import info.skyblond.archivedag.apwiho.interfaces.Renderable;
 import info.skyblond.archivedag.apwiho.services.DialogService;
 import info.skyblond.archivedag.apwiho.services.GrpcClientService;
 import info.skyblond.archivedag.arudaz.protos.group.CreateGroupRequest;
@@ -20,9 +19,9 @@ public class CreateGroupTab extends BasicScene {
 
     private TextField groupNameTextField;
     private TextField ownerTextField;
-    private final BiConsumer<String, Renderable> addNewTab;
+    private final BiConsumer<String, GroupDetailTab> addNewTab;
 
-    public CreateGroupTab(BiConsumer<String, Renderable> addNewTab) {
+    public CreateGroupTab(BiConsumer<String, GroupDetailTab> addNewTab) {
         this.addNewTab = addNewTab;
     }
 
@@ -58,6 +57,7 @@ public class CreateGroupTab extends BasicScene {
     }
 
     private void createNewGroup() {
+        var alert = DialogService.getInstance().showWaitingDialog("Processing...");
         try {
             GrpcClientService.getInstance().getGroupServiceFutureStub()
                     .createGroup(CreateGroupRequest.newBuilder()
@@ -70,6 +70,8 @@ public class CreateGroupTab extends BasicScene {
             this.ownerTextField.clear();
         } catch (Throwable t) {
             DialogService.getInstance().showExceptionDialog(t, "Failed to create group.");
+        } finally {
+            alert.close();
         }
     }
 }

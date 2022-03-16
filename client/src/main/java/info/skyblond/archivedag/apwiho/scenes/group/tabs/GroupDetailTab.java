@@ -1,4 +1,4 @@
-package info.skyblond.archivedag.apwiho.scenes.group;
+package info.skyblond.archivedag.apwiho.scenes.group.tabs;
 
 import info.skyblond.archivedag.apwiho.interfaces.BasicScene;
 import info.skyblond.archivedag.apwiho.services.DialogService;
@@ -101,8 +101,10 @@ public class GroupDetailTab extends BasicScene {
 
     @Override
     protected void refreshLayout() {
+        var alert = DialogService.getInstance().showWaitingDialog("Requesting info...");
         this.updateGroupInfoLabel();
         this.refreshMemberTableView();
+        alert.close();
     }
 
     private void updateGroupInfoLabel() {

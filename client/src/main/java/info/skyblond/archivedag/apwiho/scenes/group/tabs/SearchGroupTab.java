@@ -1,14 +1,14 @@
-package info.skyblond.archivedag.apwiho.scenes.group;
+package info.skyblond.archivedag.apwiho.scenes.group.tabs;
 
 import info.skyblond.archivedag.apwiho.interfaces.BasicScene;
-import info.skyblond.archivedag.apwiho.interfaces.Renderable;
+import info.skyblond.archivedag.apwiho.scenes.group.GroupTableModel;
 import info.skyblond.archivedag.apwiho.scenes.templates.FiniteTableView;
 import info.skyblond.archivedag.apwiho.services.DialogService;
 import info.skyblond.archivedag.apwiho.services.GrpcClientService;
+import info.skyblond.archivedag.apwiho.services.JavaFXUtils;
 import info.skyblond.archivedag.arudaz.protos.group.ListGroupNameRequest;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -25,9 +25,9 @@ public class SearchGroupTab extends BasicScene {
     private FiniteTableView<GroupTableModel> tableView;
     private TextField keywordTextField;
     private final int maxSize = 1000;
-    private final BiConsumer<String, Renderable> addNewTab;
+    private final BiConsumer<String, GroupDetailTab> addNewTab;
 
-    public SearchGroupTab(BiConsumer<String, Renderable> addNewTab) {
+    public SearchGroupTab(BiConsumer<String, GroupDetailTab> addNewTab) {
         this.addNewTab = addNewTab;
     }
 
@@ -53,16 +53,7 @@ public class SearchGroupTab extends BasicScene {
                 tableView -> {
                     tableView.getColumns().setAll(GroupTableModel.getColumns());
                     VBox.setVgrow(tableView, Priority.ALWAYS);
-                    tableView.setRowFactory(t -> {
-                        TableRow<GroupTableModel> row = new TableRow<>();
-                        row.setOnMouseClicked(event -> {
-                            if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                                GroupTableModel rowData = row.getItem();
-                                this.addNewTab.accept(rowData.getGroupName(), new GroupDetailTab(rowData.getGroupName()));
-                            }
-                        });
-                        return row;
-                    });
+                    JavaFXUtils.setTableViewDoubleAction(tableView, r -> this.addNewTab.accept(r.getGroupName(), new GroupDetailTab(r.getGroupName())));
                 }
         );
         this.tableView.isTooManyRecords.addListener((observable, oldValue, newValue) -> {

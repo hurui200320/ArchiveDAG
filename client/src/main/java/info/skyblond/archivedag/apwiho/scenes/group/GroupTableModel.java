@@ -29,12 +29,15 @@ public class GroupTableModel {
     public static List<TableColumn<GroupTableModel, ?>> getColumns() {
         TableColumn<GroupTableModel, String> groupName = new TableColumn<>("Name");
         groupName.setCellValueFactory(new PropertyValueFactory<>("groupName"));
+        groupName.setSortable(false);
 
         TableColumn<GroupTableModel, String> owner = new TableColumn<>("Owner");
         owner.setCellValueFactory(new PropertyValueFactory<>("owner"));
+        owner.setSortable(false);
 
         TableColumn<GroupTableModel, String> createdTime = new TableColumn<>("Created at");
         createdTime.setCellValueFactory(new PropertyValueFactory<>("createdTime"));
+        createdTime.setSortable(false);
 
         return List.of(groupName, owner, createdTime);
     }
