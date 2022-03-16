@@ -3,7 +3,6 @@ package info.skyblond.archivedag.arudaz.controller.grpc
 import info.skyblond.archivedag.arstue.GroupService
 import info.skyblond.archivedag.arstue.UserManagementService
 import info.skyblond.archivedag.arudaz.protos.common.Empty
-import info.skyblond.archivedag.arudaz.protos.common.Page
 import info.skyblond.archivedag.arudaz.protos.group.*
 import info.skyblond.archivedag.commons.EntityNotFoundException
 import info.skyblond.archivedag.commons.PermissionDeniedException
@@ -48,7 +47,6 @@ internal class GroupControllerTest {
         joinGroup("group_test_group", "test_user2")
         val request: ListGroupMemberRequest = ListGroupMemberRequest.newBuilder()
             .setGroupName("group_test_group")
-            .setPagination(Page.newBuilder().setSize(20).build())
             .build()
         val responseObserver: StreamRecorder<UsernameListResponse> = StreamRecorder.create()
         groupController.listGroupMember(request, responseObserver)
@@ -68,7 +66,6 @@ internal class GroupControllerTest {
         joinGroup("group_test_group", "test_user2")
         var request: ListGroupMemberRequest = ListGroupMemberRequest.newBuilder()
             .setGroupName("group_test_group")
-            .setPagination(Page.newBuilder().setSize(20).build())
             .build()
         var responseObserver: StreamRecorder<UsernameListResponse> = StreamRecorder.create()
         groupController.listGroupMember(request, responseObserver)
@@ -81,7 +78,6 @@ internal class GroupControllerTest {
 
         request = ListGroupMemberRequest.newBuilder()
             .setGroupName("group_test_group2")
-            .setPagination(Page.newBuilder().setSize(20).build())
             .build()
         StreamRecorder.create<UsernameListResponse>().also { responseObserver = it }
         Assertions.assertThrows(PermissionDeniedException::class.java) {
@@ -89,14 +85,14 @@ internal class GroupControllerTest {
         }
     }
 
-    @WithMockUser(username = "test_user_admin", roles = ["ADMIN"])
+    @WithMockUser(username = "test_user", roles = ["VIEWER"])
     @Test
-    fun testListAdmin() {
+    fun testList() {
         createGroup("group_test_group", "test_user")
         createGroup("group_test_group2", "test_user")
         val request: ListGroupNameRequest = ListGroupNameRequest.newBuilder()
             .setKeyword("test")
-            .setPagination(Page.newBuilder().setSize(20).build())
+            .setLimit(20)
             .build()
         val responseObserver: StreamRecorder<GroupNameListResponse> = StreamRecorder.create()
         groupController.listGroupName(request, responseObserver)
@@ -116,7 +112,6 @@ internal class GroupControllerTest {
         joinGroup("group_test_group", "test_user")
         val request: ListJoinedGroupRequest = ListJoinedGroupRequest.newBuilder()
             .setUsername("test_user")
-            .setPagination(Page.newBuilder().setSize(20).build())
             .build()
         val responseObserver: StreamRecorder<GroupNameListResponse> = StreamRecorder.create()
         groupController.listJoinedGroup(request, responseObserver)
@@ -136,7 +131,6 @@ internal class GroupControllerTest {
         joinGroup("group_test_group2", "test_user")
         joinGroup("group_test_group", "test_user")
         var request: ListJoinedGroupRequest = ListJoinedGroupRequest.newBuilder()
-            .setPagination(Page.newBuilder().setSize(20).build())
             .build()
         var responseObserver: StreamRecorder<GroupNameListResponse> = StreamRecorder.create()
 
@@ -147,7 +141,6 @@ internal class GroupControllerTest {
         Assertions.assertEquals(2, result.groupNameList.size)
         Assertions.assertEquals(listOf("group_test_group", "group_test_group2"), result.groupNameList)
         request = ListJoinedGroupRequest.newBuilder()
-            .setPagination(Page.newBuilder().setSize(20).build())
             .setUsername("test_user_404")
             .build()
         StreamRecorder.create<GroupNameListResponse>().also { responseObserver = it }
@@ -166,7 +159,6 @@ internal class GroupControllerTest {
         joinGroup("group_test_group", "test_user")
         val request: ListOwnedGroupRequest = ListOwnedGroupRequest.newBuilder()
             .setUsername("test_user")
-            .setPagination(Page.newBuilder().setSize(20).build())
             .build()
         val responseObserver: StreamRecorder<GroupNameListResponse> = StreamRecorder.create()
         groupController.listOwnedGroup(request, responseObserver)
@@ -185,7 +177,6 @@ internal class GroupControllerTest {
         joinGroup("group_test_group2", "test_user")
         joinGroup("group_test_group", "test_user")
         var request: ListOwnedGroupRequest = ListOwnedGroupRequest.newBuilder()
-            .setPagination(Page.newBuilder().setSize(20).build())
             .build()
         var responseObserver: StreamRecorder<GroupNameListResponse> = StreamRecorder.create()
         groupController.listOwnedGroup(request, responseObserver)
@@ -195,7 +186,6 @@ internal class GroupControllerTest {
         Assertions.assertEquals(2, result.groupNameList.size)
         Assertions.assertEquals(listOf("group_test_group", "group_test_group2"), result.groupNameList)
         request = ListOwnedGroupRequest.newBuilder()
-            .setPagination(Page.newBuilder().setSize(20).build())
             .setUsername("test_user_404")
             .build()
         responseObserver = StreamRecorder.create()

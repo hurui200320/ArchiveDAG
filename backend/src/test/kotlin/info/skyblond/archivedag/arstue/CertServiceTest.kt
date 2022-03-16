@@ -30,7 +30,7 @@ internal class CertServiceTest {
 
     @Test
     fun testSignedCert() {
-        val (cert, privateKey) = certService.signCert("test_user")
+        val (_, cert, privateKey) = certService.signCert("test_user")
 
         // make sure private key matches the cert
         val rsaPrivateKey = privateKey as RSAPrivateKey

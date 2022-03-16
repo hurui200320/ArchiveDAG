@@ -6,7 +6,6 @@ import info.skyblond.archivedag.arudaz.protos.common.Empty
 import info.skyblond.archivedag.arudaz.protos.group.*
 import info.skyblond.archivedag.arudaz.utils.checkCurrentUserIsAdmin
 import info.skyblond.archivedag.arudaz.utils.getCurrentUsername
-import info.skyblond.archivedag.arudaz.utils.parsePagination
 import info.skyblond.archivedag.commons.EntityNotFoundException
 import info.skyblond.archivedag.commons.PermissionDeniedException
 import io.grpc.stub.StreamObserver
@@ -125,8 +124,7 @@ class GroupController(
             // not admin, not self
             throw PermissionDeniedException("You can only query for yourself")
         }
-        val pageable: Pageable = parsePagination(request.pagination)
-        val result = groupService.listUserOwnedGroup(username, pageable)
+        val result = groupService.listUserOwnedGroup(username, Pageable.unpaged())
         responseObserver.onNext(GroupNameListResponse.newBuilder().addAllGroupName(result).build())
         responseObserver.onCompleted()
     }
@@ -144,8 +142,7 @@ class GroupController(
             // not admin, not self
             throw PermissionDeniedException("You can only query for yourself")
         }
-        val pageable: Pageable = parsePagination(request.pagination)
-        val result = groupService.listUserJoinedGroup(username, pageable)
+        val result = groupService.listUserJoinedGroup(username, Pageable.unpaged())
         responseObserver.onNext(GroupNameListResponse.newBuilder().addAllGroupName(result).build())
         responseObserver.onCompleted()
     }
@@ -162,15 +159,14 @@ class GroupController(
             // not admin, not owner
             throw PermissionDeniedException("You can only query for yourself")
         }
-        val pageable: Pageable = parsePagination(request.pagination)
-        val result = groupService.listGroupMember(groupName, pageable)
+        val result = groupService.listGroupMember(groupName, Pageable.unpaged())
         responseObserver.onNext(UsernameListResponse.newBuilder().addAllUsername(result).build())
         responseObserver.onCompleted()
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('VIEWER')")
     override fun listGroupName(request: ListGroupNameRequest, responseObserver: StreamObserver<GroupNameListResponse>) {
-        val pageable: Pageable = parsePagination(request.pagination)
+        val pageable: Pageable = Pageable.ofSize(request.limit)
         val result = groupService.listGroupName(request.keyword, pageable)
         responseObserver.onNext(GroupNameListResponse.newBuilder().addAllGroupName(result).build())
         responseObserver.onCompleted()

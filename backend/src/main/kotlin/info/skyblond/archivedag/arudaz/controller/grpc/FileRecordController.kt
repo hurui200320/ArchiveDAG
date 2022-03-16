@@ -16,7 +16,6 @@ import info.skyblond.archivedag.arudaz.protos.common.Empty
 import info.skyblond.archivedag.arudaz.protos.common.Page
 import info.skyblond.archivedag.arudaz.protos.record.*
 import info.skyblond.archivedag.arudaz.service.TransferReceiptService
-import info.skyblond.archivedag.arudaz.utils.checkCurrentUserIsAdmin
 import info.skyblond.archivedag.arudaz.utils.getCurrentUsername
 import info.skyblond.archivedag.arudaz.utils.parsePagination
 import info.skyblond.archivedag.commons.PermissionDeniedException
@@ -106,13 +105,12 @@ class FileRecordController(
         responseObserver.onCompleted()
     }
 
-    @PreAuthorize("hasAnyRole('UPLOADER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('UPLOADER')")
     override fun transferFileRecord(request: TransferFileRecordRequest, responseObserver: StreamObserver<Empty>) {
         val username = getCurrentUsername()
         val recordUUID = UUID.fromString(request.recordUuid)
-        // only admin or owner can do this
-        if (!checkCurrentUserIsAdmin() && fileRecordService.queryRecord(recordUUID).owner != username) {
-            // not admin, nor owner
+        // only owner can do this
+        if (fileRecordService.queryRecord(recordUUID).owner != username) {
             throw PermissionDeniedException("You can't transfer this record")
         }
         // check new owner
@@ -124,13 +122,12 @@ class FileRecordController(
         responseObserver.onCompleted()
     }
 
-    @PreAuthorize("hasAnyRole('UPLOADER', 'ADMIN') && @applicationConfigService.allowGrpcWriteProto()")
+    @PreAuthorize("hasAnyRole('UPLOADER') && @applicationConfigService.allowGrpcWriteProto()")
     override fun deleteFileRecord(request: DeleteFileRecordRequest, responseObserver: StreamObserver<Empty>) {
         val username = getCurrentUsername()
         val recordUUID = UUID.fromString(request.recordUuid)
-        // only admin or owner can do this
-        if (!checkCurrentUserIsAdmin() && fileRecordService.queryRecord(recordUUID).owner != username) {
-            // not admin, nor owner
+        // only owner can do this
+        if (fileRecordService.queryRecord(recordUUID).owner != username) {
             throw PermissionDeniedException("You can't delete this record")
         }
         // delete record
