@@ -1,6 +1,6 @@
 package info.skyblond.archivedag.apwiho.scenes.user;
 
-import info.skyblond.archivedag.apwiho.interfaces.Renderable;
+import info.skyblond.archivedag.apwiho.scenes.HomeScene;
 import info.skyblond.archivedag.apwiho.scenes.templates.BasicPage;
 import info.skyblond.archivedag.apwiho.services.DialogService;
 import info.skyblond.archivedag.apwiho.services.GrpcClientService;
@@ -12,7 +12,7 @@ import javafx.scene.text.Font;
 
 public class UserInfoScene extends BasicPage {
 
-    public UserInfoScene(Scene currentScene, Renderable goBackScene) {
+    public UserInfoScene(Scene currentScene, HomeScene goBackScene) {
         super(currentScene, goBackScene);
     }
 
