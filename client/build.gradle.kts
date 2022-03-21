@@ -14,14 +14,16 @@ application {
 }
 
 val grpcVersion = "1.44.1"
+val multihashVersion = "v1.3.0"
 
 dependencies {
     runtimeOnly("io.grpc:grpc-netty-shaded:$grpcVersion")
     implementation("io.grpc:grpc-protobuf:$grpcVersion")
     implementation("io.grpc:grpc-stub:$grpcVersion")
-//    compileOnly("org.apache.tomcat:annotations-api:6.0.53")
     implementation(project(":grpc-interface"))
+    implementation(project(":commons"))
     compileOnly("org.jetbrains:annotations:23.0.0")
+    implementation("com.github.multiformats:java-multihash:$multihashVersion")
 
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")

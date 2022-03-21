@@ -1,14 +1,12 @@
-@file:Suppress("GradlePackageUpdate")
-
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.6.2"
+    id("org.springframework.boot") version "2.6.4"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.6.0"
-    kotlin("plugin.spring") version "1.6.0"
-    kotlin("plugin.jpa") version "1.6.0"
-    kotlin("kapt") version "1.6.0"
+    kotlin("jvm") version "1.6.10"
+    kotlin("plugin.spring") version "1.6.10"
+    kotlin("plugin.jpa") version "1.6.10"
+    kotlin("kapt") version "1.6.10"
 }
 
 configurations {
@@ -18,15 +16,16 @@ configurations {
 }
 
 val grpcVersion = "1.44.1"
-val grpcStarterVersion = "2.12.0.RELEASE"
-val postgresqlVersion = "42.3.1"
+val grpcStarterVersion = "2.13.1.RELEASE"
+val postgresqlVersion = "42.3.3"
 val multihashVersion = "v1.3.0"
-val bouncyCastleVersion = "1.69"
+val bouncyCastleVersion = "1.70"
 val jjwtVersion = "0.11.2"
 val awsJavaSdkVersion = "2.17.100"
 val jetcdVersion = "0.6.1"
 
-val h2Version = "2.1.210"
+//val h2Version = "2.1.210"
+val h2Version = "1.4.200"
 
 dependencies {
     // basic
@@ -73,6 +72,7 @@ dependencies {
     implementation("software.amazon.awssdk:s3")
 
     implementation(project(":grpc-interface"))
+    implementation(project(":commons"))
 
     // -------------------- TEST --------------------
 

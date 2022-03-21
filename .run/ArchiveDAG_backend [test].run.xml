@@ -39,6 +39,18 @@
           <option name="ENABLED" value="true" />
           <option name="INCLUDE" value="false" />
         </pattern>
+        <pattern>
+          <option name="PATTERN" value="info.skyblond.archivedag.ariteg.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+        <pattern>
+          <option name="PATTERN" value="info.skyblond.archivedag.arstue.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+        <pattern>
+          <option name="PATTERN" value="info.skyblond.archivedag.arudaz.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
       </extension>
     </EXTENSION>
     <DebugAllEnabled>false</DebugAllEnabled>
