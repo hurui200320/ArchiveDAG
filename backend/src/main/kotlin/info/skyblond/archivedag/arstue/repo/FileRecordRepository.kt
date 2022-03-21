@@ -32,6 +32,6 @@ interface FileRecordRepository : JpaRepository<FileRecordEntity, UUID> {
 
     fun findByRecordId(recordId: UUID): FileRecordEntity?
 
-    fun findAllByOwner(owner: String, pageable: Pageable): Page<FileRecordEntity>
+    fun findAllByOwnerOrderByRecordId(owner: String, pageable: Pageable): Page<FileRecordEntity>
 
 }

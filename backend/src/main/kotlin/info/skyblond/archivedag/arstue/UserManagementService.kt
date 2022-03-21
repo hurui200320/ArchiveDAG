@@ -22,7 +22,8 @@ class UserManagementService(
     private val userRoleRepository: UserRoleRepository,
     private val certRepository: CertRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val patternService: PatternService
+    private val patternService: PatternService,
+    private val fileRecordService: FileRecordService
 ) {
     fun listUsername(keyword: String, pageable: Pageable): List<String> {
         val result: MutableList<String> = LinkedList()
@@ -86,6 +87,10 @@ class UserManagementService(
     fun deleteUser(username: String) {
         if (!userRepository.existsByUsername(username)) {
             throw EntityNotFoundException("User $username")
+        }
+        // if there are file records, refuse to delete
+        if (fileRecordService.listOwnedRecords(username, Pageable.ofSize(10)).isNotEmpty()) {
+            throw IllegalStateException("User $username still have file records")
         }
         // delete certs
         certRepository.deleteAllByUsername(username)

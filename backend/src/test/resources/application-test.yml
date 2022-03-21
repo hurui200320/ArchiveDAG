@@ -22,7 +22,7 @@ cert-signing:
   subject-dn-o-u: Testing
 spring:
   jpa:
-    show-sql: false
+    show-sql: true
     hibernate.ddl-auto: create-drop
     properties:
       hibernate:

@@ -81,7 +81,6 @@ message DeleteSharedRuleForRecordRequest {
 
 message ListSharedRulesForRecordRequest {
   string record_uuid = 1;
-  Page pagination = 2;
 }
 
 message QueryMyPermissionOnRecordRequest {

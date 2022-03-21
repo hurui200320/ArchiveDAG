@@ -121,7 +121,7 @@ class FileRecordService(
     // get all owned records
     fun listOwnedRecords(username: String, pageable: Pageable): List<UUID> {
         val result: MutableList<UUID> = LinkedList()
-        fileRecordRepository.findAllByOwner(username, pageable)
+        fileRecordRepository.findAllByOwnerOrderByRecordId(username, pageable)
             .forEach { result.add(it.recordId!!) }
         return result
     }

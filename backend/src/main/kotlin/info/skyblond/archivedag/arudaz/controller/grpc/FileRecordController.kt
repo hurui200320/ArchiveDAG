@@ -314,9 +314,8 @@ class FileRecordController(
             // only owner can update access rules
             throw PermissionDeniedException("You cannot list shared rules on this record")
         }
-        val pageable = parsePagination(request.pagination)
         // query/list
-        val result = fileRecordService.listAccessRules(recordUUID, pageable)
+        val result = fileRecordService.listAccessRules(recordUUID, Pageable.unpaged())
         responseObserver.onNext(
             SharedRuleListResponse.newBuilder()
                 .addAllSharedRule(result.map {

@@ -23,7 +23,7 @@ interface GroupMetaRepository : JpaRepository<GroupMetaEntity, String> {
     @Query("update GroupMetaEntity m set m.owner = ?2 where m.groupName = ?1")
     fun updateGroupOwner(groupName: String, owner: String)
 
-    fun findAllByOwner(owner: String, pageable: Pageable): Page<GroupMetaEntity>
+    fun findAllByOwnerOrderByGroupName(owner: String, pageable: Pageable): Page<GroupMetaEntity>
 
-    fun findAllByGroupNameContains(keyword: String, pageable: Pageable): Page<GroupMetaEntity>
+    fun findAllByGroupNameContainsOrderByGroupName(keyword: String, pageable: Pageable): Page<GroupMetaEntity>
 }

@@ -327,6 +327,7 @@ class TransferController(
         responseObserver.onNext(
             ValidateObjectResponse.newBuilder()
                 .setPrimaryHash(aritegLink.multihash)
+                .setObjectType(aritegLink.type)
                 .build()
         )
         responseObserver.onCompleted()

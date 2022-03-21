@@ -95,4 +95,5 @@ message ReadCommitResponse {
 
 message ValidateObjectResponse {
   bytes primary_hash = 1;
+  ariteg.protos.AritegObjectType objectType = 2;
 }

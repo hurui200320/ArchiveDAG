@@ -344,45 +344,6 @@ internal class FileRecordControllerTest {
             }
     }
 
-    @WithMockUser(username = "test_user_admin", roles = ["ADMIN"])
-    @Test
-    fun testTransferFileRecordAdmin() {
-        // transfer 404 record
-        TransferFileRecordRequest.newBuilder()
-            // here the check in controller will be shorted
-            // but the check in service (setNewOwner) will kick in
-            .setRecordUuid(UUID.randomUUID().toString())
-            .setNewOwner("test_user_admin")
-            .build()
-            .let { request ->
-                assertThrows<EntityNotFoundException> {
-                    fileRecordController.transferFileRecord(request, StreamRecorder.create())
-                }
-            }
-        // transfer other's record
-        fileRecordService.createRecord("test transfer other's record", "test_user_404")
-            .let { uuid ->
-                val request = TransferFileRecordRequest.newBuilder()
-                    .setRecordUuid(uuid.toString())
-                    .setNewOwner("test_user_admin")
-                    .build()
-                val resp = StreamRecorder.create<Empty>()
-                fileRecordController.transferFileRecord(request, resp)
-                checkEmptyResponse(resp)
-            }
-        // transfer to 404 user
-        fileRecordService.createRecord("test transfer record to 404 user", "test_user")
-            .let { uuid ->
-                val request = TransferFileRecordRequest.newBuilder()
-                    .setRecordUuid(uuid.toString())
-                    .setNewOwner("test_user_404")
-                    .build()
-                assertThrows<IllegalArgumentException> {
-                    fileRecordController.transferFileRecord(request, StreamRecorder.create())
-                }
-            }
-    }
-
     @WithMockUser(username = "test_user", roles = ["UPLOADER"])
     @Test
     fun testDeleteFileRecordUser() {
@@ -418,41 +379,6 @@ internal class FileRecordControllerTest {
             }
         // normal delete
         fileRecordService.createRecord("test delete record normal", "test_user")
-            .let { uuid ->
-                val request = DeleteFileRecordRequest.newBuilder()
-                    .setRecordUuid(uuid.toString())
-                    .build()
-                val resp = StreamRecorder.create<Empty>()
-                fileRecordController.deleteFileRecord(request, resp)
-                checkEmptyResponse(resp)
-            }
-    }
-
-    @WithMockUser(username = "test_user_admin", roles = ["ADMIN"])
-    @Test
-    fun testDeleteFileRecordAdmin() {
-        // test disabled config
-        UUID.randomUUID().let { uuid ->
-            val request = DeleteFileRecordRequest.newBuilder()
-                .setRecordUuid(uuid.toString())
-                .build()
-            assertThrows<AccessDeniedException> {
-                fileRecordController.deleteFileRecord(request, StreamRecorder.create())
-            }
-        }
-        // enable config
-        enableGrpcWriteProto()
-        // test delete 404 record
-        UUID.randomUUID().let { uuid ->
-            val request = DeleteFileRecordRequest.newBuilder()
-                .setRecordUuid(uuid.toString())
-                .build()
-            assertThrows<EntityNotFoundException> {
-                fileRecordController.deleteFileRecord(request, StreamRecorder.create())
-            }
-        }
-        // test delete others
-        fileRecordService.createRecord("test delete others", "test_user_404")
             .let { uuid ->
                 val request = DeleteFileRecordRequest.newBuilder()
                     .setRecordUuid(uuid.toString())
@@ -503,7 +429,7 @@ internal class FileRecordControllerTest {
     @Test
     fun testListOwnedFileRecords() {
         fileRecordService.createRecord("test list owned file", "test_user")
-        val expected = fileRecordRepository.findAllByOwner("test_user", Pageable.unpaged())
+        val expected = fileRecordRepository.findAllByOwnerOrderByRecordId("test_user", Pageable.unpaged())
             .map { it.recordId!!.toString() }
         val request = Page.newBuilder().setPage(0).setSize(expected.size).build()
         val response = StreamRecorder.create<FileRecordUuidListResponse>()
@@ -723,7 +649,6 @@ internal class FileRecordControllerTest {
         UUID.randomUUID().let { uuid ->
             val request = ListSharedRulesForRecordRequest.newBuilder()
                 .setRecordUuid(uuid.toString())
-                .setPagination(Page.newBuilder().setPage(0).setSize(20).build())
                 .build()
             assertThrows<EntityNotFoundException> {
                 fileRecordController.listSharedRulesForRecord(request, StreamRecorder.create())
@@ -733,7 +658,6 @@ internal class FileRecordControllerTest {
         fileRecordService.createRecord("test list others rules", "test_user_404").let { uuid ->
             val request = ListSharedRulesForRecordRequest.newBuilder()
                 .setRecordUuid(uuid.toString())
-                .setPagination(Page.newBuilder().setPage(0).setSize(20).build())
                 .build()
             assertThrows<PermissionDeniedException> {
                 fileRecordController.listSharedRulesForRecord(request, StreamRecorder.create())
@@ -751,7 +675,6 @@ internal class FileRecordControllerTest {
             )
             val request = ListSharedRulesForRecordRequest.newBuilder()
                 .setRecordUuid(uuid.toString())
-                .setPagination(Page.newBuilder().setPage(0).setSize(20).build())
                 .build()
             val response = StreamRecorder.create<SharedRuleListResponse>()
             fileRecordController.listSharedRulesForRecord(request, response)

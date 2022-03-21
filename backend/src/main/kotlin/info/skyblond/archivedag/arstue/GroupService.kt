@@ -90,7 +90,7 @@ class GroupService(
 
     fun listUserOwnedGroup(username: String, pageable: Pageable): List<String> {
         val result: MutableList<String> = LinkedList()
-        groupMetaRepository.findAllByOwner(username, pageable)
+        groupMetaRepository.findAllByOwnerOrderByGroupName(username, pageable)
             .forEach { result.add(it.groupName) }
         return result
     }
@@ -101,14 +101,14 @@ class GroupService(
 
     fun listUserJoinedGroup(username: String, pageable: Pageable): List<String> {
         val result: MutableList<String> = LinkedList()
-        groupUserRepository.findAllByUsername(username, pageable)
+        groupUserRepository.findAllByUsernameOrderByGroupName(username, pageable)
             .forEach { result.add(it.groupName) }
         return result
     }
 
     fun listGroupMember(groupName: String, pageable: Pageable): List<String> {
         val result: MutableList<String> = LinkedList()
-        groupUserRepository.findAllByGroupName(groupName, pageable)
+        groupUserRepository.findAllByGroupNameOrderByGroupName(groupName, pageable)
             .forEach { result.add(it.username) }
         return result
     }
@@ -123,7 +123,7 @@ class GroupService(
 
     fun listGroupName(keyword: String, pageable: Pageable): List<String> {
         val result: MutableList<String> = LinkedList()
-        groupMetaRepository.findAllByGroupNameContains(keyword, pageable)
+        groupMetaRepository.findAllByGroupNameContainsOrderByGroupName(keyword, pageable)
             .forEach { result.add(it.groupName) }
         return result
     }
