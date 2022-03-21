@@ -1,5 +1,6 @@
-package info.skyblond.archivedag.apwiho.scenes.file;
+package info.skyblond.archivedag.apwiho.scenes.file.details;
 
+import info.skyblond.archivedag.apwiho.scenes.file.FileRecordManagementScene;
 import info.skyblond.archivedag.apwiho.scenes.templates.TabPage;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -13,9 +14,14 @@ public class FileRecordDetailScene extends TabPage {
         super(currentScene, fatherScene);
         this.recordUUID = recordUUID;
         // TODO: Basics(details + {update, transfer, etc.}), Details, history, rules
+        this.initialTabs.add(new TabDescriptor("Basic", false,
+                new FileRecordDetailBasicSubTab(recordUUID, t -> this.goBack())));
         this.initialTabs.add(new TabDescriptor(
-                "TODO", false,
-                () -> new Label("Details: " + recordUUID)));
+                "History", false,
+                () -> new Label("History: " + recordUUID)));
+        this.initialTabs.add(new TabDescriptor(
+                "Rules", false,
+                new FileRecordDetailRulesSubTab(recordUUID)));
     }
 
     @Override

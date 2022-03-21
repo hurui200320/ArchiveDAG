@@ -1,8 +1,8 @@
 package info.skyblond.archivedag.apwiho.scenes.file.tabs;
 
 import info.skyblond.archivedag.apwiho.interfaces.SwappableScene;
-import info.skyblond.archivedag.apwiho.scenes.file.FileRecordDetailScene;
 import info.skyblond.archivedag.apwiho.scenes.file.FileRecordManagementScene;
+import info.skyblond.archivedag.apwiho.scenes.file.details.FileRecordDetailScene;
 import info.skyblond.archivedag.apwiho.services.DialogService;
 import info.skyblond.archivedag.apwiho.services.GrpcClientService;
 import info.skyblond.archivedag.arudaz.protos.record.CreateFileRecordRequest;
