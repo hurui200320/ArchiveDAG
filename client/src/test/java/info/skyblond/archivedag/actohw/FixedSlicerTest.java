@@ -11,7 +11,8 @@ class FixedSlicerTest extends AbstractSlicerTest {
 
     @BeforeEach
     void setUp() {
-        this.slicer = new FixedSlicer(this.tempWorkDir, Multihash.Type.sha3_256, 128);
+        this.slicer = new FixedSlicer(this.tempWorkDir,
+                Multihash.Type.sha3_256, Multihash.Type.blake2b_256, 128);
     }
 
     @Test
