@@ -13,17 +13,22 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Stream;
 
 public abstract class AbstractSlicer implements Slicer {
     private final Path workDir;
     private final MultihashProvider primaryHashProvider;
     private final MultihashProvider secondaryHashProvider;
+    private final ExecutorService executorService;
 
     // Use a single thread executor here.
-    protected AbstractSlicer(Path workDir, Multihash.Type primaryHashType, Multihash.Type secondaryHashType) {
+    protected AbstractSlicer(Path workDir, Multihash.Type primaryHashType, Multihash.Type secondaryHashType, ExecutorService executorService) {
         this.workDir = workDir;
         this.primaryHashProvider = MultihashProviders.fromMultihashType(primaryHashType);
         this.secondaryHashProvider = MultihashProviders.fromMultihashType(secondaryHashType);
+        this.executorService = executorService;
     }
 
     private File multihashToFile(Multihash multihash) {
@@ -31,7 +36,9 @@ public abstract class AbstractSlicer implements Slicer {
         String prefix = base58.substring(0, 6);
         File baseDir = new File(this.workDir.toFile(), prefix);
         if (!baseDir.exists()) {
-            baseDir.mkdirs();
+            if (!baseDir.mkdirs()) {
+                System.err.println("Failed to create dir: " + baseDir);
+            }
         }
         return new File(baseDir, base58);
     }
@@ -56,12 +63,34 @@ public abstract class AbstractSlicer implements Slicer {
         return new BlobDescriptor(multihash, f);
     }
 
-    protected abstract List<BlobDescriptor> digestSafe(File file) throws Exception;
+    protected CompletableFuture<BlobDescriptor> writeToBlobFileAsync(ByteString content) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return this.writeToBlobFile(content);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }, this.executorService);
+    }
 
     @Override
     final public List<BlobDescriptor> digest(File file) {
+        return this.digestAsync(file).map(it -> {
+            try {
+                return it.get();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
+    }
+
+
+    protected abstract Stream<CompletableFuture<BlobDescriptor>> digestAsyncSafe(File file) throws Exception;
+
+    @Override
+    public Stream<CompletableFuture<BlobDescriptor>> digestAsync(File file) {
         try {
-            return this.digestSafe(file);
+            return this.digestAsyncSafe(file);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

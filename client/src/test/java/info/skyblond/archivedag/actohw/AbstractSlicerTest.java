@@ -12,17 +12,22 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public abstract class AbstractSlicerTest {
     protected Path tempWorkDir;
     protected Slicer slicer;
     protected Random random;
+    protected ExecutorService executorService;
 
-    private List<File> tempFileList = new LinkedList<>();
+    private final List<File> tempFileList = new LinkedList<>();
 
     @BeforeEach
-    void setup() throws IOException {
+    void prepare() throws IOException {
+        this.executorService = Executors.newSingleThreadExecutor();
         this.random = new Random();
         this.tempWorkDir = Files.createTempDirectory("actohw-test");
         System.out.println("Using temp dir: " + this.tempWorkDir);
@@ -43,7 +48,11 @@ public abstract class AbstractSlicerTest {
     }
 
     @AfterEach
-    void tearDown() throws IOException {
+    void cleanUp() throws IOException, InterruptedException {
+        this.executorService.shutdown();
+        while (!this.executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+            System.err.println("Waiting thread pool to shutdown...");
+        }
         try (Stream<Path> walk = Files.walk(this.tempWorkDir)) {
             walk.map(Path::toFile).forEach(this::deleteDirectory);
         }

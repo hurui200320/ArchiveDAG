@@ -1,19 +1,20 @@
 package info.skyblond.archivedag.actohw;
 
 import io.ipfs.multihash.Multihash;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-class FixedSlicerTest extends AbstractSlicerTest {
+class BuzHashSlicerTest extends AbstractSlicerTest {
 
     @BeforeEach
     void setUp() {
-        this.slicer = new FixedSlicer(this.tempWorkDir,
+        this.slicer = new BuzHashSlicer(this.tempWorkDir,
                 Multihash.Type.sha3_256, Multihash.Type.blake2b_256,
-                this.executorService, 128);
+                (1 << 10) - 1, 0, 64, 128,
+                32 * 1024 * 1024, this.executorService,
+                BuzHashSlicer.DEFAULT_HASHTABLE, 48);
     }
 
     @Test
@@ -30,15 +31,5 @@ class FixedSlicerTest extends AbstractSlicerTest {
     void testBig() throws IOException {
         this.testSliceRandom(1050);
     }
-
-    @Test
-    void testReuse() throws IOException {
-        var content = new byte[8193];
-        var result = this.testSlice(content).stream()
-                .map(BlobDescriptor::multihash).distinct().toList();
-        System.out.println(result);
-        Assertions.assertEquals(2, result.size());
-    }
-
 
 }
