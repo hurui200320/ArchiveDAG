@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class SearchGroupTab extends BasicScene {
 
@@ -26,9 +27,11 @@ public class SearchGroupTab extends BasicScene {
     private TextField keywordTextField;
     private final int maxSize = 1000;
     private final BiConsumer<String, GroupDetailTab> addNewTab;
+    private final Consumer<String> closeTab;
 
-    public SearchGroupTab(BiConsumer<String, GroupDetailTab> addNewTab) {
+    public SearchGroupTab(BiConsumer<String, GroupDetailTab> addNewTab, Consumer<String> closeTab) {
         this.addNewTab = addNewTab;
+        this.closeTab = closeTab;
     }
 
     @Override
@@ -53,7 +56,8 @@ public class SearchGroupTab extends BasicScene {
                 tableView -> {
                     tableView.getColumns().setAll(GroupTableModel.getColumns());
                     VBox.setVgrow(tableView, Priority.ALWAYS);
-                    JavaFXUtils.setTableViewDoubleAction(tableView, r -> this.addNewTab.accept(r.getGroupName(), new GroupDetailTab(r.getGroupName())));
+                    JavaFXUtils.setTableViewDoubleAction(tableView, r -> this.addNewTab.accept(r.getGroupName(),
+                            new GroupDetailTab(r.getGroupName(), this.closeTab)));
                 }
         );
         this.tableView.isTooManyRecords.addListener((observable, oldValue, newValue) -> {

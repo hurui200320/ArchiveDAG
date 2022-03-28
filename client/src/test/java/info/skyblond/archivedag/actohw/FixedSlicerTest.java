@@ -35,7 +35,7 @@ class FixedSlicerTest extends AbstractSlicerTest {
     void testReuse() throws IOException {
         var content = new byte[8193];
         var result = this.testSlice(content).stream()
-                .map(BlobDescriptor::multihash).distinct().toList();
+                .map(BlobDescriptor::primaryHash).distinct().toList();
         System.out.println(result);
         Assertions.assertEquals(2, result.size());
     }

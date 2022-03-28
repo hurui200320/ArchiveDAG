@@ -3,16 +3,23 @@ package info.skyblond.archivedag.apwiho.scenes.file.details;
 import info.skyblond.archivedag.apwiho.interfaces.BasicScene;
 import info.skyblond.archivedag.apwiho.services.DialogService;
 import info.skyblond.archivedag.apwiho.services.GrpcClientService;
+import info.skyblond.archivedag.apwiho.services.TransferService;
 import info.skyblond.archivedag.arudaz.protos.record.*;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.function.Consumer;
 
@@ -42,39 +49,56 @@ public class FileRecordDetailBasicSubTab extends BasicScene {
         buttons.setAlignment(Pos.CENTER);
         HBox.setMargin(buttons, new Insets(0, 20, 0, 20));
 
-        Button update = new Button("New version");
-        buttons.getChildren().add(update);
-        update.setPrefWidth(125);
-        update.setOnAction(event -> this.newVersion());
+        Button updateFile = new Button("New version (File)");
+        buttons.getChildren().add(updateFile);
+        updateFile.setPrefWidth(150);
+        updateFile.setOnAction(this::newVersionFile);
+
+
+        Button updateDir = new Button("New version (Folder)");
+        buttons.getChildren().add(updateDir);
+        updateDir.setPrefWidth(150);
+        updateDir.setOnAction(this::newVersionDir);
 
         Button rename = new Button("Rename record");
         buttons.getChildren().add(rename);
-        rename.setPrefWidth(125);
+        rename.setPrefWidth(150);
         rename.setOnAction(event -> this.renameRecord());
 
         Button transfer = new Button("Transfer record");
         buttons.getChildren().add(transfer);
-        transfer.setPrefWidth(125);
+        transfer.setPrefWidth(150);
         transfer.setOnAction(event -> this.transferRecord());
 
         Button delete = new Button("Delete record");
         buttons.getChildren().add(delete);
-        delete.setPrefWidth(125);
+        delete.setPrefWidth(150);
         delete.setOnAction(event -> this.deleteRecord());
 
         return root;
     }
 
-    private void newVersion() {
-        var receipt = DialogService.getInstance().showTextInputDialog("New version", "What's the new version?", "Receipt:", "");
-        if (receipt == null) {
-            return;
-        }
+    private void newVersionFile(ActionEvent e) {
         var message = DialogService.getInstance().showTextInputDialog("New version", "What's the commit message?", "Message:", "");
         if (message == null) {
             return;
         }
+        Node n = (Node) e.getSource();
+        Stage s = (Stage) n.getScene().getWindow();
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose a file to upload");
+        File file = fileChooser.showOpenDialog(s);
+        if (file == null) {
+            return;
+        }
+        var a = DialogService.getInstance().showWaitingDialog("Creating new version...");
         try {
+            TransferService.getInstance().queryServerProtoConfig();
+            var result = TransferService.getInstance().wrapIntoTree(this.recordUUID,
+                    TransferService.getInstance().sliceAndUploadFile(this.recordUUID, file));
+            var receipt = TransferService.getInstance().parseReceipt(result);
+
             GrpcClientService.getInstance().getFileRecordServiceFutureStub()
                     .updateFileRecordRef(UpdateFileRecordRefRequest.newBuilder()
                             .setRecordUuid(this.recordUUID)
@@ -85,6 +109,44 @@ public class FileRecordDetailBasicSubTab extends BasicScene {
             this.refreshLayout();
         } catch (Throwable t) {
             DialogService.getInstance().showExceptionDialog(t, "Failed to create new version");
+        } finally {
+            a.close();
+        }
+    }
+
+    private void newVersionDir(ActionEvent e) {
+        var message = DialogService.getInstance().showTextInputDialog("New version", "What's the commit message?", "Message:", "");
+        if (message == null) {
+            return;
+        }
+        Node n = (Node) e.getSource();
+        Stage s = (Stage) n.getScene().getWindow();
+
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setTitle("Choose a file to upload");
+        File file = dirChooser.showDialog(s);
+        if (file == null) {
+            return;
+        }
+        var a = DialogService.getInstance().showWaitingDialog("Creating new version...");
+        try {
+            TransferService.getInstance().queryServerProtoConfig();
+            var result = TransferService.getInstance().sliceAndUploadFolder(this.recordUUID, file);
+            var receipt = TransferService.getInstance().parseReceipt(result);
+
+            GrpcClientService.getInstance().getFileRecordServiceFutureStub()
+                    .updateFileRecordRef(UpdateFileRecordRefRequest.newBuilder()
+                            .setRecordUuid(this.recordUUID)
+                            .setReceipt(receipt)
+                            .setMessage(message)
+                            .build()).get();
+            DialogService.getInstance().showInfoDialog("New version created", "New version created", "Success");
+            this.refreshLayout();
+        } catch (Throwable t) {
+            t.printStackTrace();
+            DialogService.getInstance().showExceptionDialog(t, "Failed to create new version");
+        } finally {
+            a.close();
         }
     }
 

@@ -20,9 +20,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class GroupDetailTab extends BasicScene {
-
+    // TODO find a way to close this
     public static class MemberTableModel {
         public static List<TableColumn<MemberTableModel, ?>> getColumns() {
             TableColumn<MemberTableModel, String> username = new TableColumn<>("Member");
@@ -47,12 +48,14 @@ public class GroupDetailTab extends BasicScene {
         }
     }
 
-    private final String groupName;
+    public final String groupName;
     private Label groupInfoLabel;
     private TableView<MemberTableModel> tableView;
+    private final Consumer<String> closeTab;
 
-    public GroupDetailTab(String groupName) {
+    public GroupDetailTab(String groupName, Consumer<String> closeTab) {
         this.groupName = groupName;
+        this.closeTab = closeTab;
     }
 
     @Override
@@ -159,6 +162,7 @@ public class GroupDetailTab extends BasicScene {
                             .setGroupName(this.groupName)
                             .build()).get();
             DialogService.getInstance().showInfoDialog("Group " + this.groupName + " has been deleted.", "Group deleted", "Success");
+            this.closeTab.accept(this.groupName);
         } catch (Throwable t) {
             DialogService.getInstance().showExceptionDialog(t, "Failed to delete group");
         }

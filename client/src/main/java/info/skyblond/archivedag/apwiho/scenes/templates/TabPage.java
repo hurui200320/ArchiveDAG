@@ -9,6 +9,7 @@ import javafx.scene.control.TabPane;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * An implementation of {@link BasicPage} where the page content is
@@ -66,6 +67,11 @@ public abstract class TabPage extends BasicPage {
         Objects.requireNonNull(this.rootTabPane, "Uninitialized use")
                 .getTabs().add(tab);
         this.rootTabPane.getSelectionModel().select(tab);
+    }
+
+    protected void closeTab(Predicate<Tab> predicate) {
+        var result = this.rootTabPane.getTabs().stream().filter(predicate).findFirst();
+        result.ifPresent(tab -> this.rootTabPane.getTabs().remove(tab));
     }
 
     @Override

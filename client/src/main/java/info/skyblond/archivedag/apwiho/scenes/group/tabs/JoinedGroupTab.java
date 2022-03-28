@@ -16,18 +16,20 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class JoinedGroupTab extends BasicScene {
 
     private TableView<GroupTableModel> tableView;
     private TextField usernameTextField;
     private final BiConsumer<String, GroupDetailTab> addNewTab;
+    private final Consumer<String> closeTab;
 
-    public JoinedGroupTab(BiConsumer<String, GroupDetailTab> addNewTab) {
+    public JoinedGroupTab(BiConsumer<String, GroupDetailTab> addNewTab, Consumer<String> closeTab) {
         this.addNewTab = addNewTab;
+        this.closeTab = closeTab;
     }
 
-    @SuppressWarnings("DuplicatedCode")
     @Override
     protected @NotNull Parent generateLayout() {
         VBox root = new VBox();
@@ -45,7 +47,8 @@ public class JoinedGroupTab extends BasicScene {
 
         this.tableView.getColumns().setAll(GroupTableModel.getColumns());
         VBox.setVgrow(this.tableView, Priority.ALWAYS);
-        JavaFXUtils.setTableViewDoubleAction(this.tableView, r -> this.addNewTab.accept(r.getGroupName(), new GroupDetailTab(r.getGroupName())));
+        JavaFXUtils.setTableViewDoubleAction(this.tableView, r -> this.addNewTab.accept(r.getGroupName(),
+                new GroupDetailTab(r.getGroupName(), this.closeTab)));
         root.getChildren().add(this.tableView);
 
         return root;

@@ -14,15 +14,18 @@ import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class CreateGroupTab extends BasicScene {
 
     private TextField groupNameTextField;
     private TextField ownerTextField;
     private final BiConsumer<String, GroupDetailTab> addNewTab;
+    private final Consumer<String> closeTab;
 
-    public CreateGroupTab(BiConsumer<String, GroupDetailTab> addNewTab) {
+    public CreateGroupTab(BiConsumer<String, GroupDetailTab> addNewTab, Consumer<String> closeTab) {
         this.addNewTab = addNewTab;
+        this.closeTab = closeTab;
     }
 
     @Override
@@ -65,7 +68,8 @@ public class CreateGroupTab extends BasicScene {
                             .setOwner(this.ownerTextField.getText())
                             .build())
                     .get();
-            this.addNewTab.accept(this.groupNameTextField.getText(), new GroupDetailTab(this.groupNameTextField.getText()));
+            this.addNewTab.accept(this.groupNameTextField.getText(),
+                    new GroupDetailTab(this.groupNameTextField.getText(), this.closeTab));
             this.groupNameTextField.clear();
             this.ownerTextField.clear();
         } catch (Throwable t) {
