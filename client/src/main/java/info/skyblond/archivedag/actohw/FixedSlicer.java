@@ -14,7 +14,7 @@ public class FixedSlicer extends AbstractSlicer {
     private final int blockSize;
     private final byte[] buffer;
 
-    protected FixedSlicer(
+    public FixedSlicer(
             Path workDir, Multihash.Type primaryHashType, Multihash.Type secondaryHashType,
             ExecutorService executorService, int blockSize
     ) {

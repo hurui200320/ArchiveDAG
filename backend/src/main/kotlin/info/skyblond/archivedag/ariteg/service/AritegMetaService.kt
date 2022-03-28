@@ -24,23 +24,9 @@ class AritegMetaService(
         } else {
             FindMetaReceipt(
                 Multihash.fromBase58(meta.secondaryHash),
-                meta.objectType, meta.mediaType
+                meta.objectType
             )
         }
-    }
-
-    /**
-     * Update mediaType, the media type can be null
-     */
-    @Transactional
-    fun updateMediaType(primary: Multihash, mediaType: String?): Boolean {
-        val p = primary.toBase58()
-        if (!metaRepository.existsByPrimaryHash(p)) {
-            // not found
-            return false
-        }
-        metaRepository.updateMediaType(p, mediaType)
-        return true
     }
 
     fun multihashExists(primary: Multihash): Boolean {
@@ -56,8 +42,7 @@ class AritegMetaService(
     fun createNewEntity(
         primaryHash: Multihash,
         secondaryHash: Multihash,
-        objectType: AritegObjectType,
-        mediaType: String?
+        objectType: AritegObjectType
     ): Boolean {
         val primaryBase58 = primaryHash.toBase58()
         val secondaryBase58 = secondaryHash.toBase58()
@@ -71,13 +56,9 @@ class AritegMetaService(
                 throw IllegalStateException("Hash collision detected: $primaryBase58")
             }
         }
-        val entity = ProtoMetaEntity(primaryBase58, secondaryBase58, objectType, mediaType)
+        val entity = ProtoMetaEntity(primaryBase58, secondaryBase58, objectType)
         metaRepository.save(entity)
         return true
-    }
-
-    fun createNewEntity(primaryHash: Multihash, secondaryHash: Multihash, objectType: AritegObjectType): Boolean {
-        return createNewEntity(primaryHash, secondaryHash, objectType, null)
     }
 
     /**

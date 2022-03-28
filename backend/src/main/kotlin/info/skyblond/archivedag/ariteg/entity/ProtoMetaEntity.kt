@@ -16,11 +16,4 @@ class ProtoMetaEntity(
     @Enumerated(EnumType.STRING)
     @Column(name = "object_type", updatable = false, nullable = false)
     val objectType: AritegObjectType,
-
-    @Column(name = "media_type")
-    val mediaType: String?,
-) {
-
-    @Column(name = "mark", nullable = false)
-    val mark: String = ""
-}
+)

@@ -7,8 +7,7 @@ import java.util.concurrent.CompletableFuture
 
 data class FindMetaReceipt(
     val secondaryMultihash: Multihash,
-    val objectType: AritegObjectType,
-    val mediaType: String?
+    val objectType: AritegObjectType
 )
 
 /**
@@ -30,7 +29,6 @@ data class RestoreReceipt(
 data class ProbeReceipt(
     val link: AritegLink,
     val secondaryMultihash: Multihash,
-    val mediaType: String?,
     val status: StorageStatus,
     // TODO more data needed?
 )

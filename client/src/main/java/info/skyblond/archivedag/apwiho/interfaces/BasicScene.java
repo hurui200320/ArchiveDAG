@@ -1,6 +1,5 @@
 package info.skyblond.archivedag.apwiho.interfaces;
 
-import info.skyblond.archivedag.apwiho.Main;
 import javafx.scene.Parent;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,14 +33,6 @@ public abstract class BasicScene implements Renderable {
     abstract protected void refreshLayout();
 
     /**
-     * Debug shortcut, invoked after {@link BasicScene#refreshLayout()}, for automatically login, etc.
-     * <p>
-     * For debug use only. Activate by {@link info.skyblond.archivedag.apwiho.Main#DEBUG}
-     */
-    protected void debugShortCut() {
-    }
-
-    /**
      * Here the render root is a 2-step operation:
      * 1. generating the components
      * 2. update the components
@@ -59,9 +50,6 @@ public abstract class BasicScene implements Renderable {
             this.layout = Objects.requireNonNull(this.generateLayout(), "Failed to generate layout");
         }
         this.refreshLayout();
-        if (Main.DEBUG) {
-            this.debugShortCut();
-        }
         return this.layout;
     }
 }

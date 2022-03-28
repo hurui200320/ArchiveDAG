@@ -127,10 +127,6 @@ class AritegService(
         return WriteReceipt(link, future)
     }
 
-    fun updateMediaType(link: AritegLink, mediaType: String?) {
-        metaService.updateMediaType(link.multihash.toMultihash(), mediaType)
-    }
-
     fun readBlob(link: AritegLink): BlobObject = storageService.loadProto(link) as BlobObject
 
     fun readList(link: AritegLink): ListObject = storageService.loadProto(link) as ListObject
@@ -221,7 +217,7 @@ class AritegService(
      */
     fun probe(primary: Multihash): ProbeReceipt? {
         // find type first
-        val (secondary, objectType, mediaType) = metaService.findMeta(primary) ?: return null
+        val (secondary, objectType) = metaService.findMeta(primary) ?: return null
         val link = newLink(primary, objectType)
         // then check the storage status
         val status = storageService.queryStatus(link)
@@ -231,6 +227,6 @@ class AritegService(
             logger.error("Link {} found in meta but not in storage", primary.toBase58())
             return null
         }
-        return ProbeReceipt(link, secondary, mediaType, status)
+        return ProbeReceipt(link, secondary, status)
     }
 }

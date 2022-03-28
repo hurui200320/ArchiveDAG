@@ -289,13 +289,4 @@ internal class AritegServiceTest {
             )!!
         )
     }
-
-    @Test
-    fun testUpdateMediaType() {
-        val (link, _) = writeBlob("")
-        val multihash = link.multihash.toMultihash()
-        assertNull(aritegService.probe(multihash)!!.mediaType)
-        aritegService.updateMediaType(link, "something")
-        assertEquals("something", aritegService.probe(multihash)!!.mediaType)
-    }
 }

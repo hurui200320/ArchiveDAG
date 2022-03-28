@@ -35,6 +35,7 @@ class EtcdSimpleLockService(
                     config.getStringKey(etcdNamespace, key)
                 } not found, use default value: $default"
             )
+            config.setLong(etcdNamespace, key, default)
             default
         }
     }

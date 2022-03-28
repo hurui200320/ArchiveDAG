@@ -3,7 +3,6 @@ package info.skyblond.archivedag.apwiho.scenes;
 import info.skyblond.archivedag.apwiho.interfaces.SwappableScene;
 import info.skyblond.archivedag.apwiho.services.DialogService;
 import info.skyblond.archivedag.apwiho.services.GrpcClientService;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -95,6 +94,7 @@ public class LoginScene extends SwappableScene {
         BorderPane root = new BorderPane();
         HBox center = new HBox();
         center.setAlignment(Pos.CENTER);
+        root.setCenter(center);
         VBox form = new VBox();
         form.setAlignment(Pos.CENTER_LEFT);
         form.setPrefWidth(350);
@@ -140,16 +140,6 @@ public class LoginScene extends SwappableScene {
     @Override
     protected void refreshLayout() {
         // no need to refresh
-    }
-
-    @Override
-    protected void debugShortCut() {
-        // TODO: Debug short cut
-        this.hostTextInput.setText("127.0.0.1:9090");
-        this.serverCA = new File("C:\\Users\\hurui\\Downloads\\rootCA.pem");
-        this.userCert = new File("C:\\Users\\hurui\\Downloads\\cert.pem");
-        this.userPrivateKey = new File("C:\\Users\\hurui\\Downloads\\private_key.pem");
-        Platform.runLater(this::doConnect);
     }
 
     private void doConnect() {

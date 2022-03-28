@@ -76,12 +76,6 @@ public class HomeScene extends SwappableScene {
             this.swapTo(this.fileRecordManagementScene);
             b.setDisable(false);
         }));
-        center.getChildren().add(this.generateButton("Transfer management", e -> {
-            Button b = (Button) e.getSource();
-            b.setDisable(true);
-            System.out.println("TODO");
-            b.setDisable(false);
-        }));
         return root;
     }
 

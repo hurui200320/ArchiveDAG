@@ -10,12 +10,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public record BlobDescriptor(
-        Multihash multihash,
+        Multihash primaryHash,
         File file
 ) {
     public AritegBlobObject readBlob() throws IOException {
         try (InputStream is = new FileInputStream(this.file)) {
-            MultihashProviders.mustMatch(this.multihash, is);
+            MultihashProviders.mustMatch(this.primaryHash, is);
         }
         try (InputStream is = new FileInputStream(this.file)) {
             return AritegBlobObject.parseFrom(is);
