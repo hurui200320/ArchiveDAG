@@ -24,7 +24,7 @@ spring:
         format_sql: true
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://10.172.1.10:5432/archive_dag
+    url: jdbc:postgresql://10.172.3.101:5432/archive_dag
     password: password
     username: postgres
   servlet:
@@ -35,15 +35,19 @@ spring:
       max-request-size: 257GB
 ariteg:
   storage:
+    #    type: LOCAL_WITH_S3_BACKUP # local_file_system_only
     type: local_file_system_only
     threadSize: 16
-    queue-size: 1024
+    queue-size: 2048
     filesystem:
-      path: "./data/protos"
+      path: "D:\\test\\archive-dag"
     s3:
-      region: us-west-2
-      bucket-name: skyblond-develop-test
-      upload-storage-class: intelligent_tiering
+      endpoint: http://10.172.3.100:9000
+      accessKey: archive-dag
+      secretKey: archive-dag
+      region: global
+      bucket-name: archive-dag-test
+      upload-storage-class: standard
 etcd:
   server-addr:
-    - "http://10.172.1.10:2379"
+    - "http://10.172.3.101:2379"

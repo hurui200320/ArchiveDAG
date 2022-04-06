@@ -24,6 +24,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.sql.Timestamp;
@@ -32,6 +34,7 @@ import java.util.concurrent.ExecutionException;
 
 public class FileRecordDetailHistorySubTab extends BasicScene {
     private final String recordUUID;
+    private final Logger logger = LoggerFactory.getLogger("FileRecordDetail");
 
     public FileRecordDetailHistorySubTab(String recordUUID) {
         this.recordUUID = recordUUID;
@@ -119,7 +122,7 @@ public class FileRecordDetailHistorySubTab extends BasicScene {
     }
 
     private void download(MouseEvent e, TreeViewNode node) {
-        System.out.println("Download " + node.name);
+        this.logger.info("Download " + node.name);
         if (node.type == null) {
             return;
         }
@@ -128,6 +131,9 @@ public class FileRecordDetailHistorySubTab extends BasicScene {
         DirectoryChooser dirChooser = new DirectoryChooser();
         dirChooser.setTitle("Choose a folder to save");
         File folder = dirChooser.showDialog(s);
+        if (folder == null) {
+            return;
+        }
         var a = DialogService.getInstance().showWaitingDialog("Downloading...");
         try {
             switch (node.type) {

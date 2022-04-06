@@ -1,4 +1,7 @@
-version: "3.3"
+version: "3.7"
+volumes:
+  etcd_data:
+  postgresql_data:
 services:
   postgres:
     image: postgres
@@ -10,15 +13,13 @@ services:
       POSTGRES_DB: archive_dag
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - /home/skyblond/ArchiveDAG/data/postgresql:/var/lib/postgresql/data
+      - postgresql_data:/var/lib/postgresql/data
   etcd:
-    image: bitnami/etcd
-    environment:
-      - ALLOW_NONE_AUTHENTICATION=yes
-      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+    image: bitnami/etcd:3.5
     ports:
       - "2379:2379"
-      - "2380:2380"
     restart: always
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
     volumes:
-      - /home/skyblond/ArchiveDAG/data/etcd:/bitnami/etcd
+      - etcd_data:/bitnami/etcd

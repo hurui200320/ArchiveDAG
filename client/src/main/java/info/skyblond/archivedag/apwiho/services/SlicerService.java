@@ -3,6 +3,8 @@ package info.skyblond.archivedag.apwiho.services;
 import info.skyblond.archivedag.actohw.FixedSlicer;
 import info.skyblond.archivedag.actohw.RobinKarpSlicer;
 import io.ipfs.multihash.Multihash;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
@@ -11,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SlicerService implements AutoCloseable {
     private static final SlicerService ourInstance = new SlicerService();
+    private final Logger logger = LoggerFactory.getLogger("SlicerService");
 
     public static SlicerService getInstance() {
         return ourInstance;
@@ -42,7 +45,7 @@ public class SlicerService implements AutoCloseable {
         this.executorService.shutdown();
         var alert = DialogService.getInstance().showWaitingDialog("Closing thread pool...");
         while (!this.executorService.awaitTermination(500, TimeUnit.MILLISECONDS)) {
-            System.out.println("Waiting for thread pool...");
+            this.logger.info("Waiting for thread pool...");
         }
         alert.close();
     }

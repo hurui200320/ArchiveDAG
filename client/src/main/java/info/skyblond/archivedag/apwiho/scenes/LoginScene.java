@@ -45,6 +45,7 @@ public class LoginScene extends SwappableScene {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(title);
+        fileChooser.setInitialDirectory(new File("."));
         fileChooser.getExtensionFilters()
                 .add(new FileChooser.ExtensionFilter("X509 PEM", "*.pem"));
         File file = fileChooser.showOpenDialog(s);

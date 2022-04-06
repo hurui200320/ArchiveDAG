@@ -9,6 +9,8 @@ import info.skyblond.archivedag.ariteg.protos.*;
 import info.skyblond.archivedag.arudaz.protos.common.Empty;
 import info.skyblond.archivedag.arudaz.protos.transfer.*;
 import io.ipfs.multihash.Multihash;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,6 +24,7 @@ import java.util.concurrent.ExecutionException;
 
 public class TransferService {
     private static final TransferService ourInstance = new TransferService();
+    private final Logger logger = LoggerFactory.getLogger("TransferService");
 
     public static TransferService getInstance() {
         return ourInstance;
@@ -30,7 +33,7 @@ public class TransferService {
     private TransferService() {
     }
 
-    private final Path workDir = Path.of("./temp");
+    private final Path workDir = Path.of("./cache");
     private Multihash.Type primaryHashType;
     private MultihashProvider primaryHashProvider;
     private Multihash.Type secondaryHashType;
@@ -204,7 +207,7 @@ public class TransferService {
     // ------------------------------ Functions ------------------------------
 
     public AritegLink sliceAndUploadFile(String recordId, File f) throws ExecutionException, InterruptedException, IOException {
-        System.out.println("Slicing file: " + f);
+        this.logger.info("Slicing file: " + f);
         var slicer = this.getSlicer(f);
         var linkList = new LinkedList<>(slicer.digestAsync(f)
                 .parallel()
@@ -219,7 +222,7 @@ public class TransferService {
                     }
                     return link;
                 }).toList());
-        System.out.println("Processing file: " + f);
+        this.logger.info("Processing file: " + f);
         // make links into ListObjects
         int i = 0;
         int listLength = 1024;
@@ -253,7 +256,7 @@ public class TransferService {
     }
 
     public AritegLink sliceAndUploadFolder(String recordId, File folder) throws ExecutionException, InterruptedException {
-        System.out.println("Slicing folder: " + folder);
+        this.logger.info("Slicing folder: " + folder);
         var files = Objects.requireNonNull(folder.listFiles(), "List folder returns null");
         var linkList = Arrays.stream(files)
                 .sorted(Comparator.comparing(File::getName, Comparator.naturalOrder()))
@@ -282,7 +285,7 @@ public class TransferService {
     }
 
     public void downloadTreeIntoFolder(String receipt, File folder) throws ExecutionException, InterruptedException, IOException {
-        System.out.println("Downloading into folder: " + folder);
+        this.logger.info("Downloading into folder: " + folder);
         var treeObj = this.downloadTree(receipt);
         if (!folder.exists() && !folder.mkdirs()) {
             throw new IllegalStateException("Failed to create folder: " + folder);
@@ -297,7 +300,7 @@ public class TransferService {
     }
 
     public void downloadListIntoFile(String receipt, File file) throws ExecutionException, InterruptedException, IOException {
-        System.out.println("Download into file: " + file);
+        this.logger.info("Download into file: " + file);
         FileOutputStream outputStream = new FileOutputStream(file);
         LinkedList<AritegLink> list = new LinkedList<>(this.downloadList(receipt).getLinksList());
         while (!list.isEmpty()) {
@@ -314,7 +317,7 @@ public class TransferService {
     }
 
     public void downloadBlobIntoFile(String receipt, File file) throws ExecutionException, InterruptedException, IOException {
-        System.out.println("Downloading into file: " + file);
+        this.logger.info("Downloading into file: " + file);
         var blob = this.getBlob(receipt);
         Files.write(file.toPath(), blob.getData().toByteArray());
     }

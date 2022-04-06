@@ -15,14 +15,14 @@ configurations {
     }
 }
 
-val grpcVersion = "1.44.1"
+val grpcVersion = "1.45.0"
 val grpcStarterVersion = "2.13.1.RELEASE"
 val postgresqlVersion = "42.3.3"
 val multihashVersion = "v1.3.0"
 val bouncyCastleVersion = "1.70"
 val jjwtVersion = "0.11.2"
 val awsJavaSdkVersion = "2.17.100"
-val jetcdVersion = "0.6.1"
+val jetcdVersion = "0.7.0"
 
 //val h2Version = "2.1.210"
 val h2Version = "1.4.200"
