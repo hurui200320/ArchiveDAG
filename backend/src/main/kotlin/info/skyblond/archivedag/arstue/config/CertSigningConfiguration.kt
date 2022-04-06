@@ -5,6 +5,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration
 import javax.annotation.PostConstruct
 
+/**
+ * Config user cert signing.
+ * */
 @Configuration
 @EnableConfigurationProperties(CertSigningProperties::class)
 class CertSigningConfiguration(
@@ -12,6 +15,9 @@ class CertSigningConfiguration(
 ) {
     private val logger = LoggerFactory.getLogger(CertSigningConfiguration::class.java)
 
+    /**
+     * Just print out the config.
+     * */
     @PostConstruct
     fun postConstruct() {
         if (!properties.subjectDnC.isNullOrBlank()) {

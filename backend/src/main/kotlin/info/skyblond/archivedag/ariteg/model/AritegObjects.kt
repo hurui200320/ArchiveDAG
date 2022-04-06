@@ -12,7 +12,7 @@ interface AritegObject {
 }
 
 /**
- * Blob Object, store data only.
+ * Blob Object, store bytes only.
  * */
 @Immutable
 data class BlobObject(

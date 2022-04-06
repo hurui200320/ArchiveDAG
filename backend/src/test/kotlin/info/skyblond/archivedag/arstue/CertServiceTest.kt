@@ -62,11 +62,6 @@ internal class CertServiceTest {
     @Test
     fun testVerifyCertStatus() {
         // test different status
-        val locked = certService.signCert("test_user").certificate
-        assertEquals(CertEntity.Status.LOCKED, certService.queryCert(getSerialNum(locked)).status)
-        val revoked = certService.signCert("test_user").certificate
-        certService.changeCertStatus(getSerialNum(revoked), CertEntity.Status.REVOKED)
-        assertEquals(CertEntity.Status.REVOKED, certService.queryCert(getSerialNum(revoked)).status)
         val disabled = certService.signCert("test_user").certificate
         certService.changeCertStatus(getSerialNum(disabled), CertEntity.Status.DISABLED)
         assertEquals(CertEntity.Status.DISABLED, certService.queryCert(getSerialNum(disabled)).status)
@@ -74,12 +69,6 @@ internal class CertServiceTest {
         certService.changeCertStatus(getSerialNum(enabled), CertEntity.Status.ENABLED)
         assertEquals(CertEntity.Status.ENABLED, certService.queryCert(getSerialNum(enabled)).status)
 
-        assertThrows(AuthenticationException::class.java) {
-            certService.verifyCertStatus(getSerialNum(locked), "test_user")
-        }
-        assertThrows(AuthenticationException::class.java) {
-            certService.verifyCertStatus(getSerialNum(revoked), "test_user")
-        }
         assertThrows(AuthenticationException::class.java) {
             certService.verifyCertStatus(getSerialNum(disabled), "test_user")
         }

@@ -182,7 +182,7 @@ internal class UserControllerTest {
                     .content(gson.toJson(CreateUserRequest("test_user_new", "123456")))
             )
             .andExpect(MockMvcResultMatchers.status().isNoContent)
-        Assertions.assertEquals(UserEntity.Status.LOCKED, userRepository.findByUsername("test_user_new")!!.status)
+        Assertions.assertEquals(UserEntity.Status.DISABLED, userRepository.findByUsername("test_user_new")!!.status)
         Assertions.assertEquals(listOf<Any>(), userRoleRepository.findAllByUsername("test_user_new"))
         mockMvc
             .perform(

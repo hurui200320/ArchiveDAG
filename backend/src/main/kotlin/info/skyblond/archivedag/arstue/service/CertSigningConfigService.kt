@@ -16,6 +16,9 @@ import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.time.Duration
 
+/**
+ * Read config from etcd and provide those configs to other service.
+ * */
 @Service
 class CertSigningConfigService(
     private val config: EtcdConfigService,

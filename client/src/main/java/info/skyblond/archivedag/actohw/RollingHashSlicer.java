@@ -2,6 +2,8 @@ package info.skyblond.archivedag.actohw;
 
 import com.google.protobuf.ByteString;
 import io.ipfs.multihash.Multihash;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,6 +17,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 
 public abstract class RollingHashSlicer extends AbstractSlicer {
+    private final Logger logger = LoggerFactory.getLogger("Slicer");
+
     /**
      * Fingerprint mask.
      */
@@ -82,6 +86,7 @@ public abstract class RollingHashSlicer extends AbstractSlicer {
     private RandomAccessFile prepare(File file) throws Exception {
         this.processedBytes = 0;
         this.totalBytes = file.length();
+        this.slicedChunkCounter = 0;
         this.chunkStream = new FileInputStream(file);
         RandomAccessFile r = new RandomAccessFile(file, "r");
         this.windowChannel = r.getChannel();
@@ -114,11 +119,13 @@ public abstract class RollingHashSlicer extends AbstractSlicer {
         return this.totalBytes;
     }
 
-    /**
-     * Called when new chunk is generated. Used for log statistic.
-     */
-    protected void onNewChunk(int chunkSize) {
+    private long slicedChunkCounter;
+
+    protected long getSlicedChunkCounter() {
+        return this.slicedChunkCounter;
     }
+
+    private long lastUpdateTime;
 
     /**
      * Generate a new chunk.
@@ -127,7 +134,15 @@ public abstract class RollingHashSlicer extends AbstractSlicer {
         byte[] buffer = new byte[chunkSize];
         int readCount = this.chunkStream.read(buffer, 0, chunkSize);
         ByteString content = ByteString.copyFrom(buffer, 0, readCount);
-        this.onNewChunk(chunkSize);
+        // print log every 5s
+        if (System.currentTimeMillis() - this.lastUpdateTime >= 5000) {
+            this.logger.info(
+                    "Processed {}MB, {}MB in total, sliced chunk count: {}k",
+                    String.format("%.2f", this.processedBytes / 1024.0 / 1024.0),
+                    String.format("%.2f", this.totalBytes / 1024.0 / 1024.0),
+                    String.format("%.2f", this.slicedChunkCounter / 1000.0));
+            this.lastUpdateTime = System.currentTimeMillis();
+        }
         return this.writeToBlobFileAsync(content);
     }
 
@@ -142,11 +157,6 @@ public abstract class RollingHashSlicer extends AbstractSlicer {
      * Save the result to {@link RollingHashSlicer#hash}
      */
     protected abstract void calcNextHash() throws Exception;
-
-    /**
-     * Called when slicing is finished. Used for subclass to close resources.
-     */
-    protected abstract void onFinished() throws Exception;
 
     /**
      * Digest new file.
@@ -167,8 +177,9 @@ public abstract class RollingHashSlicer extends AbstractSlicer {
             if (currentChunkSize >= this.minChunkSize) {
                 // min chunk size reached, see if we can make a new chunk
                 if (this.isFingerprintMatch()) {
-                    result.add(this.makeNewChunk(currentChunkSize));
                     this.processedBytes += currentChunkSize;
+                    this.slicedChunkCounter++;
+                    result.add(this.makeNewChunk(currentChunkSize));
                     currentChunkSize = 0; // reset chunk size counter
                 }
             }
@@ -176,8 +187,9 @@ public abstract class RollingHashSlicer extends AbstractSlicer {
             currentChunkSize++;
             if (currentChunkSize >= this.maxChunkSize) {
                 // max chunk size reached, we have to make a new chunk
-                result.add(this.makeNewChunk(currentChunkSize));
                 this.processedBytes += currentChunkSize;
+                this.slicedChunkCounter++;
+                result.add(this.makeNewChunk(currentChunkSize));
                 currentChunkSize = 0; // reset chunk size counter
             }
         }
@@ -189,7 +201,7 @@ public abstract class RollingHashSlicer extends AbstractSlicer {
         this.windowChannel.close();
         rFile.close();
         this.chunkStream.close();
-        this.onFinished();
+        this.logger.info("Slice finished, {} chunks in total", this.slicedChunkCounter);
 
         return result.build();
     }

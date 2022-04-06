@@ -15,7 +15,7 @@ grpc:
       client-auth: require
 etcd:
   server-addr:
-    - "http://10.172.1.10:2379"
+    - "http://10.172.3.101:2379"
 cert-signing:
   subject-dn-c: China
   subject-dn-o: SkyBlond

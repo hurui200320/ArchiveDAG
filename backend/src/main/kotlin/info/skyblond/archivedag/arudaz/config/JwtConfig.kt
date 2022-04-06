@@ -6,8 +6,10 @@ import org.springframework.security.authentication.AccountStatusUserDetailsCheck
 
 @Configuration
 class JwtConfig {
-    // For JWT token resolve. Check user status.
-    // This cannot be merged into SpringSecurityConfig, it will be a loop.
+    /**
+     * For JWT token resolve. Check user status.
+     * This cannot be merged into SpringSecurityConfig, it will be a loop.
+     * */
     @Bean
     fun accountStatusUserDetailsChecker(): AccountStatusUserDetailsChecker {
         return AccountStatusUserDetailsChecker()

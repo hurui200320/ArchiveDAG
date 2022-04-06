@@ -35,10 +35,8 @@ public abstract class AbstractSlicer implements Slicer {
         String base58 = multihash.toBase58();
         String prefix = base58.substring(0, 6);
         File baseDir = new File(this.workDir.toFile(), prefix);
-        if (!baseDir.exists()) {
-            if (!baseDir.mkdirs()) {
-                System.err.println("Failed to create dir: " + baseDir);
-            }
+        if (!baseDir.exists() && !baseDir.mkdirs()) {
+            throw new RuntimeException("Failed to create dir: " + baseDir);
         }
         return new File(baseDir, base58);
     }

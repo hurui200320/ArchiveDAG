@@ -34,6 +34,10 @@ import java.security.cert.X509Certificate
 import java.sql.Timestamp
 import java.util.*
 
+/**
+ * Provide cert signing and management.
+ * For now, it only supports RAS.
+ * */
 @Service
 class CertService(
     private val certSigningConfigService: CertSigningConfigService,
@@ -100,6 +104,11 @@ class CertService(
         return CertSigningResult(entity.serialNumber, cert, userKeyPair.private)
     }
 
+    /**
+     * List cert serial numbers.
+     * if [blurOwner] is true, then return all certs which owner contains the [owner].
+     * Otherwise, returns the certs which owner is exactly [owner].
+     * */
     fun listCertSerialNumber(
         blurOwner: Boolean, owner: String, pageable: Pageable
     ): List<String> {
@@ -113,6 +122,9 @@ class CertService(
         return result
     }
 
+    /**
+     * Return true if [username] is the owner of [certSerialNumber].
+     * */
     fun userOwnCert(username: String, certSerialNumber: String): Boolean {
         return certRepository.existsBySerialNumberAndUsername(certSerialNumber, username)
     }
@@ -146,6 +158,12 @@ class CertService(
         certRepository.deleteBySerialNumber(serialNumber)
     }
 
+    /**
+     * Return nothing if username matches the cert, and cert is good.
+     * Throw exceptions if:
+     *   + User not own this cert
+     *   + Cert is not enabled
+     * */
     fun verifyCertStatus(serialNumber: String, username: String) {
         // check username matches the cert
         if (!userOwnCert(username, serialNumber)) {
@@ -157,8 +175,6 @@ class CertService(
         when (entity.status) {
             CertEntity.Status.ENABLED -> {}
             CertEntity.Status.DISABLED -> throw object : AuthenticationException("Certification disabled") {}
-            CertEntity.Status.REVOKED -> throw object : AuthenticationException("Certification revoked") {}
-            CertEntity.Status.LOCKED -> throw object : AuthenticationException("Certification locked") {}
         }
     }
 }

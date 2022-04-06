@@ -21,9 +21,9 @@ class CertEntity(
 ) {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    var status: Status = Status.LOCKED
+    var status: Status = Status.DISABLED
 
     enum class Status {
-        ENABLED, DISABLED, REVOKED, LOCKED
+        ENABLED, DISABLED
     }
 }

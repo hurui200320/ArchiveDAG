@@ -103,8 +103,4 @@ public class RobinKarpSlicer extends RollingHashSlicer {
             throw new IllegalArgumentException("Input file is too small");
         }
     }
-
-    @Override
-    protected void onFinished() {
-    }
 }

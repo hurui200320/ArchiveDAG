@@ -11,6 +11,7 @@ javafx {
 
 application {
     mainClass.set("info.skyblond.archivedag.apwiho.Main")
+    executableDir = ""
 }
 
 val grpcVersion = "1.45.0"

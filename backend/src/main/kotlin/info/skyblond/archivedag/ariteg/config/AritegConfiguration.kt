@@ -18,6 +18,12 @@ import software.amazon.awssdk.services.s3.S3Client
 import java.io.File
 import java.net.URI
 
+/**
+ * This class config the proto things.
+ * It will read config from etcd and local yml file,
+ * then initialize [AritegStorageService] and an optional
+ * [S3Client] object.
+ * */
 @Configuration
 @EnableConfigurationProperties(AritegProperties::class)
 class AritegConfiguration(

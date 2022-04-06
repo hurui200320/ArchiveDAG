@@ -10,7 +10,9 @@ import org.springframework.core.io.ByteArrayResource
 import javax.annotation.PostConstruct
 
 /**
- * This config replaces the trusted collection certs read from gRPC
+ * This config replaces the trusted collection certs for gRPC.
+ * By default, gRPC server read CA from yml and files.
+ * Here we replace it with the one read from etcd.
  * */
 @Configuration
 @AutoConfigureBefore(GrpcServerFactoryAutoConfiguration::class)

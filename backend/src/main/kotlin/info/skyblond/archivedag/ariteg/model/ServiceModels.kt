@@ -22,15 +22,16 @@ data class WriteReceipt(
     val completionFuture: CompletableFuture<Void>
 )
 
+@Deprecated("Not used")
 data class RestoreReceipt(
     val involvedLinks: List<AritegLink>
 )
 
+@Deprecated("Not used")
 data class ProbeReceipt(
     val link: AritegLink,
     val secondaryMultihash: Multihash,
     val status: StorageStatus,
-    // TODO more data needed?
 )
 
 /**

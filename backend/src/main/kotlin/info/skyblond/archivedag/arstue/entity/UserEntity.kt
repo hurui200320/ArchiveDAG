@@ -14,13 +14,13 @@ class UserEntity(
 ) {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    var status: Status = Status.LOCKED
+    var status: Status = Status.DISABLED
 
     constructor(username: String, password: String, status: Status) : this(username, password) {
         this.status = status
     }
 
     enum class Status {
-        ENABLED, DISABLED, LOCKED
+        ENABLED, DISABLED
     }
 }

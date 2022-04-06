@@ -8,7 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class SlicerService implements AutoCloseable {
@@ -22,7 +23,15 @@ public class SlicerService implements AutoCloseable {
     private SlicerService() {
     }
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    // Here we use caller run to slow down the writing request
+    // But then there might be multiple threads try to write the same file
+    // It's rare, but the file will be corrupted, and then failed when upload
+    // During the upload, the program will check the content and throw error if hash not match
+    private final ExecutorService executorService = new ThreadPoolExecutor(1, 1,
+            0L, TimeUnit.MILLISECONDS,
+            // assuming each task write 200KB, then 20K is roughly 4GB
+            new LinkedBlockingQueue<>(20_000), new ThreadPoolExecutor.CallerRunsPolicy());
+    
     private final int MIN_CHUNK_SIZE = 64 * 1024;
 
     public long getMinChunkSize() {
@@ -31,7 +40,7 @@ public class SlicerService implements AutoCloseable {
 
     public RobinKarpSlicer getDynamicSlicer(Path workDir, Multihash.Type primaryHashType, Multihash.Type secondaryHashType) {
         return new RobinKarpSlicer(workDir, primaryHashType, secondaryHashType,
-                (1 << 18) - 1, 0, this.MIN_CHUNK_SIZE, 512 * 1024,
+                (1 << 18) - 1, 0, this.MIN_CHUNK_SIZE, 4 * 1024 * 1024,
                 32 * 1024 * 1024, this.executorService,
                 1000007, 48);
     }

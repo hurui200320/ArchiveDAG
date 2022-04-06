@@ -158,7 +158,7 @@ internal class CertControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$.serialNumber", Matchers.equalTo(serialNumber)))
             .andExpect(MockMvcResultMatchers.jsonPath("$.owner", Matchers.equalTo("test_user")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.equalTo("LOCKED")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.equalTo("DISABLED")))
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get("/cert/queryCert")
@@ -179,7 +179,7 @@ internal class CertControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$.serialNumber", Matchers.equalTo(serialNumber)))
             .andExpect(MockMvcResultMatchers.jsonPath("$.owner", Matchers.equalTo("test_user")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.equalTo("LOCKED")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.status", Matchers.equalTo("DISABLED")))
     }
 
     @WithMockUser(username = "test_user", roles = ["USER"])

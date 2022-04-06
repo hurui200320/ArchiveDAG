@@ -26,8 +26,7 @@ class UserDetailService(
         return User(
             user.username, user.password,
             user.status === UserEntity.Status.ENABLED,
-            true, true,
-            user.status !== UserEntity.Status.LOCKED,
+            true, true, true,
             grantedAuthorities
         )
     }

@@ -180,7 +180,7 @@ public class TransferService {
         File baseDir = new File(this.workDir.toFile(), prefix);
         if (!baseDir.exists()) {
             if (!baseDir.mkdirs()) {
-                System.err.println("Failed to create dir: " + baseDir);
+                throw new RuntimeException("Failed to create dir: " + baseDir);
             }
         }
         return new File(baseDir, base58);
@@ -207,7 +207,7 @@ public class TransferService {
     // ------------------------------ Functions ------------------------------
 
     public AritegLink sliceAndUploadFile(String recordId, File f) throws ExecutionException, InterruptedException, IOException {
-        this.logger.info("Slicing file: " + f);
+        this.logger.info("Start slicing file: " + f);
         var slicer = this.getSlicer(f);
         var linkList = new LinkedList<>(slicer.digestAsync(f)
                 .parallel()
@@ -222,7 +222,7 @@ public class TransferService {
                     }
                     return link;
                 }).toList());
-        this.logger.info("Processing file: " + f);
+        this.logger.info("Uploading content finished. Start processing structure...");
         // make links into ListObjects
         int i = 0;
         int listLength = 1024;
@@ -252,6 +252,7 @@ public class TransferService {
                     this.primaryHashProvider.digest(new byte[0]), f
             ), f.getName()));
         }
+        this.logger.info("Finished on file: " + f);
         return linkList.get(0);
     }
 

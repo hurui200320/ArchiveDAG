@@ -199,6 +199,7 @@ class AritegService(
     /**
      * Give a root link and resolve all related link using resolveLinks(link, false).
      */
+    @Deprecated("Not used")
     fun restore(link: AritegLink): RestoreReceipt {
         val links = resolveLinks(link)
         links.forEach { storageService.restoreLink(it) }
@@ -215,6 +216,7 @@ class AritegService(
      *
      * Return null if not found.
      */
+    @Deprecated("Not used")
     fun probe(primary: Multihash): ProbeReceipt? {
         // find type first
         val (secondary, objectType) = metaService.findMeta(primary) ?: return null

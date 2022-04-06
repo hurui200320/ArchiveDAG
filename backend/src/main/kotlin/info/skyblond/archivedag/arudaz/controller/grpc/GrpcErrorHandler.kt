@@ -17,7 +17,6 @@ import org.springframework.security.authentication.LockedException
 class GrpcErrorHandler {
     private val logger = LoggerFactory.getLogger(GrpcErrorHandler::class.java)
 
-    // TODO test this in integration test
     // CANCELLED - 1
     // UNKNOWN - 2
 
