@@ -1,12 +1,10 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    id("org.springframework.boot") version "2.6.4"
-    id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.6.10"
-    kotlin("plugin.spring") version "1.6.10"
-    kotlin("plugin.jpa") version "1.6.10"
-    kotlin("kapt") version "1.6.10"
+    id("org.springframework.boot")
+    id("io.spring.dependency-management")
+    kotlin("jvm")
+    kotlin("plugin.spring")
+    kotlin("plugin.jpa")
+    kotlin("kapt")
 }
 
 configurations {
@@ -15,23 +13,8 @@ configurations {
     }
 }
 
-val grpcVersion = "1.45.0"
-val grpcStarterVersion = "2.13.1.RELEASE"
-val postgresqlVersion = "42.3.3"
-val multihashVersion = "v1.3.0"
-val bouncyCastleVersion = "1.70"
-val jjwtVersion = "0.11.2"
-val awsJavaSdkVersion = "2.17.100"
-val jetcdVersion = "0.7.0"
-
-//val h2Version = "2.1.210"
-val h2Version = "1.4.200"
-
 dependencies {
     // basic
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.jetbrains:annotations")
     implementation("com.fasterxml.jackson.core:jackson-annotations")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.google.code.gson:gson")
@@ -49,26 +32,26 @@ dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     // grpc spring boot starter
-    implementation("net.devh:grpc-spring-boot-starter:$grpcStarterVersion")
+    implementation("net.devh:grpc-spring-boot-starter:${Versions.springbootGrpcStarterVersion}")
 
     // Postgresql jdbc driver
-    runtimeOnly("org.postgresql:postgresql:$postgresqlVersion")
+    runtimeOnly("org.postgresql:postgresql:${Versions.postgresqlVersion}")
 
     // jetcd
-    implementation("io.etcd:jetcd-core:$jetcdVersion")
+    implementation("io.etcd:jetcd-core:${Versions.jetcdVersion}")
 
     // multihash and crypto
-    implementation("com.github.multiformats:java-multihash:$multihashVersion")
-    implementation("org.bouncycastle:bcprov-jdk15on:$bouncyCastleVersion")
-    implementation("org.bouncycastle:bcpkix-jdk15on:$bouncyCastleVersion")
+    implementation("com.github.multiformats:java-multihash:${Versions.multihashVersion}")
+    implementation("org.bouncycastle:bcprov-jdk15on:${Versions.bouncyCastleVersion}")
+    implementation("org.bouncycastle:bcpkix-jdk15on:${Versions.bouncyCastleVersion}")
 
     // JJWT
-    implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
+    implementation("io.jsonwebtoken:jjwt-api:${Versions.jjwtVersion}")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:${Versions.jjwtVersion}")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:${Versions.jjwtVersion}")
 
     // AWS SDK
-    implementation(platform("software.amazon.awssdk:bom:$awsJavaSdkVersion"))
+    implementation(platform("software.amazon.awssdk:bom:${Versions.awsJavaSdkVersion}"))
     implementation("software.amazon.awssdk:s3")
 
     implementation(project(":grpc-interface"))
@@ -81,14 +64,7 @@ dependencies {
     // spring security test
     testImplementation("org.springframework.security:spring-security-test")
     // H2 for test database
-    testImplementation("com.h2database:h2:$h2Version")
+    testImplementation("com.h2database:h2:${Versions.h2Version}")
     // grpc test
-    testImplementation("io.grpc:grpc-testing:$grpcVersion")
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
-    }
+    testImplementation("io.grpc:grpc-testing:${Versions.grpcVersion}")
 }

@@ -1,34 +1,24 @@
 import com.google.protobuf.gradle.*
 
-buildscript {
-    dependencies {
-        classpath("com.google.protobuf:protobuf-gradle-plugin:0.8.18")
-    }
-}
-
 plugins {
-    id("com.google.protobuf") version "0.8.18"
+    id("com.google.protobuf")
 }
-
-val grpcVersion = "1.45.0"
-val protobufVersion = "3.19.4"
-val javaxAnnotationApiVersion = "1.3.2"
 
 dependencies {
-    implementation("io.grpc:grpc-protobuf:$grpcVersion")
-    implementation("io.grpc:grpc-stub:$grpcVersion")
-    implementation("io.grpc:grpc-netty-shaded:$grpcVersion")
-    implementation("com.google.protobuf:protobuf-java:$protobufVersion")
-    implementation("javax.annotation:javax.annotation-api:$javaxAnnotationApiVersion")
+    implementation("io.grpc:grpc-protobuf:${Versions.grpcVersion}")
+    implementation("io.grpc:grpc-stub:${Versions.grpcVersion}")
+    implementation("io.grpc:grpc-netty-shaded:${Versions.grpcVersion}")
+    implementation("com.google.protobuf:protobuf-java:${Versions.protobufVersion}")
+    implementation("javax.annotation:javax.annotation-api:${Versions.javaxAnnotationApiVersion}")
 }
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:$protobufVersion"
+        artifact = "com.google.protobuf:protoc:${Versions.protobufVersion}"
     }
     plugins {
         id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:$grpcVersion"
+            artifact = "io.grpc:protoc-gen-grpc-java:${Versions.grpcVersion}"
         }
     }
     generateProtoTasks {
