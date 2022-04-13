@@ -18,15 +18,18 @@ class TransferReceiptService(
     private val etcdNamespace = "arudaz/proto_receipt"
     private val encryptionKeyEtcdConfigKey = "encryption_key_bytearray"
 
-    private fun getEncryptionKey(): ByteArray {
+    @Synchronized
+    private fun generateEncryptionKey(): ByteArray {
         val result = configService.getByteArray(etcdNamespace, encryptionKeyEtcdConfigKey)
-        if (result == null) {
-            logger.warn("No proto receipt encryption key found, generating one...")
-            val key = encryptionService.newKey()
-            configService.setByteArray(etcdNamespace, encryptionKeyEtcdConfigKey, key)
-            return key
-        }
-        return result
+        if (result != null) return result
+        logger.warn("No proto receipt encryption key found, generating one...")
+        val key = encryptionService.newKey()
+        configService.setByteArray(etcdNamespace, encryptionKeyEtcdConfigKey, key)
+        return key
+    }
+
+    private fun getEncryptionKey(): ByteArray {
+        return configService.getByteArray(etcdNamespace, encryptionKeyEtcdConfigKey) ?: return generateEncryptionKey()
     }
 
     fun encryptReceipt(receipt: TransferReceipt): String {

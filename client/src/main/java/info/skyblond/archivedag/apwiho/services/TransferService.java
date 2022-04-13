@@ -253,6 +253,7 @@ public class TransferService {
             ), f.getName()));
         }
         this.logger.info("Finished on file: " + f);
+        System.gc(); // suggest a jvm gc
         return linkList.get(0);
     }
 
@@ -261,6 +262,7 @@ public class TransferService {
         var files = Objects.requireNonNull(folder.listFiles(), "List folder returns null");
         var linkList = Arrays.stream(files)
                 .sorted(Comparator.comparing(File::getName, Comparator.naturalOrder()))
+                // using parallel will use too much RAM
                 .map(f -> {
                     try {
                         if (f.isDirectory()) {

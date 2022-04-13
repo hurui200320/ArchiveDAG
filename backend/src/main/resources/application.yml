@@ -24,7 +24,8 @@ spring:
         format_sql: true
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://10.172.3.101:5432/archive_dag
+    url: jdbc:postgresql://192.168.1.60:5432/archive_dag
+    # url: jdbc:postgresql://10.172.3.101:5432/archive_dag
     password: password
     username: postgres
   servlet:
@@ -38,9 +39,9 @@ ariteg:
     #    type: LOCAL_WITH_S3_BACKUP # local_file_system_only
     type: local_file_system_only
     threadSize: 16
-    queue-size: 2048
+    queue-size: 4096
     filesystem:
-      path: "D:\\test\\archive-dag"
+      path: "C:\\test\\archive-dag"
     s3:
       endpoint: http://10.172.3.100:9000
       accessKey: archive-dag
@@ -50,4 +51,5 @@ ariteg:
       upload-storage-class: standard
 etcd:
   server-addr:
-    - "http://10.172.3.101:2379"
+    - "http://192.168.1.60:2379"
+#    - "http://10.172.3.101:2379"
