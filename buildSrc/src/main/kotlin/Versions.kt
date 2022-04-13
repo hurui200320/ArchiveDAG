@@ -34,27 +34,34 @@ object Versions {
 
     /**
      * org.bouncycastle:bcprov-jdk15on
+     *
      * org.bouncycastle:bcpkix-jdk15on
      * */
     val bouncyCastleVersion = "1.70"
 
     /**
      * org.junit.jupiter:junit-jupiter-api
+     *
      * org.junit.jupiter:junit-jupiter-engine
      * */
     val junitVersion = "5.8.2"
 
     /**
      * io.grpc:grpc-protobuf
+     *
      * io.grpc:grpc-stub
+     *
      * io.grpc:grpc-netty-shaded
+     *
      * io.grpc:protoc-gen-grpc-java
+     *
      * io.grpc:grpc-testing
      * */
     val grpcVersion = "1.45.1"
 
     /**
      * com.google.protobuf:protobuf-java
+     *
      * com.google.protobuf:proto
      */
     val protobufVersion = "3.20.0"
@@ -77,7 +84,9 @@ object Versions {
 
     /**
      * io.jsonwebtoken:jjwt-api
+     *
      * io.jsonwebtoken:jjwt-impl
+     *
      * io.jsonwebtoken:jjwt-jackson
      * */
     val jjwtVersion = "0.11.2"
