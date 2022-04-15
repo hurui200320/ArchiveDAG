@@ -1,7 +1,9 @@
 package info.skyblond.archivedag.arudaz.model
 
 import info.skyblond.archivedag.ariteg.AritegService
+import info.skyblond.archivedag.ariteg.model.AritegObjects
 import info.skyblond.archivedag.ariteg.protos.AritegLink
+import info.skyblond.archivedag.ariteg.protos.AritegObjectType
 import info.skyblond.archivedag.commons.PermissionDeniedException
 import io.ipfs.multihash.Multihash
 import java.util.*
@@ -9,7 +11,8 @@ import java.util.*
 data class TransferReceipt(
     val recordId: UUID,
     val username: String,
-    val primaryHash: Multihash
+    val primaryHash: Multihash,
+    val objectType: AritegObjectType
 ) {
     fun checkUsage(username: String, recordId: UUID, aritegService: AritegService): AritegLink {
         if (this.username != username) {
@@ -23,6 +26,6 @@ data class TransferReceipt(
         }
         // make sure the proto is existing
         require(aritegService.multihashExists(this.primaryHash)) { "The receipt is expired" }
-        return aritegService.parseMultihash(this.primaryHash)!!
+        return AritegObjects.newLink(this.primaryHash, this.objectType)
     }
 }

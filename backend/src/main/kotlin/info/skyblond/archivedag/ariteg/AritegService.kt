@@ -96,7 +96,7 @@ class AritegService(
             val lock = lockService.getLock(primary)
             lockRef.set(lock) // save the lock
             lockService.lock(lock)
-            if (metaService.createNewEntity(primary, secondary, proto.getObjectType())) {
+            if (metaService.createNewEntity(primary, secondary)) {
                 // get true -> this is a new proto
                 logger.debug("Confirm writing {}", primary.toBase58())
                 // newly created, keep locking and confirm writing
@@ -204,31 +204,5 @@ class AritegService(
         val links = resolveLinks(link)
         links.forEach { storageService.restoreLink(it) }
         return RestoreReceipt(links)
-    }
-
-    fun parseMultihash(primary: Multihash, name: String = ""): AritegLink? {
-        val meta = metaService.findMeta(primary) ?: return null
-        return newLink(name, primary, meta.objectType)
-    }
-
-    /**
-     * Probe the status of a give primary hash.
-     *
-     * Return null if not found.
-     */
-    @Deprecated("Not used")
-    fun probe(primary: Multihash): ProbeReceipt? {
-        // find type first
-        val (secondary, objectType) = metaService.findMeta(primary) ?: return null
-        val link = newLink(primary, objectType)
-        // then check the storage status
-        val status = storageService.queryStatus(link)
-        if (status == null) {
-            // Illegal status but should not throw error
-            // log it and count as missing
-            logger.error("Link {} found in meta but not in storage", primary.toBase58())
-            return null
-        }
-        return ProbeReceipt(link, secondary, status)
     }
 }

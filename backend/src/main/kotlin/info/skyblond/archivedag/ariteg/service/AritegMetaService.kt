@@ -2,7 +2,6 @@ package info.skyblond.archivedag.ariteg.service
 
 import info.skyblond.archivedag.ariteg.entity.ProtoMetaEntity
 import info.skyblond.archivedag.ariteg.model.FindMetaReceipt
-import info.skyblond.archivedag.ariteg.protos.AritegObjectType
 import info.skyblond.archivedag.ariteg.repo.ProtoMetaRepository
 import info.skyblond.archivedag.commons.EntityNotFoundException
 import io.ipfs.multihash.Multihash
@@ -23,8 +22,7 @@ class AritegMetaService(
             null
         } else {
             FindMetaReceipt(
-                Multihash.fromBase58(meta.secondaryHash),
-                meta.objectType
+                Multihash.fromBase58(meta.secondaryHash)
             )
         }
     }
@@ -41,8 +39,7 @@ class AritegMetaService(
     @Transactional
     fun createNewEntity(
         primaryHash: Multihash,
-        secondaryHash: Multihash,
-        objectType: AritegObjectType
+        secondaryHash: Multihash
     ): Boolean {
         val primaryBase58 = primaryHash.toBase58()
         val secondaryBase58 = secondaryHash.toBase58()
@@ -56,7 +53,7 @@ class AritegMetaService(
                 throw IllegalStateException("Hash collision detected: $primaryBase58")
             }
         }
-        val entity = ProtoMetaEntity(primaryBase58, secondaryBase58, objectType)
+        val entity = ProtoMetaEntity(primaryBase58, secondaryBase58)
         metaRepository.save(entity)
         return true
     }

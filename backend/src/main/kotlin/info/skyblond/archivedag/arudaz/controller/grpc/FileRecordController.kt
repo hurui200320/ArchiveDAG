@@ -2,6 +2,7 @@ package info.skyblond.archivedag.arudaz.controller.grpc
 
 import com.google.protobuf.ByteString
 import info.skyblond.archivedag.ariteg.AritegService
+import info.skyblond.archivedag.ariteg.model.AritegObjects
 import info.skyblond.archivedag.ariteg.model.BlobObject
 import info.skyblond.archivedag.ariteg.model.CommitObject
 import info.skyblond.archivedag.ariteg.protos.AritegLink
@@ -65,7 +66,7 @@ class FileRecordController(
         }
         // get old ref link, use empty link if null
         val oldRef = fileRecordService.queryRecord(recordUUID).multihash
-            ?.let { aritegService.parseMultihash(it) } ?: AritegLink.newBuilder()
+            ?.let { AritegObjects.newLink(it, AritegObjectType.COMMIT) } ?: AritegLink.newBuilder()
             .setType(AritegObjectType.COMMIT).build()
 
         // write author
@@ -159,7 +160,8 @@ class FileRecordController(
                 if (queryResult.multihash != null) {
                     it.receipt = transferReceiptService.encryptReceipt(
                         TransferReceipt(
-                            queryResult.recordId, username, queryResult.multihash
+                            queryResult.recordId, username,
+                            queryResult.multihash, AritegObjectType.COMMIT
                         )
                     )
                 }

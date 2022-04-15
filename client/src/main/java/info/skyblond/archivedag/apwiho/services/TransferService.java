@@ -118,6 +118,7 @@ public class TransferService {
                     .setRecordUuid(recordId)
                     .setPrimaryHash(ByteString.copyFrom(b.primaryHash().toBytes()))
                     .setSecondaryHash(ByteString.copyFrom(this.secondaryHashProvider.digest(b.readBlob().toByteArray()).toBytes()))
+                    .setObjectType(AritegObjectType.BLOB)
                     .build()).get();
             var receipt = result.getTransferReceipt();
             return AritegLink.newBuilder()
@@ -277,6 +278,7 @@ public class TransferService {
         var treeObj = AritegTreeObject.newBuilder()
                 .addAllLinks(linkList)
                 .build();
+        this.logger.info("Finish folder: " + folder);
         return this.uploadTree(recordId, treeObj, folder.getName());
     }
 

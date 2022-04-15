@@ -2,7 +2,9 @@ package info.skyblond.archivedag.arudaz.controller.grpc
 
 import com.google.protobuf.ByteString
 import info.skyblond.archivedag.ariteg.AritegService
+import info.skyblond.archivedag.ariteg.model.AritegObjects
 import info.skyblond.archivedag.ariteg.model.BlobObject
+import info.skyblond.archivedag.ariteg.protos.AritegObjectType
 import info.skyblond.archivedag.ariteg.utils.toMultihash
 import info.skyblond.archivedag.arstue.FileRecordService
 import info.skyblond.archivedag.arstue.GroupService
@@ -158,7 +160,8 @@ internal class FileRecordControllerTest {
                             TransferReceipt(
                                 UUID.randomUUID(),
                                 "test_user_404",
-                                Multihash(Multihash.Type.id, ByteArray(0))
+                                Multihash(Multihash.Type.id, ByteArray(0)),
+                                AritegObjectType.BLOB
                             )
                         )
                     )
@@ -175,7 +178,8 @@ internal class FileRecordControllerTest {
                             TransferReceipt(
                                 UUID.randomUUID(),
                                 "test_user",
-                                Multihash(Multihash.Type.id, ByteArray(0))
+                                Multihash(Multihash.Type.id, ByteArray(0)),
+                                AritegObjectType.BLOB
                             )
                         )
                     )
@@ -193,7 +197,8 @@ internal class FileRecordControllerTest {
                                 TransferReceipt(
                                     uuid,
                                     "test_user",
-                                    Multihash(Multihash.Type.id, ByteArray(0))
+                                    Multihash(Multihash.Type.id, ByteArray(0)),
+                                    AritegObjectType.BLOB
                                 )
                             )
                         )
@@ -213,7 +218,7 @@ internal class FileRecordControllerTest {
                             .setRecordUuid(uuid.toString())
                             .setReceipt(
                                 transferReceiptService.encryptReceipt(
-                                    TransferReceipt(uuid, "test_user", multihash)
+                                    TransferReceipt(uuid, "test_user", multihash, AritegObjectType.BLOB)
                                 )
                             )
                             .build(), StreamRecorder.create()
@@ -229,14 +234,22 @@ internal class FileRecordControllerTest {
             UpdateFileRecordRefRequest.newBuilder()
                 .setRecordUuid(recordUUID.toString())
                 .setReceipt(
-                    transferReceiptService.encryptReceipt(TransferReceipt(recordUUID, "test_user", multihash))
+                    transferReceiptService.encryptReceipt(
+                        TransferReceipt(
+                            recordUUID,
+                            "test_user",
+                            multihash,
+                            AritegObjectType.BLOB
+                        )
+                    )
                 )
                 .build(), responseObserver
         )
         checkEmptyResponse(responseObserver)
-        var link = aritegService.parseMultihash(
-            Multihash.fromBase58(fileRecordRepository.findByRecordId(recordUUID)!!.multihash!!)
-        )!!
+        var link = AritegObjects.newLink(
+            Multihash.fromBase58(fileRecordRepository.findByRecordId(recordUUID)!!.multihash!!),
+            AritegObjectType.COMMIT
+        )
         var commit = aritegService.readCommit(link)
         assertTrue(commit.parentLink.multihash.isEmpty)
         assertEquals(multihash, commit.committedObjectLink.multihash.toMultihash())
@@ -248,15 +261,23 @@ internal class FileRecordControllerTest {
             UpdateFileRecordRefRequest.newBuilder()
                 .setRecordUuid(recordUUID.toString())
                 .setReceipt(
-                    transferReceiptService.encryptReceipt(TransferReceipt(recordUUID, "test_user", multihash))
+                    transferReceiptService.encryptReceipt(
+                        TransferReceipt(
+                            recordUUID,
+                            "test_user",
+                            multihash,
+                            AritegObjectType.BLOB
+                        )
+                    )
                 )
                 .build(), responseObserver
         )
         checkEmptyResponse(responseObserver)
         val oldLink = link
-        link = aritegService.parseMultihash(
-            Multihash.fromBase58(fileRecordRepository.findByRecordId(recordUUID)!!.multihash!!)
-        )!!
+        link = AritegObjects.newLink(
+            Multihash.fromBase58(fileRecordRepository.findByRecordId(recordUUID)!!.multihash!!),
+            AritegObjectType.COMMIT
+        )
         commit = aritegService.readCommit(link)
         assertTrue(commit.parentLink.multihash == oldLink.multihash)
         assertEquals(multihash, commit.committedObjectLink.multihash.toMultihash())

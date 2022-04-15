@@ -1,13 +1,11 @@
 package info.skyblond.archivedag.ariteg.model
 
 import info.skyblond.archivedag.ariteg.protos.AritegLink
-import info.skyblond.archivedag.ariteg.protos.AritegObjectType
 import io.ipfs.multihash.Multihash
 import java.util.concurrent.CompletableFuture
 
 data class FindMetaReceipt(
     val secondaryMultihash: Multihash,
-    val objectType: AritegObjectType
 )
 
 /**
@@ -25,13 +23,6 @@ data class WriteReceipt(
 @Deprecated("Not used")
 data class RestoreReceipt(
     val involvedLinks: List<AritegLink>
-)
-
-@Deprecated("Not used")
-data class ProbeReceipt(
-    val link: AritegLink,
-    val secondaryMultihash: Multihash,
-    val status: StorageStatus,
 )
 
 /**

@@ -79,7 +79,11 @@ class TransferController(
         val writeReceipt = aritegService.writeProto("", aritegObject)
         // calculate transfer receipt
         val transferReceipt = transferReceiptService.encryptReceipt(
-            TransferReceipt(recordUUID, username, writeReceipt.link.multihash.toMultihash())
+            TransferReceipt(
+                recordUUID, username,
+                writeReceipt.link.multihash.toMultihash(),
+                aritegObject.getObjectType()
+            )
         )
         val result = TransferReceiptResponse.newBuilder()
             .setPrimaryHash(writeReceipt.link.multihash)
@@ -162,7 +166,7 @@ class TransferController(
         }
         // everything is ok
         val transferReceipt = transferReceiptService.encryptReceipt(
-            TransferReceipt(uuid, username, primaryHash)
+            TransferReceipt(uuid, username, primaryHash, request.objectType)
         )
         val result = TransferReceiptResponse.newBuilder()
             .setPrimaryHash(request.primaryHash)
@@ -209,7 +213,11 @@ class TransferController(
         // map multihash to receipt
         val encryptedLinkList = rawListObj.list.map {
             val receipt = transferReceiptService.encryptReceipt(
-                TransferReceipt(transferReceipt.recordId, username, it.multihash.toMultihash())
+                TransferReceipt(
+                    transferReceipt.recordId, username,
+                    it.multihash.toMultihash(),
+                    it.type
+                )
             )
             AritegLink.newBuilder()
                 .setType(it.type)
@@ -239,7 +247,11 @@ class TransferController(
         // map multihash to receipt
         val encryptedLinkList = rawTreeObj.links.map {
             val receipt = transferReceiptService.encryptReceipt(
-                TransferReceipt(transferReceipt.recordId, username, it.multihash.toMultihash())
+                TransferReceipt(
+                    transferReceipt.recordId, username,
+                    it.multihash.toMultihash(),
+                    it.type
+                )
             )
             AritegLink.newBuilder()
                 .setName(it.name)
@@ -275,7 +287,11 @@ class TransferController(
                     .build() // initial commit, empty link
             } else {
                 val receipt = transferReceiptService.encryptReceipt(
-                    TransferReceipt(transferReceipt.recordId, username, it.multihash.toMultihash())
+                    TransferReceipt(
+                        transferReceipt.recordId, username,
+                        it.multihash.toMultihash(),
+                        it.type
+                    )
                 )
                 AritegLink.newBuilder()
                     .setType(it.type)
@@ -285,7 +301,11 @@ class TransferController(
         }
         val encryptedCommitLink = rawCommitObj.committedObjectLink.let {
             val receipt = transferReceiptService.encryptReceipt(
-                TransferReceipt(transferReceipt.recordId, username, it.multihash.toMultihash())
+                TransferReceipt(
+                    transferReceipt.recordId, username,
+                    it.multihash.toMultihash(),
+                    it.type
+                )
             )
             AritegLink.newBuilder()
                 .setType(it.type)
@@ -294,7 +314,11 @@ class TransferController(
         }
         val encryptedAuthorLink = rawCommitObj.authorLink.let {
             val receipt = transferReceiptService.encryptReceipt(
-                TransferReceipt(transferReceipt.recordId, username, it.multihash.toMultihash())
+                TransferReceipt(
+                    transferReceipt.recordId, username,
+                    it.multihash.toMultihash(),
+                    it.type
+                )
             )
             AritegLink.newBuilder()
                 .setType(it.type)
@@ -344,7 +368,11 @@ class TransferController(
         }
         // sign new receipt
         val newTransferReceipt = transferReceiptService.encryptReceipt(
-            TransferReceipt(newUUID, username, aritegLink.multihash.toMultihash())
+            TransferReceipt(
+                newUUID, username,
+                aritegLink.multihash.toMultihash(),
+                aritegLink.type
+            )
         )
         // send it back
         responseObserver.onNext(

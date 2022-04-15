@@ -137,9 +137,12 @@ public class FileRecordDetailHistorySubTab extends BasicScene {
         var a = DialogService.getInstance().showWaitingDialog("Downloading...");
         try {
             switch (node.type) {
-                case BLOB -> TransferService.getInstance().downloadBlobIntoFile(node.receipt, new File(folder, node.name));
-                case LIST -> TransferService.getInstance().downloadListIntoFile(node.receipt, new File(folder, node.name));
-                case TREE -> TransferService.getInstance().downloadTreeIntoFolder(node.receipt, new File(folder, node.name));
+                case BLOB ->
+                        TransferService.getInstance().downloadBlobIntoFile(node.receipt, new File(folder, node.name));
+                case LIST ->
+                        TransferService.getInstance().downloadListIntoFile(node.receipt, new File(folder, node.name));
+                case TREE ->
+                        TransferService.getInstance().downloadTreeIntoFolder(node.receipt, new File(folder, node.name));
             }
             DialogService.getInstance().showInfoDialog("Download finish", node.name + " downloaded", "Success");
         } catch (Throwable t) {
@@ -174,12 +177,12 @@ public class FileRecordDetailHistorySubTab extends BasicScene {
     }
 
     private void resolveItem(TreeItem<TreeViewNode> root, AritegLink link, String name) throws ExecutionException, InterruptedException {
-        root.setExpanded(true);
+        root.setExpanded(false);
         String receipt = TransferService.getInstance().parseReceipt(link);
         TreeItem<TreeViewNode> node = new TreeItem<>(new TreeViewNode(name, link.getType(), receipt));
         if (link.getType() == AritegObjectType.TREE) {
-            var commitObj = TransferService.getInstance().downloadTree(receipt);
-            for (AritegLink treeLink : commitObj.getLinksList()) {
+            var treeObj = TransferService.getInstance().downloadTree(receipt);
+            for (AritegLink treeLink : treeObj.getLinksList()) {
                 this.resolveItem(node, treeLink, treeLink.getName());
             }
         }

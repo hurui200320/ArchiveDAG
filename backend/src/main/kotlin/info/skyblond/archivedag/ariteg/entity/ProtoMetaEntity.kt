@@ -1,7 +1,9 @@
 package info.skyblond.archivedag.ariteg.entity
 
-import info.skyblond.archivedag.ariteg.protos.AritegObjectType
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.Id
+import javax.persistence.Table
 
 @Entity
 @Table(name = "proto_meta")
@@ -12,8 +14,4 @@ class ProtoMetaEntity(
 
     @Column(name = "secondary_hash", updatable = false, nullable = false)
     val secondaryHash: String,
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "object_type", updatable = false, nullable = false)
-    val objectType: AritegObjectType,
 )

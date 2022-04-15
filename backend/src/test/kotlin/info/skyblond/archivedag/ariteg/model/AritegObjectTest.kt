@@ -4,6 +4,7 @@ import com.google.protobuf.ByteString
 import info.skyblond.archivedag.ariteg.multihash.MultihashProviders
 import info.skyblond.archivedag.ariteg.protos.*
 import io.ipfs.multihash.Multihash
+import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -105,4 +106,12 @@ internal class AritegObjectTest {
         assertEquals(original.committedObject, recovered.committedObject)
         assertEquals(original.author, recovered.author)
     }
+
+    @Test
+    fun testEmpty() {
+        val tree = TreeObject(emptyList()).toProto().toByteArray()
+        val blob = BlobObject(ByteString.EMPTY).toProto().toByteArray()
+        assertArrayEquals(tree, blob)
+    }
+
 }

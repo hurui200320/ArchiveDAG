@@ -1,13 +1,17 @@
 package info.skyblond.archivedag.arudaz.config
 
 import info.skyblond.archivedag.commons.service.EtcdConfigService
+import io.grpc.ServerBuilder
 import net.devh.boot.grpc.server.autoconfigure.GrpcServerFactoryAutoConfiguration
 import net.devh.boot.grpc.server.config.GrpcServerProperties
+import net.devh.boot.grpc.server.serverfactory.GrpcServerConfigurer
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfigureBefore
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ByteArrayResource
 import javax.annotation.PostConstruct
+
 
 /**
  * This config replaces the trusted collection certs for gRPC.
@@ -21,6 +25,13 @@ class GrpcCertConfig(
     val configService: EtcdConfigService
 ) {
     private val logger = LoggerFactory.getLogger(GrpcCertConfig::class.java)
+
+    @Bean
+    fun GrpcServerConfigurer(): GrpcServerConfigurer {
+        return GrpcServerConfigurer { serverBuilder: ServerBuilder<*> ->
+            serverBuilder.maxInboundMessageSize(8 * 1024 * 1024)
+        }
+    }
 
     @PostConstruct
     fun postConstruct() {

@@ -153,10 +153,10 @@ internal class AritegServiceTest {
     @Test
     fun testDeleteLink() {
         val link = writeBlob("").first
-        assertEquals(link, aritegService.probe(link.multihash.toMultihash())!!.link)
+        assertTrue(aritegService.multihashExists(link.multihash.toMultihash()))
         assertDoesNotThrow { aritegService.readBlob(link) }
         aritegService.deleteLink(link)
-        assertNull(aritegService.probe(link.multihash.toMultihash()))
+        assertFalse(aritegService.multihashExists(link.multihash.toMultihash()))
         assertThrows(IllegalStateException::class.java) { aritegService.readBlob(link) }
     }
 

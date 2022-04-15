@@ -1,5 +1,6 @@
 package info.skyblond.archivedag.arudaz.service
 
+import info.skyblond.archivedag.ariteg.protos.AritegObjectType
 import info.skyblond.archivedag.arudaz.model.TransferReceipt
 import info.skyblond.archivedag.commons.service.EncryptionService
 import info.skyblond.archivedag.commons.service.EtcdConfigService
@@ -33,15 +34,20 @@ class TransferReceiptService(
     }
 
     fun encryptReceipt(receipt: TransferReceipt): String {
-        val content = "${receipt.recordId},${receipt.username},${receipt.primaryHash.toBase58()}"
+        val content =
+            "${receipt.recordId},${receipt.username},${receipt.primaryHash.toBase58()},${receipt.objectType.name}"
         return encryptionService.encrypt(content, getEncryptionKey())
     }
 
     fun decryptReceipt(encryptedReceipt: String): TransferReceipt? {
         return try {
             val content = encryptionService.decryptToString(encryptedReceipt, getEncryptionKey()).split(",")
-            if (content.size != 3) return null
-            return TransferReceipt(UUID.fromString(content[0]), content[1], Multihash.fromBase58(content[2]))
+            if (content.size != 4) return null
+            return TransferReceipt(
+                UUID.fromString(content[0]), content[1],
+                Multihash.fromBase58(content[2]),
+                AritegObjectType.valueOf(content[3])
+            )
         } catch (t: Throwable) {
             logger.debug("Failed to decrypt receipt", t)
             null

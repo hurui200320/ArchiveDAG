@@ -49,6 +49,7 @@ message ProveOwnershipRequest {
   string record_uuid = 1;
   bytes primary_hash = 2;
   bytes secondary_hash = 3;
+  ariteg.protos.AritegObjectType object_type = 4;
 }
 
 message ReadObjectRequest {

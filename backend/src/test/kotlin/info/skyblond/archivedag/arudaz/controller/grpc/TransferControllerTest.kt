@@ -158,7 +158,8 @@ internal class TransferControllerTest {
                     TransferReceipt(
                         uuid,
                         "test_user",
-                        it.link.multihash.toMultihash()
+                        it.link.multihash.toMultihash(),
+                        AritegObjectType.BLOB
                     )
                 )
                 link.setMultihash(ByteString.copyFrom(receipt, Charsets.UTF_8)).build()
@@ -222,7 +223,8 @@ internal class TransferControllerTest {
                 val receipt = transferReceiptService.encryptReceipt(
                     TransferReceipt(
                         uuid, "test_user",
-                        it.link.multihash.toMultihash()
+                        it.link.multihash.toMultihash(),
+                        AritegObjectType.BLOB
                     )
                 )
                 link.setMultihash(ByteString.copyFrom(receipt, Charsets.UTF_8)).build()
@@ -326,7 +328,9 @@ internal class TransferControllerTest {
         val commitWriteReceipt = aritegService.writeProto("", commitObj)
         val transferReceipt = transferReceiptService.encryptReceipt(
             TransferReceipt(
-                uuid, "test_user", commitWriteReceipt.link.multihash.toMultihash()
+                uuid, "test_user",
+                commitWriteReceipt.link.multihash.toMultihash(),
+                AritegObjectType.COMMIT
             )
         )
 
@@ -367,7 +371,7 @@ internal class TransferControllerTest {
         aritegService.writeProto("", blobObj).completionFuture.get()
         val blobPriMultihash = getPrimaryMultihashProvider().digest(blobObj.toProto().toByteArray())
         val receipt = transferReceiptService.encryptReceipt(
-            TransferReceipt(uuid, "test_user", blobPriMultihash)
+            TransferReceipt(uuid, "test_user", blobPriMultihash, AritegObjectType.BLOB)
         )
 
         val request = ReadObjectRequest.newBuilder()
@@ -391,7 +395,7 @@ internal class TransferControllerTest {
         aritegService.writeProto("", blobObj).completionFuture.get()
         val blobPriMultihash = getPrimaryMultihashProvider().digest(blobObj.toProto().toByteArray())
         val receipt = transferReceiptService.encryptReceipt(
-            TransferReceipt(uuid1, "test_user", blobPriMultihash)
+            TransferReceipt(uuid1, "test_user", blobPriMultihash, AritegObjectType.BLOB)
         )
 
         val request = CherryPickRequest.newBuilder()
