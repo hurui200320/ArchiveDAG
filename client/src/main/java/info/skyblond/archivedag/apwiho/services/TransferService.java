@@ -226,7 +226,7 @@ public class TransferService {
         this.logger.info("Uploading content finished. Start processing structure...");
         // make links into ListObjects
         int i = 0;
-        int listLength = 1024;
+        int listLength = 128;
         while (linkList.size() > 1) {
             // get some link
             int listSize = Math.min(listLength, linkList.size() - i);

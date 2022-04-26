@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 
 /**
- * Robin-Karp slicer. Use Rabin-Karp fingerprint to decide the chunk border.
+ * Rabin-Karp slicer. Use Rabin-Karp fingerprint to decide the chunk border.
  * This will try to slice the data at the same relative position, to leverage
  * data offsets.
  * <p>
@@ -16,9 +16,9 @@ import java.util.concurrent.ExecutorService;
  * The data: 0123456789 -> 0123 456 789
  * Becomes: 0a123456789 -> 0a123 456 789
  * <p>
- * Rabin-Karp fingerprint: https://github.com/YADL/yadl/wiki/Rabin-Karp-for-Variable-Chunking
+ * Rabin-Karp fingerprint: <a href="https://github.com/YADL/yadl/wiki/Rabin-Karp-for-Variable-Chunking">https://github.com/YADL/yadl/wiki/Rabin-Karp-for-Variable-Chunking</a>
  */
-public class RobinKarpSlicer extends RollingHashSlicer {
+public class RabinKarpSlicer extends RollingHashSlicer {
     /**
      * Window size, aka the `N`.
      */
@@ -39,7 +39,7 @@ public class RobinKarpSlicer extends RollingHashSlicer {
      */
     private final int p;
 
-    public RobinKarpSlicer(
+    public RabinKarpSlicer(
             Path workDir, Multihash.Type primaryHashType, Multihash.Type secondaryHashType,
             int fingerprintMask, int fingerprint, int minChunkSize, int maxChunkSize,
             int windowChannelBufferSize, ExecutorService executorService,

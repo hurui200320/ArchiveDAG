@@ -39,7 +39,7 @@ class DistributedLockService(
         try {
             lock.unlock()
         } catch (e: Exception) {
-            logger.error("Cannot unlock ${lock.lockPath}", e)
+            logger.error("Cannot unlock ${lock.lockKey}", e)
         }
     }
 }

@@ -6,15 +6,15 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-class RobinKarpSlicerTest extends AbstractSlicerTest {
+class RabinKarpSlicerTest extends AbstractSlicerTest {
 
     @BeforeEach
     void setUp() {
-        this.slicer = new RobinKarpSlicer(this.tempWorkDir,
+        this.slicer = new RabinKarpSlicer(this.tempWorkDir,
                 Multihash.Type.sha3_256, Multihash.Type.blake2b_256,
                 (1 << 10) - 1, 0, 64, 128,
                 32 * 1024 * 1024, this.executorService,
-                31, 48);
+                1821497, 48);
     }
 
     @Test

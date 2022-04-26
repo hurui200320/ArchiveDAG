@@ -19,6 +19,11 @@ import java.util.stream.Stream;
 
 public abstract class AbstractSlicer implements Slicer {
     private final Path workDir;
+
+    public Path getWorkDir() {
+        return this.workDir;
+    }
+
     private final MultihashProvider primaryHashProvider;
     private final MultihashProvider secondaryHashProvider;
     private final ExecutorService executorService;

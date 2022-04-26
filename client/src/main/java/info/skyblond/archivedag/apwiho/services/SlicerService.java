@@ -1,7 +1,7 @@
 package info.skyblond.archivedag.apwiho.services;
 
 import info.skyblond.archivedag.actohw.FixedSlicer;
-import info.skyblond.archivedag.actohw.RobinKarpSlicer;
+import info.skyblond.archivedag.actohw.RabinKarpSlicer;
 import io.ipfs.multihash.Multihash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,18 +31,18 @@ public class SlicerService implements AutoCloseable {
             0L, TimeUnit.MILLISECONDS,
             // assuming each task write 200KB, then 20K is roughly 4GB
             new LinkedBlockingQueue<>(20_000), new ThreadPoolExecutor.CallerRunsPolicy());
-    
+
     private final int MIN_CHUNK_SIZE = 64 * 1024;
 
     public long getMinChunkSize() {
         return this.MIN_CHUNK_SIZE;
     }
 
-    public RobinKarpSlicer getDynamicSlicer(Path workDir, Multihash.Type primaryHashType, Multihash.Type secondaryHashType) {
-        return new RobinKarpSlicer(workDir, primaryHashType, secondaryHashType,
+    public RabinKarpSlicer getDynamicSlicer(Path workDir, Multihash.Type primaryHashType, Multihash.Type secondaryHashType) {
+        return new RabinKarpSlicer(workDir, primaryHashType, secondaryHashType,
                 (1 << 18) - 1, 0, this.MIN_CHUNK_SIZE, 4 * 1024 * 1024,
                 32 * 1024 * 1024, this.executorService,
-                1000007, 48);
+                1821497, 48);
     }
 
     public FixedSlicer getFixedSlicer(Path workDir, Multihash.Type primaryHashType, Multihash.Type secondaryHashType) {
