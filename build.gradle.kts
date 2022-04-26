@@ -65,7 +65,7 @@ allprojects {
     tasks.withType<Test> {
         useJUnitPlatform()
         minHeapSize = "1024M"
-        maxHeapSize = "8192M"
+        maxHeapSize = "32768M"
     }
 
     testlogger {

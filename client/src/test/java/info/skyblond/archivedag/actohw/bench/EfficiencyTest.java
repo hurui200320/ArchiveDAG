@@ -58,7 +58,7 @@ public class EfficiencyTest {
         System.out.println("Deleting old run...");
         this.deleteR(slicer.getWorkDir().toFile());
         Assertions.assertTrue(slicer.getWorkDir().toFile().mkdirs());
-        System.out.println("Start slicing...");
+        System.out.println(slicer.getClass().getName() + " Start slicing...");
         LinkedList<BlobDescriptor> results = new LinkedList<>();
 
         Arrays.stream(Objects.requireNonNull(testDir.listFiles())).forEach(f -> {
@@ -106,11 +106,12 @@ public class EfficiencyTest {
 
     @Test
     void doTest() {
-        File testFile = new File("D:\\test\\ISO");
+//        File testDir = new File("D:\\test\\ISO");
+        File testDir = new File("D:\\test\\Video");
         this.slicers
                 .forEach(it -> {
                     try {
-                        this.test(it, testFile);
+                        this.test(it, testDir);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
