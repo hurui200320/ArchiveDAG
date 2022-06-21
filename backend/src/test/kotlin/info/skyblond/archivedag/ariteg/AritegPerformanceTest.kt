@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
+import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
 
 @SpringBootTest
@@ -27,11 +28,13 @@ internal class AritegPerformanceTest {
         val contents = (0 until fileCount)
             .map { ByteString.copyFrom(Random.nextBytes(fileSize)) }
             .map { BlobObject(it) }
+        val futures = mutableListOf<CompletableFuture<Void>>()
         println("Prepare done, ready to start")
         val startTime = System.currentTimeMillis()
-        contents.parallelStream()
-            .map { aritegService.writeProto("", it).completionFuture }
-            .forEach { it.get() }
+        contents.forEach {
+            futures.add(aritegService.writeProto("", it).completionFuture)
+        }
+        futures.forEach { it.get() }
         val endTime = System.currentTimeMillis()
         val timeDelta = endTime - startTime
         println("Writing $fileCount*${fileSize}B in $timeDelta ms")
@@ -80,12 +83,14 @@ internal class AritegPerformanceTest {
             blobs = blobs.drop(listSize)
             contents.add(listObj)
         }
+        val futures = mutableListOf<CompletableFuture<Void>>()
 
         println("Prepare done, ready to start")
         val startTime = System.currentTimeMillis()
-        contents.parallelStream()
-            .map { aritegService.writeProto("", it).completionFuture }
-            .forEach { it.get() }
+        contents.forEach {
+            futures.add(aritegService.writeProto("", it).completionFuture)
+        }
+        futures.forEach { it.get() }
         val endTime = System.currentTimeMillis()
         val timeDelta = endTime - startTime
         println("Writing $listCount*${listSize} elements in $timeDelta ms")

@@ -9,6 +9,8 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 public class Main extends Application {
+    public static final String DEFAULT_TITLE = "ArchiveDAG Client";
+    private static Stage stage = null;
 
     public static void main(String[] args) {
         launch(args);
@@ -21,7 +23,9 @@ public class Main extends Application {
         Parent parent = loginScene.renderRoot();
         scene.setRoot(parent);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("ArchiveDAG Client");
+        primaryStage.setTitle(DEFAULT_TITLE);
+        // save the stage
+        stage = primaryStage;
 
         primaryStage.setOnCloseRequest(event -> {
             event.consume(); // TODO
@@ -34,5 +38,11 @@ public class Main extends Application {
         });
 
         primaryStage.show();
+    }
+
+    public static void changeTitle(String newTitle) {
+        if (stage != null) {
+            stage.setTitle(newTitle);
+        }
     }
 }

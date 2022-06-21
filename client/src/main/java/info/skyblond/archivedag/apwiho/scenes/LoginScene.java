@@ -1,8 +1,10 @@
 package info.skyblond.archivedag.apwiho.scenes;
 
+import info.skyblond.archivedag.apwiho.Main;
 import info.skyblond.archivedag.apwiho.interfaces.SwappableScene;
 import info.skyblond.archivedag.apwiho.services.DialogService;
 import info.skyblond.archivedag.apwiho.services.GrpcClientService;
+import info.skyblond.archivedag.arudaz.protos.common.Empty;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,12 +20,15 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class LoginScene extends SwappableScene {
+    private final Logger logger = LoggerFactory.getLogger(LoginScene.class);
 
     public LoginScene(Scene currentScene) {
         super(currentScene);
@@ -35,7 +40,7 @@ public class LoginScene extends SwappableScene {
 
     private void refreshConnectButtonDisabledProperty() {
         var hostTextNotEmpty = !this.hostTextInput.getText().isBlank();
-        var allowConnect = hostTextNotEmpty && this.serverCA != null && this.userCert != null && this.userPrivateKey != null;
+        var allowConnect = hostTextNotEmpty && this.userCert != null && this.userPrivateKey != null;
         this.connectButton.setDisable(!allowConnect);
     }
 
@@ -148,6 +153,9 @@ public class LoginScene extends SwappableScene {
         var grpcService = GrpcClientService.getInstance();
         try {
             grpcService.init(this.serverCA, this.userCert, this.userPrivateKey, this.hostTextInput.getText());
+            var whoAmI = GrpcClientService.getInstance().getUserInfoServiceFutureStub().whoAmI(Empty.getDefaultInstance()).get();
+            this.logger.info("Logged as {}", whoAmI.getUsername());
+            Main.changeTitle(Main.DEFAULT_TITLE + " (" + whoAmI.getUsername() + ")");
             this.swapToHomePage();
         } catch (Throwable t) {
             DialogService.getInstance().showExceptionDialog(t, "Failed to initialize the connection to server");

@@ -31,7 +31,7 @@ public class GrpcClientService {
     public void init(
             File serverCAFile, File userCertFile, File userPrivateKeyFile, String hostStr
     ) throws IOException {
-        if (managedChannel == null) {
+        if (this.managedChannel == null) {
             var channelCredentialsBuilder = TlsChannelCredentials.newBuilder();
             if (serverCAFile != null) {
                 channelCredentialsBuilder.trustManager(serverCAFile);
@@ -47,38 +47,38 @@ public class GrpcClientService {
                 }
             }
 
-            managedChannel = Grpc.newChannelBuilderForAddress(
+            this.managedChannel = Grpc.newChannelBuilderForAddress(
                     host, port, channelCredentialsBuilder.build()
             ).build();
         }
 
-        if (userInfoServiceFutureStub == null) {
-            userInfoServiceFutureStub = UserInfoServiceGrpc.newFutureStub(managedChannel);
+        if (this.userInfoServiceFutureStub == null) {
+            this.userInfoServiceFutureStub = UserInfoServiceGrpc.newFutureStub(this.managedChannel);
         }
-        if (groupServiceFutureStub == null) {
-            groupServiceFutureStub = GroupServiceGrpc.newFutureStub(managedChannel);
+        if (this.groupServiceFutureStub == null) {
+            this.groupServiceFutureStub = GroupServiceGrpc.newFutureStub(this.managedChannel);
         }
-        if (fileRecordServiceFutureStub == null) {
-            fileRecordServiceFutureStub = FileRecordServiceGrpc.newFutureStub(managedChannel);
+        if (this.fileRecordServiceFutureStub == null) {
+            this.fileRecordServiceFutureStub = FileRecordServiceGrpc.newFutureStub(this.managedChannel);
         }
-        if (protoTransferServiceFutureStub == null) {
-            protoTransferServiceFutureStub = ProtoTransferServiceGrpc.newFutureStub(managedChannel);
+        if (this.protoTransferServiceFutureStub == null) {
+            this.protoTransferServiceFutureStub = ProtoTransferServiceGrpc.newFutureStub(this.managedChannel);
         }
     }
 
     public UserInfoServiceGrpc.UserInfoServiceFutureStub getUserInfoServiceFutureStub() {
-        return Objects.requireNonNull(userInfoServiceFutureStub, "Uninitialized use");
+        return Objects.requireNonNull(this.userInfoServiceFutureStub, "Uninitialized use");
     }
 
     public GroupServiceGrpc.GroupServiceFutureStub getGroupServiceFutureStub() {
-        return Objects.requireNonNull(groupServiceFutureStub, "Uninitialized use");
+        return Objects.requireNonNull(this.groupServiceFutureStub, "Uninitialized use");
     }
 
     public FileRecordServiceGrpc.FileRecordServiceFutureStub getFileRecordServiceFutureStub() {
-        return Objects.requireNonNull(fileRecordServiceFutureStub, "Uninitialized use");
+        return Objects.requireNonNull(this.fileRecordServiceFutureStub, "Uninitialized use");
     }
 
     public ProtoTransferServiceGrpc.ProtoTransferServiceFutureStub getProtoTransferServiceFutureStub() {
-        return Objects.requireNonNull(protoTransferServiceFutureStub, "Uninitialized use");
+        return Objects.requireNonNull(this.protoTransferServiceFutureStub, "Uninitialized use");
     }
 }

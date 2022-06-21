@@ -60,5 +60,6 @@ out/
 ### VS Code ###
 .vscode/
 
+cache/
 data/
 ssl/

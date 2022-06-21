@@ -16,7 +16,7 @@ cd ssl
 ## Cert for CA
 
 First, we need a secure private key. Although ED25519 looks appealing, I still prefer the traditional RSA. Not because
-RSA is good and ED25519 is bad, but just because using RSA will be more easy to deal with (considering the compatibility
+RSA is good and ED25519 is bad, but just because using RSA will be easier to deal with (considering the compatibility
 issues across different gRPC clients, and it's easier to sign new certifications using bounce castle).
 
 To begin with, create a private key. For this key, we want to have 4096bit length, you can go with max of 16K bits, but

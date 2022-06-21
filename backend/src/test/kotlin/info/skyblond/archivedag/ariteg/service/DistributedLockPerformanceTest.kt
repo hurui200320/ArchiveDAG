@@ -71,7 +71,7 @@ internal class DistributedLockPerformanceTest {
 
     @Test
     fun testRacingPerformance() {
-        val totalLockCount = 200
+        val totalLockCount = 256
         val countDownLatch = CountDownLatch(totalLockCount)
         val lockKey = Random.nextInt(900000, Int.MAX_VALUE)
         println("Using random lock key: $lockKey")

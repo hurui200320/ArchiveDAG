@@ -57,7 +57,7 @@ object Versions {
      *
      * io.grpc:grpc-testing
      * */
-    val grpcVersion = "1.45.1"
+    val grpcVersion = "1.46.0"
 
     /**
      * com.google.protobuf:protobuf-java

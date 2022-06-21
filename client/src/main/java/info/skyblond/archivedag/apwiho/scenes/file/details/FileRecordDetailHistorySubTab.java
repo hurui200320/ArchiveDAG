@@ -177,7 +177,7 @@ public class FileRecordDetailHistorySubTab extends BasicScene {
     }
 
     private void resolveItem(TreeItem<TreeViewNode> root, AritegLink link, String name) throws ExecutionException, InterruptedException {
-        root.setExpanded(false);
+        root.setExpanded(true);
         String receipt = TransferService.getInstance().parseReceipt(link);
         TreeItem<TreeViewNode> node = new TreeItem<>(new TreeViewNode(name, link.getType(), receipt));
         if (link.getType() == AritegObjectType.TREE) {
